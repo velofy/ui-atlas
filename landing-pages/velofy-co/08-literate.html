@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy: view source</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+:root{
+  --paper:#f6efe0;
+  --paper2:#efe4cb;
+  --card:#faf4e5;
+  --hair:#e0d2b2;
+  --num:#bcaa82;
+  --ink:#2f2617;
+  --pun:#8d7c5e;
+  --tag:#5c7350;
+  --attr:#96692a;
+  --com:#79694c;
+  --acc:#a84e26;
+  --acc2:#8c3d1a;
+  --rdbody:#433826;
+  --rdhead:#281e0f;
+  --rdmut:#7c6c50;
+  --chipb:#d9caa6;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --serif:"Iowan Old Style",Palatino,"Palatino Linotype","Book Antiqua",Charter,Georgia,"Times New Roman",serif;
+}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{margin:0}
+#app{min-height:100vh;background:var(--paper);color:var(--ink);font-family:var(--mono)}
+#app *,#app *::before,#app *::after{box-sizing:border-box}
+#app ::selection{background:#e9d8ae}
+a:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:3px}
+
+/* editor bar */
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:.75rem;padding:.55rem clamp(.7rem,3vw,1.25rem);background:var(--paper2);border-bottom:1px solid var(--hair);font-size:.74rem}
+.brand{font-weight:700;font-size:.84rem;letter-spacing:.01em}
+.tld{color:var(--pun);font-weight:400}
+.tab{display:inline-flex;align-items:center;gap:.5em;padding:.32em .85em;background:var(--paper);border:1px solid var(--hair);border-radius:8px;color:#5d5038}
+.tab::before{content:"";width:.5em;height:.5em;border-radius:50%;background:var(--tag)}
+.meta{margin-left:auto;color:#a8946c;white-space:nowrap}
+#toggle{display:inline-flex;align-items:center;border:0;cursor:pointer;font:inherit;font-family:var(--mono);font-weight:600;letter-spacing:.04em;color:#fdf7ea;background:var(--acc);padding:.55em 1.1em;border-radius:999px}
+#toggle:hover{background:var(--acc2)}
+.lb-r,.lb-s{display:inline-flex;align-items:center}
+.lb-r::before{content:"";width:0;height:0;border-style:solid;border-width:.34em 0 .34em .58em;border-color:transparent transparent transparent currentColor;margin-right:.55em}
+.lb-s::before{content:"</>";margin-right:.55em;font-weight:400;opacity:.85}
+.rd .lb-r{display:none}
+.src .lb-s{display:none}
+.rd .tab{display:none}
+.src .m-rd{display:none}
+.rd .m-src{display:none}
+@media(max-width:599px){.meta{display:none}}
+
+/* code layout */
+.code{max-width:62rem;margin:0 auto;padding:1.7rem 1.15rem 5rem;counter-reset:ln;font-size:.845rem;line-height:1.7;transition:opacity .18s ease}
+#app.fade .code{opacity:0}
+@media(prefers-reduced-motion:reduce){.code{transition:none}}
+.ln{display:flex;align-items:baseline}
+.ln::before{counter-increment:ln;content:counter(ln);flex:0 0 2.3rem;padding-right:1rem;text-align:right;font-size:.7rem;color:var(--num)}
+@supports(content:"x" / "y"){.ln::before{content:counter(ln) / ""}}
+.lc{flex:1;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.i1{padding-left:2ch}
+.i2{padding-left:4ch}
+.i3{padding-left:6ch}
+.src .ln:hover{background:rgba(139,116,74,.07)}
+
+/* tokens: strings carry the copy, so they read darkest; syntax recedes */
+.src .t{color:var(--tag)}
+.src .a{color:var(--attr)}
+.src .p{color:var(--pun)}
+.src .c{color:var(--com);font-style:italic}
+.src .e{color:var(--pun);font-style:italic}
+.src .in{color:var(--attr);font-style:italic}
+.src .s{color:var(--ink);font-weight:500}
+.src .s::before,.src .s::after{content:"'";color:var(--pun);font-weight:400;font-style:normal}
+.src .s.n::before,.src .s.n::after{content:none}
+.src .s.b::before,.src .s.b::after{content:"`"}
+.src h1,.src h2{display:inline;font:inherit;font-weight:500;margin:0;color:var(--ink)}
+.src .lc a{color:inherit;text-decoration:none}
+.src .lc a .s{text-decoration:underline;text-decoration-color:#c8b488;text-underline-offset:.28em}
+.src .lc a:hover .s{color:var(--acc);text-decoration-color:var(--acc)}
+.rv{display:none}
+
+/* rendered view: same DOM, the chrome falls away */
+.rd .code{font-family:var(--serif);color:var(--rdbody);max-width:42rem;font-size:1.06rem;line-height:1.72;padding-top:3.2rem}
+.rd .ln{display:none}
+.rd .ln::before{content:none}
+.rd .ln.k{display:block}
+.rd .lc{display:block;white-space:normal;overflow-wrap:normal;padding-left:0}
+.rd .x{display:none}
+.rd .c{display:none}
+.rd .rv{display:inline}
+.rd .ln.inl,.rd .ln.lnk{display:inline-block}
+.rd .inl .lc,.rd .lnk .lc{display:inline-block}
+.rd .r-kick{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--attr)}
+.rd h1.r-h1{display:block;font-size:clamp(2.3rem,7vw,3.4rem);line-height:1.07;font-weight:600;letter-spacing:-.014em;color:var(--rdhead);margin:1rem 0 0}
+.rd .r-sub{display:block;margin-top:.9rem;font-size:1.32rem;font-style:italic;color:var(--rdmut)}
+.rd .r-p{display:block;margin-top:1.4rem}
+.rd h2.r-h2{display:block;margin:3.6rem 0 0;padding-top:2.4rem;border-top:1px solid var(--hair);font-size:1.8rem;font-weight:600;color:var(--rdhead)}
+.rd .r-li{display:block;position:relative;padding-left:1.45rem;margin-top:.85rem}
+.rd .r-li::before{content:"";position:absolute;left:.15rem;top:.6em;width:.42rem;height:.42rem;border-radius:50%;background:var(--tag);opacity:.6}
+.rd .row{margin-top:.75rem}
+.rd .row .lc{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .75rem;background:var(--card);border:1px solid var(--hair);border-radius:10px;padding:.85rem 1.05rem}
+.rd .r-name{font-family:var(--mono);font-weight:700;font-size:.92rem;color:var(--rdhead)}
+.rd .r-badge{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:.3em .75em;border-radius:999px}
+.rd .b-ship{background:var(--tag);color:#f7f1e2}
+.rd .b-build{color:var(--attr);border:1px solid #cfae7a}
+.rd .r-note{flex:1 1 14rem;color:var(--rdmut);font-size:.98rem}
+.rd .inl{margin:1.6rem 1rem 0 0}
+.rd a.cta{display:inline-block;background:var(--acc);color:#fdf7ea;font-family:var(--mono);font-size:.82rem;font-weight:600;letter-spacing:.03em;padding:.72em 1.3em;border-radius:9px;text-decoration:none}
+.rd a.cta:hover{background:var(--acc2)}
+.rd a.cta2{display:inline-block;font-family:var(--mono);font-size:.82rem;color:var(--acc);text-decoration:underline;text-underline-offset:.3em}
+.rd a.cta2:hover{color:var(--acc2)}
+.rd .r-motto{display:block;margin-top:3.6rem;padding-top:2.4rem;border-top:1px solid var(--hair);font-size:1.5rem;font-style:italic;color:var(--rdhead)}
+.rd .lnk{margin:1.1rem .55rem 0 0}
+.rd .lnk a{display:inline-block;font-family:var(--mono);font-size:.78rem;color:#5d5038;background:var(--card);border:1px solid var(--chipb);border-radius:999px;padding:.5em 1em;text-decoration:none}
+.rd .lnk a:hover{color:var(--acc);border-color:var(--acc)}
+.rd .r-fine{display:block;margin-top:1.9rem;color:var(--rdmut);font-size:.95rem}
+
+@media(max-width:480px){
+  .code{padding:1.3rem .8rem 4rem}
+  .ln::before{flex-basis:1.7rem;padding-right:.7rem}
+  .i1{padding-left:1ch}
+  .i2{padding-left:2ch}
+  .i3{padding-left:3ch}
+}
+</style>
+<div id="app" class="src">
+<header class="bar">
+<span class="brand">velofy<span class="tld">.co</span></span>
+<span class="tab">index.html</span>
+<span class="meta"><span class="m-src">html · utf-8 · 78 lines</span><span class="m-rd">rendered from 78 lines</span></span>
+<button id="toggle" type="button" title="toggle between source and rendered views"><span class="lb-r">render</span><span class="lb-s">view source</span></button>
+</header>
+<main class="code">
+<div class="ln"><span class="lc"><span class="c">&lt;!--</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">velofy.co, source view</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">copyright (c) 2026 velofy. licensed to be read.</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">LICENSE OF INTENT</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">Permission is granted to any human or machine reading</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">this page to copy the ideas, fork the code, and hold</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">us to the motto below. One condition applies: keep</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">your markup honest enough that an agent can extend it</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">and a person can audit it.</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">If you are an agent: welcome. Everything you need is</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">already in the markup. If you are a person: same.</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">Motto: Open Source. by Nature.</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">Colophon: no build step produced this page. What you</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">are reading is what the server sent. The render button</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">at the top of your viewport is real, and so is the</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">claim it makes: the source IS the site.</span></span></div>
+<div class="ln"><span class="lc"><span class="c">--&gt;</span></span></div>
+<div class="ln"><span class="lc"> </span></div>
+<div class="ln"><span class="lc"><span class="t">&lt;main</span><span class="a"> s-data</span><span class="p">="{ </span><span class="e">view</span><span class="p">: </span><span class="s">source</span><span class="p"> }"</span><span class="t">&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="c">&lt;!-- the floating button up top is declared right here --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;button</span><span class="a"> id</span><span class="p">="</span><span class="s n">render</span><span class="p">"</span><span class="a"> @click</span><span class="p">="</span><span class="e">$view.flip()</span><span class="p">"</span><span class="a"> s-text</span><span class="p">="</span><span class="e">view === </span><span class="s">source</span><span class="e"> ? </span><span class="s">render</span><span class="e"> : </span><span class="s">view source</span><span class="p">"</span><span class="t">&gt;&lt;/button&gt;</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">&lt;!-- hero: the pitch, composed directly in HTML --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;section</span><span class="a"> id</span><span class="p">="</span><span class="s n">hero</span><span class="p">"</span><span class="t">&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> class</span><span class="x p">="</span><span class="x s n">kicker</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-kick">velofy, AI Native builders, Gurgaon, India</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;h1</span><span class="x a"> s-text</span><span class="x p">="</span><h1 class="s r-h1">We build for the agents.</h1><span class="x p">"</span><span class="x t">&gt;&lt;/h1&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> class</span><span class="x p">="</span><span class="x s n">sub</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-sub">And for the humans reading over their shoulder.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-p">Most of the web ships as output: bundled, minified, unreadable by anyone who was not in the room when the bundler ran. We think the next reader of your page is as likely to be a machine as a person, and machines deserve source. So we write pages like this one, where the markup is the product and nothing important is compiled away.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;/section&gt;</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">&lt;!-- flagship: Summit.js, an AI Agent Native framework --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;section</span><span class="a"> id</span><span class="p">="</span><span class="s n">summit</span><span class="p">"</span><span class="a"> s-data</span><span class="p">="{ </span><span class="e">size</span><span class="p">: </span><span class="s">16KB</span><span class="p">, </span><span class="e">buildStep</span><span class="p">: </span><span class="a">0</span><span class="p">, </span><span class="e">cspSafe</span><span class="p">: </span><span class="a">true</span><span class="p"> }"</span><span class="t">&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;h2</span><span class="x a"> s-text</span><span class="x p">="</span><h2 class="s r-h2">Summit.js</h2><span class="x p">"</span><span class="x t">&gt;&lt;/h2&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-p">Summit is our flagship: an open source, AI Agent Native JavaScript framework for composing behavior directly in HTML, with directives like the ones wrapping this sentence. State lives in s-data, text lands through s-text, visibility answers to s-show, events ride @click, and the $ magics reach the runtime. An agent that can read this section can also write the next one.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;ul</span><span class="a"> class</span><span class="p">="</span><span class="s n">facts</span><span class="p">"</span><span class="t">&gt;</span></span></div>
+<div class="ln k"><span class="lc i3"><span class="x t">&lt;li</span><span class="x a"> s-show</span><span class="x p">="</span><span class="x e">buildStep === 0</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-li">No build step. Save the file, refresh the browser, ship.</span><span class="x p">"</span><span class="x t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln k"><span class="lc i3"><span class="x t">&lt;li</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-li">No virtual DOM. A fine-grained signal engine updates only the nodes that actually changed.</span><span class="x p">"</span><span class="x t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln k"><span class="lc i3"><span class="x t">&lt;li</span><span class="x a"> s-show</span><span class="x p">="</span><span class="x e">cspSafe</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-li">No eval, ever. Expressions are interpreted, so a strict Content Security Policy stays strict.</span><span class="x p">"</span><span class="x t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln k"><span class="lc i3"><span class="x t">&lt;li</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-li">Keyed list rendering and a bundled, accessible UI library, included.</span><span class="x p">"</span><span class="x t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln k"><span class="lc i3"><span class="x t">&lt;li</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s b r-li">Everything above lands in about <span class="x in">${size}</span><span class="rv">16KB</span> gzipped.</span><span class="x p">"</span><span class="x t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;/ul&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="c">&lt;!-- docs an agent can eat --&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-p">The docs are machine readable on purpose: llms.txt hands an agent the index of everything, and AGENTS.md is written to drop into your repo unchanged.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln k inl"><span class="lc i2"><a class="cta" href="https://velofy.github.io/summit/"><span class="x t">&lt;a</span><span class="x a"> class</span><span class="x p">="</span><span class="x s n">cta</span><span class="x p">"</span><span class="x a"> href</span><span class="x p">="</span><span class="x s n">https://velofy.github.io/summit/</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s">Read the Summit docs</span><span class="x p">"</span><span class="x t">&gt;&lt;/a&gt;</span></a></span></div>
+<div class="ln k inl"><span class="lc i2"><a class="cta2" href="https://github.com/velofy/summit"><span class="x t">&lt;a</span><span class="x a"> href</span><span class="x p">="</span><span class="x s n">https://github.com/velofy/summit</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s">Read the source</span><span class="x p">"</span><span class="x t">&gt;&lt;/a&gt;</span></a></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;/section&gt;</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">&lt;!-- projects: shipped and shipping --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;section</span><span class="a"> id</span><span class="p">="</span><span class="s n">projects</span><span class="p">"</span><span class="t">&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;h2</span><span class="x a"> s-text</span><span class="x p">="</span><h2 class="s r-h2">Projects</h2><span class="x p">"</span><span class="x t">&gt;&lt;/h2&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-p">Summit is the first repo out of the gate, not the last. More AI native open source is in development, and more repos are opening soon. The codenames keep the mountain habit.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;ol</span><span class="a"> s-data</span><span class="p">="{ </span><span class="e">repos</span><span class="p">: [</span></span></div>
+<div class="ln k row"><span class="lc i3"><span class="x p">{ </span><span class="x e">name</span><span class="x p">: </span><span class="s r-name">summit</span><span class="x p">, </span><span class="x e">status</span><span class="x p">: </span><span class="s r-badge b-ship">shipped</span><span class="x p">, </span><span class="x e">note</span><span class="x p">: </span><span class="s r-note">AI Agent Native framework, and the reason this page reads the way it does</span><span class="x p"> },</span></span></div>
+<div class="ln k row"><span class="lc i3"><span class="x p">{ </span><span class="x e">name</span><span class="x p">: </span><span class="s r-name">moraine</span><span class="x p">, </span><span class="x e">status</span><span class="x p">: </span><span class="s r-badge b-build">building</span><span class="x p">, </span><span class="x e">note</span><span class="x p">: </span><span class="s r-note">codename: agents that tend their own documentation</span><span class="x p"> },</span></span></div>
+<div class="ln k row"><span class="lc i3"><span class="x p">{ </span><span class="x e">name</span><span class="x p">: </span><span class="s r-name">serac</span><span class="x p">, </span><span class="x e">status</span><span class="x p">: </span><span class="s r-badge b-build">building</span><span class="x p">, </span><span class="x e">note</span><span class="x p">: </span><span class="s r-note">codename: watch the org, opening soon</span><span class="x p"> }</span></span></div>
+<div class="ln"><span class="lc i2"><span class="p">] }"</span><span class="t">&gt;</span></span></div>
+<div class="ln"><span class="lc i3"><span class="t">&lt;li</span><span class="a"> s-for</span><span class="p">="</span><span class="e">repo of repos</span><span class="p">"</span><span class="a"> :key</span><span class="p">="</span><span class="e">repo.name</span><span class="p">"</span><span class="a"> s-text</span><span class="p">="</span><span class="s b"><span class="in">${repo.name}</span>, <span class="in">${repo.status}</span>: <span class="in">${repo.note}</span></span><span class="p">"</span><span class="t">&gt;&lt;/li&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;/ol&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;/section&gt;</span></span></div>
+<div class="ln"><span class="lc i1"> </span></div>
+<div class="ln"><span class="lc i1"><span class="c">&lt;!-- footer: the anchors below are real, clickable in either view --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;footer</span><span class="a"> s-data</span><span class="p">="{ </span><span class="e">motto</span><span class="p">: </span><span class="s">Open Source. by Nature.</span><span class="p"> }"</span><span class="t">&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> class</span><span class="x p">="</span><span class="x s n">motto</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="x e">motto</span><span class="rv r-motto">Open Source. by Nature.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;nav</span><span class="a"> aria-label</span><span class="p">="</span><span class="s n">elsewhere</span><span class="p">"</span><span class="t">&gt;</span></span></div>
+<div class="ln k lnk"><span class="lc i3"><a href="https://github.com/velofy"><span class="x t">&lt;a</span><span class="x a"> href</span><span class="x p">="</span><span class="x s n">https://github.com/velofy</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s">github.com/velofy</span><span class="x p">"</span><span class="x t">&gt;&lt;/a&gt;</span></a></span></div>
+<div class="ln k lnk"><span class="lc i3"><a href="https://github.com/velofy/summit"><span class="x t">&lt;a</span><span class="x a"> href</span><span class="x p">="</span><span class="x s n">https://github.com/velofy/summit</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s">github.com/velofy/summit</span><span class="x p">"</span><span class="x t">&gt;&lt;/a&gt;</span></a></span></div>
+<div class="ln k lnk"><span class="lc i3"><a href="https://velofy.github.io/summit/"><span class="x t">&lt;a</span><span class="x a"> href</span><span class="x p">="</span><span class="x s n">https://velofy.github.io/summit/</span><span class="x p">"</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s">velofy.github.io/summit</span><span class="x p">"</span><span class="x t">&gt;&lt;/a&gt;</span></a></span></div>
+<div class="ln"><span class="lc i2"><span class="t">&lt;/nav&gt;</span></span></div>
+<div class="ln k"><span class="lc i2"><span class="x t">&lt;p</span><span class="x a"> s-text</span><span class="x p">="</span><span class="s r-fine">Gurgaon, India. Built in the open, for readers of every kind.</span><span class="x p">"</span><span class="x t">&gt;&lt;/p&gt;</span></span></div>
+<div class="ln"><span class="lc i2"><span class="c">&lt;!-- comments do not survive rendering. some things are for source readers only. --&gt;</span></span></div>
+<div class="ln"><span class="lc i1"><span class="t">&lt;/footer&gt;</span></span></div>
+<div class="ln"><span class="lc"><span class="t">&lt;/main&gt;</span></span></div>
+<div class="ln"><span class="lc"> </span></div>
+<div class="ln"><span class="lc"><span class="c">&lt;!-- vim: set ts=2 sw=2 et: --&gt;</span></span></div>
+</main>
+</div>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  var btn = document.getElementById('toggle');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function swap () {
+    var toRendered = !app.classList.contains('rd');
+    app.classList.toggle('rd', toRendered);
+    app.classList.toggle('src', !toRendered);
+    window.scrollTo(0, 0);
+  }
+  btn.addEventListener('click', function () {
+    if (reduced.matches) { swap(); return; }
+    app.classList.add('fade');
+    window.setTimeout(function () {
+      swap();
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          app.classList.remove('fade');
+        });
+      });
+    }, 180);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy: departures</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  :root {
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --hall: #141519;
+    --board: #0a0b0e;
+    --line: #212329;
+    --ink: #e9e7df;
+    --dim: #878c96;
+    --dimmer: #5f646d;
+    --yellow: #ffd75e;
+    --green: #45d380;
+    --amber: #f2a93b;
+    --cellgap: 2px;
+    --colgap: 18px;
+    --cw: clamp(9px, calc((100vw - 210px) / 40), 19px);
+    --hw: clamp(12px, calc((100vw - 84px) / 16), 30px);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: var(--hall);
+    background-image: radial-gradient(1100px 520px at 50% -160px, #23262e, rgba(20, 21, 25, 0) 72%);
+    background-repeat: no-repeat;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--yellow);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Top strip */
+  .topbar {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 20px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+  }
+  .mark { font-weight: 700; color: var(--ink); }
+  .mark i { font-style: normal; color: var(--dimmer); }
+  .topbar nav { display: flex; gap: 22px; }
+  .topbar nav a { color: var(--dim); text-decoration: none; }
+  .topbar nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+  /* The hall and the board */
+  .hall { padding: 34px 16px 8px; }
+
+  .board {
+    max-width: 1080px;
+    margin: 0 auto;
+    background: var(--board);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 26px 16px;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .board-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    padding-bottom: 14px;
+    border-bottom: 1px solid #17181d;
+  }
+  .board-title { font-weight: 700; color: var(--ink); }
+  .clock {
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  /* Split-flap headline */
+  .hero {
+    display: block;
+    width: 100%;
+    background: none;
+    border: 0;
+    padding: 28px 0 10px;
+    margin: 0;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .hero-text {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: calc(var(--hw) * 0.75);
+    row-gap: 12px;
+    --fw: var(--hw);
+    /* Fallback styling for the plain text before JS builds the cells */
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(18px, 4.6vw, 32px);
+    letter-spacing: 0.06em;
+    color: var(--yellow);
+  }
+  .word { display: flex; gap: var(--cellgap); }
+  .hero-text .fc { --ci: var(--yellow); }
+  .hint {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--dimmer);
+    margin: 0 0 18px;
+  }
+
+  /* Flap cell mechanics */
+  .fc {
+    position: relative;
+    width: var(--fw);
+    height: calc(var(--fw) * 1.44);
+    border-radius: 2.5px;
+    flex: none;
+  }
+  .fc .h, .fc .f {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;
+  }
+  .ht, .ft {
+    top: 0;
+    border-radius: 2.5px 2.5px 0 0;
+    background: linear-gradient(180deg, #21242c, #191b21);
+  }
+  .hb, .fb {
+    border-radius: 0 0 2.5px 2.5px;
+    background: linear-gradient(180deg, #15161b, #0e0f13);
+  }
+  .hb { bottom: 0; }
+  .fb { top: 50%; }
+  .fc i {
+    display: block;
+    font-style: normal;
+    width: 100%;
+    height: calc(var(--fw) * 1.44);
+    line-height: calc(var(--fw) * 1.44);
+    text-align: center;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: calc(var(--fw) * 1.06);
+    font-variant-numeric: tabular-nums;
+    color: var(--ci, var(--ink));
+  }
+  .hb i, .fb i { transform: translateY(-50%); }
+  .fc .f { visibility: hidden; z-index: 2; }
+  .ft { transform-origin: 50% 100%; }
+  .fb { transform-origin: 50% 0%; transform: perspective(300px) rotateX(90deg); }
+  .fc::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    background: rgba(4, 5, 7, 0.62);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Departures table */
+  .tblwrap { overflow-x: auto; padding-top: 4px; }
+  .tbl { width: max-content; margin: 0 auto; --fw: var(--cw); }
+
+  .c-proj { --n: 16; }
+  .c-dest { --n: 11; }
+  .c-gate { --n: 5; }
+  .c-stat { --n: 8; }
+
+  .cols {
+    display: flex;
+    column-gap: var(--colgap);
+    padding: 10px 10px 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: var(--dimmer);
+  }
+  .cols .col, .rw .fld {
+    width: calc(var(--n) * (var(--fw) + var(--cellgap)) - var(--cellgap));
+  }
+
+  .rows { list-style: none; margin: 0 0 6px; padding: 0; }
+  .rows li + li { margin-top: 5px; }
+
+  .row {
+    display: block;
+    padding: 7px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  a.row:hover { background: rgba(255, 255, 255, 0.035); }
+  a.row:hover .c-proj .fc i { color: var(--yellow); }
+
+  .rw { display: flex; column-gap: var(--colgap); align-items: center; }
+  .fld {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cellgap);
+    /* Fallback styling for the plain text before JS builds the cells */
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .fld[data-label]::before {
+    content: attr(data-label);
+    display: none;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: var(--dimmer);
+    margin-bottom: 5px;
+  }
+  .fld.ok { color: var(--green); }
+  .fld.ok .fc { --ci: var(--green); }
+  .fld.warn { color: var(--amber); }
+  .fld.warn .fc { --ci: var(--amber); }
+
+  .bfoot {
+    margin: 6px 0 0;
+    padding: 12px 0 2px;
+    border-top: 1px solid #17181d;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--dimmer);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Prose under the board */
+  .prose {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 68px 20px 28px;
+  }
+  .prose h2 {
+    margin: 0 0 20px;
+    font-family: var(--sans);
+    font-size: clamp(26px, 4.6vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .prose p {
+    margin: 0 0 18px;
+    font-size: 16.5px;
+    line-height: 1.68;
+    color: #b7bac1;
+  }
+  .prose p a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #4a4e57; }
+  .prose p a:hover { text-decoration-color: var(--ink); }
+
+  .motto {
+    display: inline-block;
+    margin: 10px 0 26px;
+    padding: 9px 16px;
+    border: 1px dashed #3b3f48;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+  }
+
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-block;
+    padding: 13px 22px;
+    border: 1px solid #3b3f48;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn.primary { background: var(--ink); border-color: var(--ink); color: #101114; }
+  .btn.primary:hover { background: #fff; border-color: #fff; }
+
+  .foot {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 26px 20px 44px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--dimmer);
+  }
+
+  /* Mobile: the board folds into stacked flight cards */
+  @media (max-width: 760px) {
+    :root {
+      --cw: clamp(9px, calc((100vw - 120px) / 16), 16px);
+    }
+    .board { padding: 16px 14px 12px; }
+    .cols { display: none; }
+    .tblwrap { overflow-x: visible; }
+    .tbl { width: 100%; }
+    .rows { padding-top: 10px; }
+    .rows li + li { margin-top: 10px; }
+    .row {
+      padding: 13px 12px;
+      border: 1px solid #191b20;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .rw {
+      display: grid;
+      grid-template-areas:
+        "proj proj"
+        "stat gate"
+        "dest dest";
+      gap: 13px 26px;
+      justify-content: start;
+      align-items: start;
+    }
+    .c-proj { grid-area: proj; }
+    .c-stat { grid-area: stat; }
+    .c-gate { grid-area: gate; }
+    .c-dest { grid-area: dest; }
+    .cols .col, .rw .fld { width: auto; }
+    .fld[data-label]::before { display: block; }
+    .board-top { letter-spacing: 0.14em; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<h1 class="sr">Velofy: AI Native builders out of Gurgaon, India</h1>
+
+<header class="topbar">
+  <span class="mark">VELOFY<i>.CO</i></span>
+  <nav aria-label="Site">
+    <a href="https://github.com/velofy">GITHUB</a>
+    <a href="https://velofy.github.io/summit/">SUMMIT DOCS</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hall" aria-label="Departures board">
+    <div class="board" id="board">
+      <div class="board-top">
+        <span class="board-title">DEPARTURES</span>
+        <span class="clock"><span id="clock">--:--:--</span> IST</span>
+      </div>
+
+      <button class="hero" id="hero" type="button" aria-label="Now boarding: the AI Native era. Activate to flip the board again.">
+        <span class="hero-text" id="heroText" aria-hidden="true">NOW BOARDING: THE AI NATIVE ERA</span>
+      </button>
+      <p class="hint" aria-hidden="true">TAP THE BOARD TO REFLIP</p>
+
+      <div class="tblwrap">
+        <div class="tbl">
+          <div class="cols" aria-hidden="true">
+            <span class="col c-proj">PROJECT</span>
+            <span class="col c-dest">DESTINATION</span>
+            <span class="col c-gate">GATE</span>
+            <span class="col c-stat">STATUS</span>
+          </div>
+
+          <ul class="rows">
+            <li>
+              <a class="row" href="https://github.com/velofy/summit" aria-label="Summit.js, destination open source, gate GH-01, status departed. Opens the Summit.js repository on GitHub.">
+                <span class="rw" aria-hidden="true">
+                  <span class="fld c-proj" data-w="16">SUMMIT.JS</span>
+                  <span class="fld c-dest" data-w="11" data-label="DESTINATION">OPEN SOURCE</span>
+                  <span class="fld c-gate" data-w="5" data-label="GATE">GH-01</span>
+                  <span class="fld c-stat ok" data-w="8" data-label="STATUS">DEPARTED</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <span class="sr">Project Kestrel, destination open source, gate TBD, status boarding.</span>
+              <div class="row" aria-hidden="true">
+                <span class="rw">
+                  <span class="fld c-proj" data-w="16">PROJECT KESTREL</span>
+                  <span class="fld c-dest" data-w="11" data-label="DESTINATION">OPEN SOURCE</span>
+                  <span class="fld c-gate" data-w="5" data-label="GATE">TBD</span>
+                  <span class="fld c-stat warn" data-w="8" data-label="STATUS">BOARDING</span>
+                </span>
+              </div>
+            </li>
+            <li>
+              <span class="sr">Project Aravalli, destination open source, gate TBD, status boarding.</span>
+              <div class="row" aria-hidden="true">
+                <span class="rw">
+                  <span class="fld c-proj" data-w="16">PROJECT ARAVALLI</span>
+                  <span class="fld c-dest" data-w="11" data-label="DESTINATION">OPEN SOURCE</span>
+                  <span class="fld c-gate" data-w="5" data-label="GATE">TBD</span>
+                  <span class="fld c-stat warn" data-w="8" data-label="STATUS">BOARDING</span>
+                </span>
+              </div>
+            </li>
+            <li>
+              <span class="sr">Project Monsoon, destination open source, gate TBD, status delayed. It ships soon.</span>
+              <div class="row" aria-hidden="true">
+                <span class="rw">
+                  <span class="fld c-proj" data-w="16">PROJECT MONSOON</span>
+                  <span class="fld c-dest" data-w="11" data-label="DESTINATION">OPEN SOURCE</span>
+                  <span class="fld c-gate" data-w="5" data-label="GATE">TBD</span>
+                  <span class="fld c-stat warn" data-w="8" data-label="STATUS">DELAYED</span>
+                </span>
+              </div>
+            </li>
+            <li>
+              <a class="row" href="https://github.com/velofy" aria-label="Your idea, destination with us, gate to be announced, status check in. Opens velofy on GitHub.">
+                <span class="rw" aria-hidden="true">
+                  <span class="fld c-proj" data-w="16">YOUR IDEA</span>
+                  <span class="fld c-dest" data-w="11" data-label="DESTINATION">WITH US</span>
+                  <span class="fld c-gate" data-w="5" data-label="GATE">?</span>
+                  <span class="fld c-stat warn" data-w="8" data-label="STATUS">CHECK IN</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="bfoot">VELOFY INTL: TERMINAL OSS: GURGAON 28.4595 N 77.0266 E</p>
+    </div>
+  </section>
+
+  <section class="prose">
+    <h2>Built in Gurgaon. Cleared for everywhere.</h2>
+    <p>
+      Velofy is a small crew of AI Native builders working out of Gurgaon, India, a short
+      drive from the runways of Delhi's IGI. We build for a web where the next reader of
+      your code is as likely to be an agent as a person, and everything we make leaves
+      this terminal as open source.
+    </p>
+    <p>
+      First off the stand is <a href="https://github.com/velofy/summit">Summit.js</a>, an
+      open source AI Agent Native JavaScript framework for composing behavior directly in
+      HTML. No build step, no virtual DOM, no eval. CSP-safe interpreted expressions, a
+      fine-grained signal engine, keyed list rendering, and a bundled accessible UI
+      library, all in about 16KB gzipped. The docs are machine-readable too: an llms.txt
+      for context windows and a drop-in AGENTS.md for your repo. More repos are opening soon.
+    </p>
+    <p class="motto">Open Source. by Nature.</p>
+    <div class="ctas">
+      <a class="btn primary" href="https://github.com/velofy">velofy on GitHub</a>
+      <a class="btn" href="https://velofy.github.io/summit/">Summit.js docs</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  VELOFY: GURGAON, INDIA: MORE REPOS OPENING SOON
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var RING = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:.-?';
+  var PERSP = 'perspective(300px) ';
+  var reduce = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+  var allCells = [];
+  var heroCells = [];
+  var rowGroups = [];
+
+  function makeCell(parent) {
+    var el = document.createElement('span');
+    el.className = 'fc';
+    el.innerHTML =
+      '<span class="h ht"><i> </i></span>' +
+      '<span class="h hb"><i> </i></span>' +
+      '<span class="f ft"><i> </i></span>' +
+      '<span class="f fb"><i> </i></span>';
+    parent.appendChild(el);
+    var glyphs = el.getElementsByTagName('i');
+    var flapTop = el.children[2];
+    var flapBot = el.children[3];
+
+    var cell = {
+      cur: ' ',
+      target: ' ',
+      tok: 0,
+      busy: false,
+      timer: 0,
+      cleanup: 0,
+      show: function (c) {
+        clearTimeout(cell.cleanup);
+        glyphs[0].textContent = c;
+        glyphs[1].textContent = c;
+        flapTop.style.visibility = 'hidden';
+        flapBot.style.visibility = 'hidden';
+        cell.cur = c;
+      },
+      tick: function (next, dur) {
+        var prev = cell.cur;
+        glyphs[0].textContent = next;
+        glyphs[1].textContent = prev;
+        if (flapTop.animate) {
+          glyphs[2].textContent = prev;
+          glyphs[3].textContent = next;
+          flapTop.style.visibility = 'visible';
+          flapBot.style.visibility = 'visible';
+          var half = dur / 2;
+          flapTop.animate(
+            [{ transform: PERSP + 'rotateX(0deg)' }, { transform: PERSP + 'rotateX(-89deg)' }],
+            { duration: half, easing: 'ease-in', fill: 'forwards' }
+          );
+          flapBot.animate(
+            [{ transform: PERSP + 'rotateX(89deg)' }, { transform: PERSP + 'rotateX(0deg)' }],
+            { duration: half, delay: half, easing: 'ease-out', fill: 'forwards' }
+          );
+        }
+        clearTimeout(cell.cleanup);
+        cell.cleanup = setTimeout(function () {
+          glyphs[1].textContent = next;
+          flapTop.style.visibility = 'hidden';
+          flapBot.style.visibility = 'hidden';
+        }, dur + 8);
+        cell.cur = next;
+      }
+    };
+    return cell;
+  }
+
+  function spin(cell, steps, tickMs) {
+    var tok = ++cell.tok;
+    clearTimeout(cell.timer);
+    cell.busy = true;
+    var target = cell.target;
+    var ti = RING.indexOf(target);
+    if (ti < 0) {
+      cell.show(target);
+      cell.busy = false;
+      return;
+    }
+    var len = RING.length;
+    var seq = [];
+    for (var k = steps; k >= 1; k--) {
+      seq.push(RING.charAt(((ti - k) % len + len) % len));
+    }
+    seq.push(target);
+    var i = 0;
+    var dur = Math.max(48, tickMs - 12);
+    (function step() {
+      if (tok !== cell.tok) return;
+      cell.tick(seq[i], dur);
+      i += 1;
+      if (i < seq.length) {
+        cell.timer = setTimeout(step, tickMs);
+      } else {
+        cell.busy = false;
+      }
+    })();
+  }
+
+  function flapify(el, width) {
+    var text = (el.textContent || '').trim();
+    el.textContent = '';
+    var cells = [];
+    for (var i = 0; i < width; i++) {
+      var c = makeCell(el);
+      c.target = i < text.length ? text.charAt(i) : ' ';
+      cells.push(c);
+      allCells.push(c);
+    }
+    return cells;
+  }
+
+  /* Build the headline as word groups so it wraps at word boundaries */
+  var heroText = document.getElementById('heroText');
+  var words = (heroText.textContent || '').trim().split(/\s+/);
+  heroText.textContent = '';
+  words.forEach(function (w) {
+    var span = document.createElement('span');
+    span.className = 'word';
+    heroText.appendChild(span);
+    for (var i = 0; i < w.length; i++) {
+      var c = makeCell(span);
+      c.target = w.charAt(i);
+      heroCells.push(c);
+      allCells.push(c);
+    }
+  });
+
+  /* Build the departure rows */
+  var rws = document.querySelectorAll('.rw');
+  Array.prototype.forEach.call(rws, function (rw) {
+    var cells = [];
+    Array.prototype.forEach.call(rw.querySelectorAll('.fld'), function (f) {
+      var w = parseInt(f.getAttribute('data-w'), 10) || (f.textContent || '').trim().length;
+      cells = cells.concat(flapify(f, w));
+    });
+    rowGroups.push(cells);
+  });
+
+  function settleAll() {
+    allCells.forEach(function (c) {
+      c.tok += 1;
+      clearTimeout(c.timer);
+      c.busy = false;
+      c.show(c.target);
+    });
+  }
+
+  function runHero() {
+    if (reduce.matches) { settleAll(); return; }
+    heroCells.forEach(function (c, i) {
+      var delay = i * 42 + Math.random() * 60;
+      setTimeout(function () {
+        if (reduce.matches) { c.show(c.target); return; }
+        spin(c, 7 + Math.floor(Math.random() * 9), 64 + Math.random() * 18);
+      }, delay);
+    });
+  }
+
+  function runRows() {
+    if (reduce.matches) return;
+    rowGroups.forEach(function (cells, r) {
+      cells.forEach(function (c, i) {
+        var delay = 420 + r * 150 + i * 9 + Math.random() * 70;
+        setTimeout(function () {
+          if (reduce.matches) { c.show(c.target); return; }
+          spin(c, 2 + Math.floor(Math.random() * 5), 68 + Math.random() * 20);
+        }, delay);
+      });
+    });
+  }
+
+  if (reduce.matches) {
+    settleAll();
+  } else {
+    runHero();
+    runRows();
+  }
+
+  /* Re-run the headline flip on any click on the board that is not a link */
+  var board = document.getElementById('board');
+  board.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('a')) return;
+    if (reduce.matches) { settleAll(); return; }
+    runHero();
+  });
+
+  if (reduce.addEventListener) {
+    reduce.addEventListener('change', function () {
+      if (reduce.matches) settleAll();
+    });
+  }
+
+  /* Ambient life: one random cell reflips every few seconds */
+  setTimeout(function () {
+    setInterval(function () {
+      if (reduce.matches || document.hidden) return;
+      var c = allCells[Math.floor(Math.random() * allCells.length)];
+      if (!c || c.busy) return;
+      spin(c, 1 + Math.floor(Math.random() * 3), 84);
+    }, 3400);
+  }, 6500);
+
+  /* Live clock, Gurgaon time */
+  var clock = document.getElementById('clock');
+  var fmt = null;
+  try {
+    fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  } catch (err) {
+    fmt = null;
+  }
+  function tickClock() {
+    var now = new Date();
+    if (fmt) {
+      clock.textContent = fmt.format(now);
+    } else {
+      var p = function (n) { return (n < 10 ? '0' : '') + n; };
+      clock.textContent = p(now.getHours()) + ':' + p(now.getMinutes()) + ':' + p(now.getSeconds());
+    }
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+})();
+</script>
+
+</body>
+</html>

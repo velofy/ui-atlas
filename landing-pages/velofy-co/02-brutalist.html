@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy: manifesto</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  :root {
+    --paper: #FFFFFF;
+    --ink: #000000;
+    --cobalt: #1D2BFF;
+    --u: 8px;
+    --pad-x: clamp(16px, 4vw, 48px);
+    --rule: 2px solid var(--ink);
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { overflow-x: hidden; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 500;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--cobalt); color: var(--paper); }
+
+  a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: var(--cobalt); }
+
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--cobalt);
+    outline-offset: 3px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .display {
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.035em;
+    line-height: 0.86;
+  }
+
+  .mono {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  /* ---------- header ---------- */
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--u) * 2);
+    padding: calc(var(--u) * 2) var(--pad-x);
+    border-bottom: var(--rule);
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 1.5);
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .brand .sq-mark {
+    width: 14px; height: 14px;
+    background: var(--cobalt);
+    display: inline-block;
+  }
+
+  .top-nav { display: flex; gap: calc(var(--u) * 3); flex-wrap: wrap; }
+  .top-nav a { text-decoration: none; }
+  .top-nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+
+  /* ---------- hero ---------- */
+
+  .hero {
+    padding: calc(var(--u) * 6) var(--pad-x) calc(var(--u) * 5);
+    border-bottom: var(--rule);
+  }
+
+  .hero-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: calc(var(--u) * 2);
+    flex-wrap: wrap;
+    margin-bottom: calc(var(--u) * 5);
+  }
+
+  .hero-h { text-transform: uppercase; }
+
+  .h-line1 {
+    display: block;
+    font-size: clamp(2.2rem, 8.5vw, 8rem);
+    font-weight: 900;
+    font-stretch: condensed;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+  }
+
+  .word {
+    display: block;
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    text-transform: uppercase;
+    font-family: var(--sans);
+    font-weight: 900;
+    font-stretch: condensed;
+    font-size: clamp(3.4rem, 20vw, 20rem);
+    letter-spacing: -0.05em;
+    line-height: 0.84;
+    padding: calc(var(--u) * 1) 0;
+    margin-left: -0.04em;
+  }
+
+  .lt {
+    display: inline-block;
+    transition: color 90ms linear, transform 90ms linear;
+  }
+
+  .lt.hit {
+    color: var(--cobalt);
+    transform: translate(0.015em, -0.04em);
+  }
+
+  .word span > .lt:nth-child(even).hit {
+    transform: translate(-0.02em, 0.035em);
+  }
+
+  .h-line2 {
+    display: block;
+    font-size: clamp(2rem, 8vw, 7.5rem);
+    font-weight: 900;
+    font-stretch: condensed;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+  }
+
+  .hero-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: calc(var(--u) * 2);
+    flex-wrap: wrap;
+    margin-top: calc(var(--u) * 5);
+  }
+
+  .hero-foot .hint { color: var(--cobalt); }
+
+  /* ---------- marquee ---------- */
+
+  .marquee {
+    display: flex;
+    align-items: stretch;
+    border-bottom: var(--rule);
+  }
+
+  .mq-btn {
+    flex: none;
+    min-width: 88px;
+    border: 0;
+    border-right: var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    padding: 0 calc(var(--u) * 2);
+  }
+
+  .mq-btn:hover { background: var(--cobalt); color: var(--paper); }
+
+  .mq-window {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .mq-track {
+    display: flex;
+    width: max-content;
+    animation: mq-scroll 26s linear infinite;
+    will-change: transform;
+  }
+
+  .mq-track.is-paused { animation-play-state: paused; }
+
+  .mq-group {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: clamp(1.3rem, 3.2vw, 2.4rem);
+    padding: calc(var(--u) * 1.5) 0;
+  }
+
+  .mq-group .sq {
+    display: inline-block;
+    width: 0.5em; height: 0.5em;
+    background: var(--cobalt);
+    margin: 0 0.9em;
+    flex: none;
+  }
+
+  @keyframes mq-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- section rails ---------- */
+
+  .rail {
+    display: flex;
+    justify-content: space-between;
+    gap: calc(var(--u) * 2);
+    flex-wrap: wrap;
+    padding: calc(var(--u) * 2) var(--pad-x);
+    border-bottom: var(--rule);
+  }
+
+  /* ---------- manifesto ---------- */
+
+  .mani { border-bottom: var(--rule); }
+
+  .clause {
+    display: grid;
+    grid-template-columns: minmax(72px, 200px) 1fr;
+  }
+
+  .clause + .clause { border-top: var(--rule); }
+
+  .clause-no {
+    font-weight: 900;
+    font-stretch: condensed;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    padding: calc(var(--u) * 4) calc(var(--u) * 2) calc(var(--u) * 4) var(--pad-x);
+  }
+
+  .clause-body {
+    border-left: var(--rule);
+    padding: calc(var(--u) * 4) var(--pad-x) calc(var(--u) * 4) calc(var(--u) * 4);
+  }
+
+  .clause-title {
+    font-size: clamp(1.5rem, 4.2vw, 3rem);
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  .clause-text {
+    margin-top: calc(var(--u) * 2);
+    max-width: 60ch;
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+  }
+
+  /* ---------- summit ---------- */
+
+  .summit { border-bottom: var(--rule); }
+
+  .summit-inner { padding: calc(var(--u) * 5) var(--pad-x) calc(var(--u) * 6); }
+
+  .summit-thesis {
+    font-size: clamp(1.6rem, 4.6vw, 3.6rem);
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    max-width: 22ch;
+  }
+
+  .summit-thesis em { font-style: normal; color: var(--cobalt); }
+
+  .specs {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--ink);
+    border: var(--rule);
+    margin-top: calc(var(--u) * 5);
+  }
+
+  .specs li {
+    background: var(--paper);
+    padding: calc(var(--u) * 2);
+    min-height: calc(var(--u) * 11);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--u);
+  }
+
+  .spec-idx {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--cobalt);
+  }
+
+  .spec-label {
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+    line-height: 1;
+  }
+
+  .proof { margin-top: calc(var(--u) * 5); }
+
+  .proof-label { margin-bottom: var(--u); }
+
+  .code {
+    border: var(--rule);
+    padding: calc(var(--u) * 3);
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.7;
+    text-transform: none;
+  }
+
+  .machine-line {
+    margin-top: calc(var(--u) * 3);
+    max-width: 60ch;
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+  }
+
+  .machine-line code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    font-weight: 700;
+    border: 1px solid var(--ink);
+    padding: 1px 5px;
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--u) * 2);
+    margin-top: calc(var(--u) * 4);
+  }
+
+  .btn {
+    display: inline-block;
+    border: 2px solid var(--ink);
+    padding: calc(var(--u) * 2) calc(var(--u) * 3);
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--paper);
+  }
+
+  .btn:hover {
+    background: var(--cobalt);
+    border-color: var(--cobalt);
+    color: var(--paper);
+  }
+
+  .btn-primary {
+    background: var(--cobalt);
+    border-color: var(--cobalt);
+    color: var(--paper);
+  }
+
+  .btn-primary:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn-primary:focus-visible { outline-color: var(--ink); }
+
+  /* ---------- ledger ---------- */
+
+  .ledger-sec { border-bottom: var(--rule); }
+
+  .ledger {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .ledger th {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: calc(var(--u) * 2) calc(var(--u) * 2);
+    border-bottom: var(--rule);
+  }
+
+  .ledger td {
+    padding: calc(var(--u) * 3) calc(var(--u) * 2);
+    vertical-align: middle;
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: clamp(1rem, 2.4vw, 1.6rem);
+    line-height: 1;
+  }
+
+  .ledger tr + tr td { border-top: var(--rule); }
+
+  .ledger th:first-child, .ledger td:first-child { padding-left: var(--pad-x); }
+  .ledger th:last-child, .ledger td:last-child { padding-right: var(--pad-x); }
+
+  .ledger .no-col {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .ledger a { text-decoration: none; }
+  .ledger a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
+
+  .st-ship {
+    display: inline-block;
+    background: var(--cobalt);
+    color: var(--paper);
+    padding: 4px 10px;
+    font-size: 0.72em;
+    letter-spacing: 0.04em;
+  }
+
+  .st-wip {
+    display: inline-block;
+    border: 2px solid var(--ink);
+    padding: 2px 8px;
+    font-size: 0.72em;
+    letter-spacing: 0.04em;
+  }
+
+  .redact {
+    background: var(--ink);
+    color: var(--ink);
+    padding: 2px 10px;
+  }
+
+  .redact:hover { color: var(--paper); }
+
+  .ledger-note {
+    padding: calc(var(--u) * 2) var(--pad-x);
+    border-top: var(--rule);
+  }
+
+  .ledger-note a { color: var(--cobalt); }
+
+  /* ---------- footer ---------- */
+
+  .footer { padding: calc(var(--u) * 6) var(--pad-x) calc(var(--u) * 4); }
+
+  .footer-word {
+    font-size: clamp(3rem, 15vw, 14rem);
+    font-weight: 900;
+    font-stretch: condensed;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+    line-height: 0.84;
+    margin-left: -0.03em;
+  }
+
+  .footer-word .dot { color: var(--cobalt); }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(var(--u) * 3);
+    margin-top: calc(var(--u) * 5);
+    padding-top: calc(var(--u) * 3);
+    border-top: var(--rule);
+  }
+
+  .footer-grid a { text-decoration: none; }
+  .footer-grid a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+
+  .colophon {
+    margin-top: calc(var(--u) * 5);
+    padding-top: calc(var(--u) * 2);
+    border-top: var(--rule);
+    display: flex;
+    justify-content: space-between;
+    gap: calc(var(--u) * 2);
+    flex-wrap: wrap;
+  }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 720px) {
+    .specs { grid-template-columns: repeat(2, 1fr); }
+    .clause { grid-template-columns: 64px 1fr; }
+    .clause-no { padding-right: var(--u); }
+    .clause-body { padding-left: calc(var(--u) * 2); }
+    .footer-grid { grid-template-columns: 1fr; }
+    .ledger th, .ledger td { padding-left: var(--u); padding-right: var(--u); }
+    .ledger th:first-child, .ledger td:first-child { padding-left: var(--pad-x); }
+    .ledger th:last-child, .ledger td:last-child { padding-right: var(--pad-x); }
+  }
+
+  /* ---------- reduced motion ---------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .mq-track { animation: none; }
+    .mq-btn { display: none; }
+    .lt { transition: none; }
+    .lt.hit { transform: none; }
+    .word span > .lt:nth-child(even).hit { transform: none; }
+  }
+</style>
+
+<header class="top">
+  <span class="brand"><span class="sq-mark" aria-hidden="true"></span>Velofy</span>
+  <nav class="top-nav mono" aria-label="Primary">
+    <a href="https://github.com/velofy">GitHub</a>
+    <a href="https://github.com/velofy/summit">Summit</a>
+    <a href="https://velofy.github.io/summit/">Docs</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" aria-label="Manifesto thesis">
+    <div class="hero-meta mono">
+      <span>Manifesto / No. 001</span>
+      <span>Gurgaon, India / AI Native Builders</span>
+    </div>
+
+    <h1 class="hero-h">
+      <span class="h-line1">AI is the new</span>
+      <button class="word" id="big-word" type="button" aria-label="Native. Press to flash the letters.">
+        <span aria-hidden="true"><span class="lt">N</span><span class="lt">A</span><span class="lt">T</span><span class="lt">I</span><span class="lt">V</span><span class="lt">E</span><span class="lt">.</span></span>
+      </button>
+      <span class="h-line2">We build for it.</span>
+    </h1>
+
+    <div class="hero-foot mono">
+      <span class="hint">Hover or press the big word.</span>
+      <span>Est. Gurgaon / Shipped in the open</span>
+    </div>
+  </section>
+
+  <section class="marquee" aria-label="Motto">
+    <span class="sr-only">Open Source. By Nature.</span>
+    <button class="mq-btn" id="mq-btn" type="button" aria-pressed="false" aria-label="Pause the scrolling motto">PAUSE</button>
+    <div class="mq-window">
+      <div class="mq-track" id="mq-track" aria-hidden="true">
+        <div class="mq-group">
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+        </div>
+        <div class="mq-group">
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+          <span>Open Source. By Nature.</span><span class="sq"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mani" aria-label="Manifesto clauses">
+    <div class="rail mono">
+      <span>Section 01</span>
+      <span>Five clauses. No footnotes.</span>
+    </div>
+
+    <article class="clause">
+      <div class="clause-no" aria-hidden="true">01</div>
+      <div class="clause-body">
+        <h2 class="clause-title">AI is the new native.</h2>
+        <p class="clause-text">The next billion readers of your code are not people. They are agents. We build software that machines can read, run, and extend without asking permission.</p>
+      </div>
+    </article>
+
+    <article class="clause">
+      <div class="clause-no" aria-hidden="true">02</div>
+      <div class="clause-body">
+        <h2 class="clause-title">Open source. By nature.</h2>
+        <p class="clause-text">Not a strategy. A reflex. Code that cannot be read cannot be trusted, by a human or by a model. Everything we ship, we ship in the open.</p>
+      </div>
+    </article>
+
+    <article class="clause">
+      <div class="clause-no" aria-hidden="true">03</div>
+      <div class="clause-body">
+        <h2 class="clause-title">The browser is enough.</h2>
+        <p class="clause-text">No build step. No virtual DOM. No eval. HTML is the interface and the program. Tooling should vanish, not multiply.</p>
+      </div>
+    </article>
+
+    <article class="clause">
+      <div class="clause-no" aria-hidden="true">04</div>
+      <div class="clause-body">
+        <h2 class="clause-title">Docs are an API.</h2>
+        <p class="clause-text">Every repo carries llms.txt and a drop-in AGENTS.md. If an agent cannot operate it, it is not finished.</p>
+      </div>
+    </article>
+
+    <article class="clause">
+      <div class="clause-no" aria-hidden="true">05</div>
+      <div class="clause-body">
+        <h2 class="clause-title">Small is a decision.</h2>
+        <p class="clause-text">About 16KB gzipped. Fine-grained signals. Keyed lists. Accessible components in the box. Restraint is the feature.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="summit" aria-label="Summit.js">
+    <div class="rail mono">
+      <span>Section 02 / Exhibit</span>
+      <span>Summit.js / Flagship</span>
+    </div>
+
+    <div class="summit-inner">
+      <h2 class="summit-thesis">Summit.js. An open source, <em>AI Agent Native</em> JavaScript framework. Behavior composed directly in HTML.</h2>
+
+      <ul class="specs">
+        <li><span class="spec-idx">S/01</span><span class="spec-label">No build step</span></li>
+        <li><span class="spec-idx">S/02</span><span class="spec-label">No virtual DOM</span></li>
+        <li><span class="spec-idx">S/03</span><span class="spec-label">No eval</span></li>
+        <li><span class="spec-idx">S/04</span><span class="spec-label">CSP-safe expressions</span></li>
+        <li><span class="spec-idx">S/05</span><span class="spec-label">Fine-grained signals</span></li>
+        <li><span class="spec-idx">S/06</span><span class="spec-label">Keyed list rendering</span></li>
+        <li><span class="spec-idx">S/07</span><span class="spec-label">Accessible UI, bundled</span></li>
+        <li><span class="spec-idx">S/08</span><span class="spec-label">About 16KB gzipped</span></li>
+      </ul>
+
+      <div class="proof">
+        <p class="proof-label mono">Proof of work / index.html</p>
+<pre class="code"><code>&lt;div s-data="{ open: false }"&gt;
+  &lt;button @click="open = !open"&gt;Toggle&lt;/button&gt;
+  &lt;p s-show="open"&gt;Hello from Summit&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+        <p class="machine-line">Machine-readable by design. Every release ships <code>llms.txt</code> and a drop-in <code>AGENTS.md</code>, so your agent reads the manual before you do.</p>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/velofy/summit">Read the code</a>
+        <a class="btn" href="https://velofy.github.io/summit/">Read the docs</a>
+        <a class="btn" href="https://github.com/velofy">All of Velofy</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ledger-sec" aria-label="Project ledger">
+    <div class="rail mono">
+      <span>Section 03 / The Ledger</span>
+      <span>Audited in public</span>
+    </div>
+
+    <table class="ledger">
+      <thead>
+        <tr>
+          <th scope="col">No.</th>
+          <th scope="col">Project</th>
+          <th scope="col">Status</th>
+          <th scope="col">Terms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="no-col">001</td>
+          <td><a href="https://github.com/velofy/summit">Summit.js</a></td>
+          <td><span class="st-ship">Shipped</span></td>
+          <td>Open source</td>
+        </tr>
+        <tr>
+          <td class="no-col">002</td>
+          <td><span class="redact">Undisclosed</span></td>
+          <td><span class="st-wip">In progress</span></td>
+          <td>Opens soon</td>
+        </tr>
+        <tr>
+          <td class="no-col">003</td>
+          <td><span class="redact">Undisclosed</span></td>
+          <td><span class="st-wip">In progress</span></td>
+          <td>Opens soon</td>
+        </tr>
+        <tr>
+          <td class="no-col">004</td>
+          <td><span class="redact">Undisclosed</span></td>
+          <td><span class="st-wip">In progress</span></td>
+          <td>Opens soon</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="ledger-note mono">More repos opening soon. Watch <a href="https://github.com/velofy">github.com/velofy</a>.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <p class="footer-word" aria-label="Velofy">Velofy<span class="dot">.</span></p>
+
+  <div class="footer-grid mono">
+    <div>
+      <p>Gurgaon, India</p>
+      <p>28.4595 N, 77.0266 E</p>
+    </div>
+    <div>
+      <p>Open Source. By Nature.</p>
+      <p>AI Native Builders</p>
+    </div>
+    <div>
+      <p><a href="https://github.com/velofy">github.com/velofy</a></p>
+      <p><a href="https://velofy.github.io/summit/">velofy.github.io/summit</a></p>
+    </div>
+  </div>
+
+  <div class="colophon mono">
+    <span>Velofy, 2026. Set in the system stack.</span>
+    <span>No trackers. No build step. No apologies.</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    "use strict";
+
+    function reducedMotion() {
+      return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    /* Marquee: pause and resume */
+    var track = document.getElementById("mq-track");
+    var btn = document.getElementById("mq-btn");
+    if (track && btn) {
+      btn.addEventListener("click", function () {
+        var paused = track.classList.toggle("is-paused");
+        btn.setAttribute("aria-pressed", paused ? "true" : "false");
+        btn.setAttribute("aria-label", paused ? "Resume the scrolling motto" : "Pause the scrolling motto");
+        btn.textContent = paused ? "PLAY" : "PAUSE";
+      });
+    }
+
+    /* Signature word: hover inverts a letter, press ripples the whole word */
+    var word = document.getElementById("big-word");
+    if (word) {
+      var letters = Array.prototype.slice.call(word.querySelectorAll(".lt"));
+
+      letters.forEach(function (lt) {
+        lt.addEventListener("pointerenter", function () { lt.classList.add("hit"); });
+        lt.addEventListener("pointerleave", function () { lt.classList.remove("hit"); });
+      });
+
+      var busy = false;
+      word.addEventListener("click", function () {
+        if (busy) { return; }
+        busy = true;
+
+        if (reducedMotion()) {
+          letters.forEach(function (lt) { lt.classList.add("hit"); });
+          window.setTimeout(function () {
+            letters.forEach(function (lt) { lt.classList.remove("hit"); });
+            busy = false;
+          }, 700);
+          return;
+        }
+
+        letters.forEach(function (lt, i) {
+          window.setTimeout(function () { lt.classList.add("hit"); }, i * 55);
+          window.setTimeout(function () { lt.classList.remove("hit"); }, i * 55 + 320);
+        });
+        window.setTimeout(function () { busy = false; }, letters.length * 55 + 340);
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

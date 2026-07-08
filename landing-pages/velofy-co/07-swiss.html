@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  /* velofy.co, poster no. 07: Swiss International Style.
+     12 column grid, 24px gutter, 8px baseline. One red. */
+
+  :root {
+    --paper: #FAFAF7;
+    --ink: #111110;
+    --gray: #6D6C68;
+    --hairline: #DBDAD4;
+    --red: #E30613;
+    --maxw: 1280px;
+    --pad: 32px;
+    --gap: 24px;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  .page { animation: settle 0.6s ease-out both; }
+
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page { animation: none; }
+    * { transition: none !important; }
+  }
+
+  ::selection { background: var(--red); color: var(--paper); }
+
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  a:hover { text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+
+  :focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gap);
+  }
+
+  .micro {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .num { font-variant-numeric: tabular-nums; }
+  .dim { color: var(--gray); }
+
+  /* ---- proofing grid overlay ---- */
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    display: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(227, 6, 19, 0.07) 0, rgba(227, 6, 19, 0.07) 1px,
+      transparent 1px, transparent 8px);
+  }
+  .overlay.on { display: block; }
+
+  .overlay-cols {
+    max-width: var(--maxw);
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 var(--pad);
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gap);
+  }
+  .overlay-cols i {
+    background: rgba(227, 6, 19, 0.05);
+    border-left: 1px solid rgba(227, 6, 19, 0.18);
+    border-right: 1px solid rgba(227, 6, 19, 0.18);
+  }
+
+  .grid-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 100;
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 7px 15px;
+    cursor: pointer;
+  }
+  .grid-btn kbd {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--gray);
+    margin-left: 8px;
+  }
+  .grid-btn[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .grid-btn[aria-pressed="true"] kbd { color: var(--paper); }
+  .grid-btn:hover { border-color: var(--red); }
+
+  /* ---- header ---- */
+
+  .header { padding-top: 24px; padding-bottom: 24px; }
+  .header-rule { border-bottom: 2px solid var(--ink); }
+  .header .row { align-items: baseline; }
+  .h-mark { grid-column: 1 / span 3; font-weight: 700; }
+  .h-loc  { grid-column: 4 / span 3; }
+  .h-year { grid-column: 7 / span 2; }
+
+  /* ---- hero ---- */
+
+  .hero { padding-top: 96px; padding-bottom: 96px; }
+  .hero .row { position: relative; }
+
+  .wordmark {
+    grid-column: 1 / span 11;
+    font-size: clamp(72px, 26vw, 320px);
+    line-height: 0.85;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    margin-left: -0.06em; /* optical alignment of the v to column 1 */
+  }
+
+  .motto {
+    grid-column: 12;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    writing-mode: vertical-rl;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 24px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .tagline-block { grid-column: 6 / span 6; margin-top: 64px; }
+  .rule-red {
+    display: block;
+    width: 48px;
+    height: 2px;
+    background: var(--red);
+    margin-bottom: 16px;
+  }
+  .tagline { max-width: 40ch; }
+
+  /* ---- sections ---- */
+
+  .section {
+    border-top: 1px solid var(--ink);
+    padding-top: 24px;
+    padding-bottom: 96px;
+  }
+  .sec-head { margin-bottom: 48px; }
+  .sec-no   { grid-column: 1 / span 1; }
+  .sec-name { grid-column: 2 / span 4; }
+
+  /* about */
+
+  .about-lead { grid-column: 2 / span 6; }
+  .about-lead p + p { margin-top: 24px; }
+  .about-aside {
+    grid-column: 9 / span 4;
+    color: var(--gray);
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .about-aside dt { letter-spacing: 0.08em; text-transform: uppercase; margin-top: 16px; }
+  .about-aside dt:first-child { margin-top: 0; }
+  .about-aside dd { color: var(--ink); }
+
+  /* summit */
+
+  .summit-title {
+    grid-column: 2 / span 6;
+    font-size: 40px;
+    line-height: 48px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .summit-desc { grid-column: 2 / span 6; margin-top: 24px; }
+  .summit-desc p + p { margin-top: 24px; }
+
+  .spec {
+    grid-column: 9 / span 4;
+    align-self: start;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    list-style: none;
+  }
+  .spec li {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    padding: 16px 0;
+  }
+  .spec li + li { border-top: 1px solid var(--hairline); }
+  .spec .k {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding-top: 4px;
+  }
+  .spec .v { font-size: 16px; line-height: 24px; }
+
+  .code-block { grid-column: 2 / span 6; margin-top: 48px; }
+  .code-cap { margin-bottom: 8px; color: var(--gray); }
+  pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 16px;
+    background: #F1F0EB;
+    border: 1px solid var(--hairline);
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  .summit-links {
+    grid-column: 9 / span 4;
+    margin-top: 48px;
+    align-self: end;
+  }
+  .cta {
+    display: block;
+    background: var(--red);
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 16px 24px;
+  }
+  .cta:hover { background: var(--ink); text-decoration: none; }
+  .repo-line { margin-top: 16px; font-size: 12px; line-height: 16px; }
+
+  /* index */
+
+  .idx { grid-column: 1 / -1; list-style: none; border-bottom: 1px solid var(--ink); }
+  .idx li {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--gap);
+    padding: 16px 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .idx li:first-child { border-top: 1px solid var(--ink); }
+  .idx .i-no   { grid-column: 1 / span 1; }
+  .idx .i-name { grid-column: 2 / span 3; font-weight: 700; }
+  .idx .i-desc { grid-column: 5 / span 5; }
+  .idx .i-link { grid-column: 10 / span 3; text-align: right; }
+  .idx-note { grid-column: 2 / span 6; margin-top: 24px; color: var(--gray); font-size: 12px; line-height: 16px; }
+
+  /* colophon */
+
+  .footer { border-top: 2px solid var(--ink); padding-bottom: 64px; }
+  .footer h2 { font-size: 12px; line-height: 16px; font-weight: 400; }
+  .f-col { font-size: 12px; line-height: 16px; }
+  .f-col ul { list-style: none; }
+  .f-a { grid-column: 1 / span 3; }
+  .f-b { grid-column: 4 / span 3; }
+  .f-c { grid-column: 7 / span 3; }
+  .f-year {
+    grid-column: 11 / span 2;
+    justify-self: end;
+    align-self: end;
+    font-size: 40px;
+    line-height: 40px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .f-col .lbl {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .f-col li { margin-top: 4px; }
+
+  /* ---- responsive ---- */
+
+  @media (max-width: 960px) {
+    .about-lead, .summit-title, .summit-desc, .code-block { grid-column: 2 / span 10; }
+    .about-aside, .spec, .summit-links { grid-column: 2 / span 10; margin-top: 48px; }
+    .summit-links { align-self: start; }
+    .idx .i-desc { grid-column: 5 / span 8; }
+    .idx .i-link { grid-column: 2 / span 11; text-align: left; margin-top: 8px; }
+  }
+
+  @media (max-width: 640px) {
+    :root { --pad: 16px; --gap: 16px; }
+
+    .overlay-cols { grid-template-columns: repeat(4, 1fr); }
+    .overlay-cols i:nth-child(n + 5) { display: none; }
+
+    .grid-btn { top: 16px; right: 16px; }
+
+    .header { padding-top: 16px; padding-bottom: 16px; }
+    .h-mark { grid-column: 1 / span 6; }
+    .h-loc  { grid-column: 7 / span 6; }
+    .h-year { display: none; }
+
+    .hero { padding-top: 64px; padding-bottom: 64px; }
+    .wordmark { grid-column: 1 / -1; }
+    .motto {
+      grid-column: 1 / -1;
+      grid-row: auto;
+      justify-self: start;
+      writing-mode: horizontal-tb;
+      margin-top: 48px;
+    }
+    .tagline-block { grid-column: 1 / -1; margin-top: 48px; }
+
+    .section { padding-bottom: 64px; }
+    .sec-head { margin-bottom: 32px; }
+    .sec-no { grid-column: 1 / span 2; }
+    .sec-name { grid-column: 3 / span 10; }
+
+    .about-lead, .about-aside, .summit-title, .summit-desc,
+    .code-block, .spec, .summit-links, .idx-note { grid-column: 1 / -1; }
+
+    .about-aside, .spec, .summit-links { margin-top: 40px; }
+    .code-block { margin-top: 40px; }
+
+    .idx .i-no   { grid-column: 1 / span 2; }
+    .idx .i-name { grid-column: 3 / span 10; }
+    .idx .i-desc { grid-column: 3 / span 10; margin-top: 8px; }
+    .idx .i-link { grid-column: 3 / span 10; margin-top: 8px; }
+
+    .f-a, .f-b, .f-c { grid-column: 1 / -1; margin-top: 24px; }
+    .f-a { margin-top: 0; }
+    .f-year { grid-column: 1 / -1; justify-self: start; margin-top: 40px; }
+  }
+</style>
+
+<div class="page">
+
+  <div class="overlay" id="grid-overlay" aria-hidden="true">
+    <div class="overlay-cols">
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+  </div>
+
+  <button class="grid-btn" id="grid-toggle" type="button" aria-pressed="false"
+          aria-label="Toggle the 12 column proofing grid">Grid <kbd>G</kbd></button>
+
+  <div class="header-rule">
+    <header class="wrap header">
+      <div class="row micro">
+        <p class="h-mark">velofy.co</p>
+        <p class="h-loc">Gurgaon, India</p>
+        <p class="h-year num">No. 07 / 2026</p>
+      </div>
+    </header>
+  </div>
+
+  <section class="wrap hero" aria-label="Velofy">
+    <div class="row">
+      <h1 class="wordmark">velofy</h1>
+      <p class="motto">Open Source. by Nature.</p>
+      <div class="tagline-block">
+        <span class="rule-red" aria-hidden="true"></span>
+        <p class="tagline">AI Native builders out of Gurgaon, India. Software designed to be read, run, and extended by machines as well as people.</p>
+      </div>
+    </div>
+  </section>
+
+  <main>
+
+    <section class="wrap section" id="about">
+      <div class="row sec-head micro">
+        <p class="sec-no num">1</p>
+        <h2 class="sec-name">About</h2>
+      </div>
+      <div class="row">
+        <div class="about-lead">
+          <p>Velofy builds open source software from Gurgaon, India. Every project is AI native: planned from the first commit for an audience of people and machines, in that order on the readme and the reverse in the API.</p>
+          <p>In practice that means machine readable documentation, interpreted expressions instead of eval, and runtimes small enough to ship without a toolchain.</p>
+          <p>Everything is public from day one: the code, the docs, and the conventions agents need to use both. Open source, by nature rather than by strategy.</p>
+        </div>
+        <dl class="about-aside">
+          <dt>Location</dt>
+          <dd>Gurgaon, India</dd>
+          <dt>Practice</dt>
+          <dd>AI native, open source</dd>
+          <dt>Code</dt>
+          <dd><a href="https://github.com/velofy">github.com/velofy</a></dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="wrap section" id="summit">
+      <div class="row sec-head micro">
+        <p class="sec-no num">2</p>
+        <h2 class="sec-name">Summit.js</h2>
+      </div>
+      <div class="row">
+        <h3 class="summit-title">An AI Agent Native JavaScript framework.</h3>
+        <div class="summit-desc">
+          <p>Summit composes behavior directly in HTML. No build step, no virtual DOM, no eval. Expressions are interpreted and CSP safe. A fine-grained signal engine drives keyed list rendering, and an accessible UI library ships in the same bundle, about 16KB gzipped.</p>
+          <p>The documentation is machine readable by design: an llms.txt for context windows and a drop-in AGENTS.md for coding agents.</p>
+        </div>
+        <ul class="spec">
+          <li><span class="k">Size</span><span class="v num">16KB gzipped</span></li>
+          <li><span class="k">Build step</span><span class="v">None</span></li>
+          <li><span class="k">Expressions</span><span class="v">Interpreted, CSP safe</span></li>
+          <li><span class="k">License</span><span class="v">Open source</span></li>
+        </ul>
+        <figure class="code-block">
+          <figcaption class="code-cap micro">The whole pattern, in six lines of HTML</figcaption>
+<pre><code>&lt;div s-data="{ open: false }"&gt;
+  &lt;button @click="open = !open"&gt;Toggle&lt;/button&gt;
+  &lt;p s-show="open"&gt;Hello from Summit&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+        </figure>
+        <div class="summit-links">
+          <a class="cta" href="https://velofy.github.io/summit/">Read the documentation</a>
+          <p class="repo-line micro">Source: <a href="https://github.com/velofy/summit">github.com/velofy/summit</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="index">
+      <div class="row sec-head micro">
+        <p class="sec-no num">3</p>
+        <h2 class="sec-name">Index</h2>
+      </div>
+      <div class="row">
+        <ul class="idx">
+          <li>
+            <span class="i-no micro num">001</span>
+            <span class="i-name">Summit.js</span>
+            <span class="i-desc">AI Agent Native JavaScript framework</span>
+            <span class="i-link micro"><a href="https://github.com/velofy/summit">Repository</a></span>
+          </li>
+          <li>
+            <span class="i-no micro num dim">002</span>
+            <span class="i-name dim">Untitled</span>
+            <span class="i-desc dim">AI native, open source. In development.</span>
+            <span class="i-link micro dim">Opens 2026</span>
+          </li>
+          <li>
+            <span class="i-no micro num dim">003</span>
+            <span class="i-name dim">Untitled</span>
+            <span class="i-desc dim">AI native, open source. In development.</span>
+            <span class="i-link micro dim">Opens 2026</span>
+          </li>
+        </ul>
+        <p class="idx-note">More repos opening soon. They will appear at <a href="https://github.com/velofy">github.com/velofy</a> first.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="wrap section footer" id="colophon">
+    <div class="row sec-head micro">
+      <p class="sec-no num">4</p>
+      <h2 class="sec-name">Colophon</h2>
+    </div>
+    <footer class="row">
+      <div class="f-col f-a">
+        <p class="lbl">Velofy</p>
+        <ul>
+          <li>Gurgaon, India</li>
+          <li class="num">28.4595 N, 77.0266 E</li>
+        </ul>
+      </div>
+      <div class="f-col f-b">
+        <p class="lbl">Code</p>
+        <ul>
+          <li><a href="https://github.com/velofy">github.com/velofy</a></li>
+          <li><a href="https://github.com/velofy/summit">github.com/velofy/summit</a></li>
+          <li><a href="https://velofy.github.io/summit/">velofy.github.io/summit</a></li>
+        </ul>
+      </div>
+      <div class="f-col f-c">
+        <p class="lbl">Setting</p>
+        <ul>
+          <li>Helvetica system stack.</li>
+          <li>12 column grid, 8px baseline.</li>
+          <li>Press G to proof the grid.</li>
+        </ul>
+      </div>
+      <p class="f-year num">2026</p>
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    var overlay = document.getElementById("grid-overlay");
+    var btn = document.getElementById("grid-toggle");
+
+    function toggle() {
+      var on = overlay.classList.toggle("on");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+
+    btn.addEventListener("click", toggle);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "g" && e.key !== "G") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      toggle();
+    });
+  })();
+</script>
+
+</body>
+</html>

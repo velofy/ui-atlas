@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy: boot</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+:root{
+  --bg:#080502;
+  --amber:#ffb000;
+  --amber-hi:#ffd75e;
+  --amber-dim:rgba(255,186,60,.55);
+  --glow:rgba(255,176,0,.28);
+}
+html,body{height:100%;margin:0;padding:0;background:var(--bg);overflow:hidden}
+.crt{
+  position:fixed;inset:0;overflow:hidden;
+  background:radial-gradient(ellipse 120% 90% at 50% 38%,rgba(255,176,0,.05),transparent 62%),var(--bg);
+  color:var(--amber);
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:14px;line-height:1.5;
+  text-shadow:0 0 6px var(--glow);
+  animation:poweron 1.1s ease-out both;
+}
+@media (max-width:420px){.crt{font-size:12px}}
+@media (min-width:1400px){.crt{font-size:15px}}
+@keyframes poweron{0%{filter:brightness(.15)}60%{filter:brightness(1.16)}100%{filter:brightness(1)}}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  padding:22px clamp(12px,3.4vw,40px) 46px;
+  animation:flick 5.3s infinite;
+  scrollbar-width:thin;scrollbar-color:rgba(255,176,0,.3) transparent;
+}
+.screen::-webkit-scrollbar{width:8px}
+.screen::-webkit-scrollbar-thumb{background:rgba(255,176,0,.22);border-radius:4px}
+.screen::-webkit-scrollbar-track{background:transparent}
+@keyframes flick{0%,100%{opacity:1}7%{opacity:.986}8%{opacity:1}39%{opacity:.992}40%{opacity:1}72%{opacity:.985}73%{opacity:1}}
+.ln{white-space:pre-wrap;overflow-wrap:break-word;min-height:1.5em}
+.dim{color:var(--amber-dim)}
+b{font-weight:700;color:var(--amber-hi);text-shadow:0 0 8px rgba(255,215,94,.4)}
+.bright{color:var(--amber-hi);text-shadow:0 0 8px rgba(255,215,94,.4)}
+pre{margin:0;font-family:inherit}
+.mark{
+  white-space:pre;font-size:clamp(6px,2.9vw,15px);line-height:1.18;
+  color:var(--amber-hi);
+  text-shadow:0 0 10px rgba(255,200,80,.5),0 0 30px rgba(255,176,0,.25);
+  margin:10px 0 6px;overflow:hidden;
+}
+.code{
+  display:block;margin:8px 0;padding:8px 12px;max-width:100%;
+  background:rgba(255,176,0,.06);border-left:2px solid rgba(255,176,0,.45);
+  white-space:pre;overflow-x:auto;font-size:.95em;
+}
+@media (max-width:420px){.code{font-size:.88em}}
+a{color:var(--amber-hi);text-decoration:underline;text-underline-offset:2px;border-radius:2px}
+a:hover{background:rgba(255,176,0,.15);color:#ffe9a8}
+a:focus-visible{outline:2px solid var(--amber-hi);outline-offset:2px;background:rgba(255,176,0,.15)}
+::selection{background:var(--amber);color:#140b00;text-shadow:none}
+.pu{color:var(--amber-hi)}
+.cursor{
+  display:inline-block;width:.6em;height:1.15em;margin-left:1px;vertical-align:-.18em;
+  background:var(--amber);box-shadow:0 0 8px var(--glow);
+  animation:blink 1.06s steps(1) infinite;
+}
+.cursor.idle{background:transparent;box-shadow:inset 0 0 0 1px var(--amber);animation:none}
+@keyframes blink{50%{opacity:0}}
+.tcur{
+  display:inline-block;width:.6em;height:1.15em;margin-left:1px;vertical-align:-.18em;
+  background:var(--amber);box-shadow:0 0 8px var(--glow);
+}
+.scanlines{
+  position:fixed;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.24) 0,rgba(0,0,0,.24) 1px,transparent 1px,transparent 3px);
+}
+.scanlines::after{
+  content:"";position:absolute;left:0;top:-160px;width:100%;height:160px;
+  background:linear-gradient(to bottom,transparent,rgba(255,208,110,.05),transparent);
+  animation:roll 10s linear infinite;
+}
+@keyframes roll{to{transform:translateY(calc(100vh + 320px))}}
+.vignette{
+  position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 95% 92% at 50% 50%,transparent 55%,rgba(0,0,0,.5) 100%);
+}
+.hint{
+  position:fixed;left:0;right:0;bottom:8px;text-align:center;
+  font-size:.78em;color:rgba(255,190,80,.42);pointer-events:none;
+  text-shadow:none;transition:opacity .6s;
+}
+.hint.gone{opacity:0}
+#kbd{
+  position:fixed;bottom:0;left:0;width:4px;height:4px;opacity:0;
+  border:0;padding:0;margin:0;background:transparent;color:transparent;
+  caret-color:transparent;font-size:16px;outline:none;
+}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+</style>
+
+<div class="crt" id="crt">
+  <h1 class="sr">velofy: AI native builders out of Gurgaon, India. Open Source. by Nature.</h1>
+  <div class="screen" id="screen">
+    <noscript>
+      <div class="ln bright">velofy</div>
+      <div class="ln">AI native builders out of Gurgaon, India.</div>
+      <div class="ln">Open Source. by Nature.</div>
+      <div class="ln">&nbsp;</div>
+      <div class="ln">summit.js, an AI agent native JavaScript framework:</div>
+      <div class="ln"><a href="https://github.com/velofy/summit">github.com/velofy/summit</a></div>
+      <div class="ln">docs: <a href="https://velofy.github.io/summit/">velofy.github.io/summit</a></div>
+      <div class="ln">org: <a href="https://github.com/velofy">github.com/velofy</a></div>
+    </noscript>
+    <div id="term" role="log" aria-live="polite"></div>
+    <div id="pline" class="ln" hidden><span class="pu">anish@velofy</span><span class="dim">:~$</span> <span id="echo"></span><span class="cursor idle" id="cursor" aria-hidden="true"></span></div>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="hint" id="hint" aria-hidden="true">any key skips the boot</div>
+  <input id="kbd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="terminal command input">
+</div>
+
+<script>
+(function(){
+"use strict";
+var term=document.getElementById('term'),
+    screenEl=document.getElementById('screen'),
+    kbd=document.getElementById('kbd'),
+    pline=document.getElementById('pline'),
+    echo=document.getElementById('echo'),
+    cursor=document.getElementById('cursor'),
+    hint=document.getElementById('hint');
+var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var coarse=window.matchMedia('(pointer: coarse)').matches;
+var booted=false, skip=false, skipHooks=[];
+var REPO='https://github.com/velofy',
+    SREPO='https://github.com/velofy/summit',
+    DOCS='https://velofy.github.io/summit/';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function a(u,l){return '<a href="'+u+'" target="_blank" rel="noopener">'+(l||u)+'</a>';}
+function scrollEnd(){screenEl.scrollTop=screenEl.scrollHeight;}
+function line(html,cls){
+  var d=document.createElement('div');
+  d.className='ln'+(cls?' '+cls:'');
+  d.innerHTML=(html==null||html==='')?'&nbsp;':html;
+  term.appendChild(d);scrollEnd();return d;
+}
+function pause(ms){
+  return new Promise(function(r){
+    if(reduced||skip||!ms)return r();
+    var id=setTimeout(r,ms);
+    if(!booted)skipHooks.push(function(){clearTimeout(id);r();});
+  });
+}
+
+/* boot line formatting: dim the timestamp, brighten the status after dotted leaders */
+function fmt(t){
+  var out,m=t.match(/^(.*\.) (\S.*)$/);
+  out=m?esc(m[1])+' <b>'+esc(m[2])+'</b>':esc(t);
+  return out.replace(/^\[([0-9.]+)\]/,'<span class="dim">[$1]</span>');
+}
+
+function typeLine(text,cls,s){
+  return new Promise(function(res){
+    var d=line('',cls);d.setAttribute('aria-hidden','true');d.innerHTML='';
+    var span=document.createElement('span');d.appendChild(span);
+    var cur=document.createElement('span');cur.className='tcur';d.appendChild(cur);
+    var i=0;
+    function fin(){
+      d.innerHTML=fmt(text);
+      d.removeAttribute('aria-hidden');
+      scrollEnd();res();
+    }
+    function step(){
+      if(reduced||skip||i>=text.length){fin();return;}
+      i++;span.textContent=text.slice(0,i);scrollEnd();
+      var del=s+Math.random()*s*1.7;
+      if(Math.random()<0.03)del+=30+Math.random()*90;
+      setTimeout(step,del);
+    }
+    step();
+  });
+}
+
+var MARK=[
+"██╗   ██╗███████╗██╗      ██████╗ ███████╗██╗   ██╗",
+"██║   ██║██╔════╝██║     ██╔═══██╗██╔════╝╚██╗ ██╔╝",
+"██║   ██║█████╗  ██║     ██║   ██║█████╗   ╚████╔╝ ",
+"╚██╗ ██╔╝██╔══╝  ██║     ██║   ██║██╔══╝    ╚██╔╝  ",
+" ╚████╔╝ ███████╗███████╗╚██████╔╝██║        ██║   ",
+"  ╚═══╝  ╚══════╝╚══════╝ ╚═════╝ ╚═╝        ╚═╝   "
+];
+function drawMark(){
+  return new Promise(function(res){
+    var pre=document.createElement('pre');
+    pre.className='ln mark';pre.setAttribute('aria-hidden','true');
+    term.appendChild(pre);
+    var srl=document.createElement('div');srl.className='sr';srl.textContent='VELOFY';
+    term.appendChild(srl);
+    var i=0;
+    function step(){
+      if(i>=MARK.length){scrollEnd();res();return;}
+      pre.textContent+=(i?'\n':'')+MARK[i];i++;scrollEnd();
+      if(reduced||skip){step();}else{setTimeout(step,75);}
+    }
+    step();
+  });
+}
+
+var BOOT=[
+ {p:380},
+ {t:'velofy bios 2.6 (c) 2026 velofy labs',cls:'dim',s:6,p:110},
+ {t:'memory check: 640K of curiosity ... ok',cls:'dim',s:6,p:240},
+ {t:''},
+ {t:'booting velofy kernel 1.0 on tty1 ...',s:8,p:430},
+ {t:'[0.001] phosphor ............. amber',s:3,p:60},
+ {t:'[0.014] locating builders .... found',s:3,p:280},
+ {t:'[0.015] coordinates: Gurgaon, India',s:3,p:90},
+ {t:'[0.038] mount /open-source ... ok',s:3,p:60},
+ {t:'[0.079] summit.js ............ 16KB gz',s:3,p:150},
+ {t:'[0.080] build step ........... none',s:3,p:40},
+ {t:'[0.081] virtual DOM .......... none',s:3,p:40},
+ {t:'[0.082] eval() ............... never',s:3,p:170},
+ {t:'[0.126] signal engine ........ fine-grained',s:3,p:60},
+ {t:'[0.198] a11y UI library ...... bundled',s:3,p:60},
+ {t:'[0.240] docs for machines .... llms.txt',s:3,p:40},
+ {t:'[0.241] docs for agents ...... AGENTS.md',s:3,p:150},
+ {t:'[0.311] more repos ........... soon',s:3,p:80},
+ {t:'[0.402] init level 5 ......... reached',s:3,p:230},
+ {t:''},
+ {p:620},
+ {mark:1,p:430},
+ {t:''},
+ {t:'Open Source. by Nature.',cls:'bright',s:34,p:220},
+ {t:'AI native builders out of Gurgaon, India.',cls:'dim',s:14,p:280},
+ {t:''},
+ {t:"type 'help' to see commands.",s:11,p:240}
+];
+
+function runBoot(){
+  var chain=Promise.resolve();
+  BOOT.forEach(function(st){
+    chain=chain.then(function(){
+      if(st.mark)return drawMark().then(function(){return pause(st.p);});
+      if(st.t===undefined)return pause(st.p);
+      if(st.t===''){line('');return pause(st.p);}
+      return typeLine(st.t,st.cls,st.s||5).then(function(){return pause(st.p);});
+    });
+  });
+  chain.then(finishBoot);
+}
+function onSkip(){
+  if(booted)return;
+  skip=true;
+  var h=skipHooks;skipHooks=[];
+  h.forEach(function(f){f();});
+}
+window.addEventListener('keydown',onSkip);
+window.addEventListener('pointerdown',onSkip);
+
+function finishBoot(){
+  booted=true;skip=false;skipHooks=[];
+  pline.hidden=false;
+  if(coarse){hint.textContent='tap the screen, then type';}
+  else{hint.classList.add('gone');}
+  scrollEnd();
+  try{kbd.focus({preventScroll:true});}catch(e){kbd.focus();}
+}
+
+/* focus plumbing */
+document.addEventListener('click',function(e){
+  if(e.target.closest&&e.target.closest('a'))return;
+  var sel=window.getSelection&&window.getSelection();
+  if(sel&&String(sel).length)return;
+  if(!booted)return;
+  try{kbd.focus({preventScroll:true});}catch(err){kbd.focus();}
+});
+window.addEventListener('keydown',function(e){
+  if(!booted)return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var ae=document.activeElement;
+  if(ae===kbd)return;
+  if(ae&&ae.tagName==='A')return;
+  if(e.key&&e.key.length===1){
+    e.preventDefault();
+    try{kbd.focus({preventScroll:true});}catch(err){kbd.focus();}
+    setInput(kbd.value+e.key);scrollEnd();
+  }else if(e.key==='Enter'||e.key==='Backspace'){
+    try{kbd.focus({preventScroll:true});}catch(err){kbd.focus();}
+  }
+});
+kbd.addEventListener('focus',function(){cursor.classList.remove('idle');});
+kbd.addEventListener('blur',function(){cursor.classList.add('idle');});
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',function(){
+    var vv=window.visualViewport;
+    var off=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);
+    screenEl.style.paddingBottom=(46+off)+'px';
+    scrollEnd();
+  });
+}
+
+/* the shell */
+var hist=[],hidx=0,qi=0;
+function setInput(v){kbd.value=v;echo.textContent=v;}
+function prefix(){return '<span class="pu">anish@velofy</span><span class="dim">:~$</span> ';}
+function block(lines){lines.forEach(function(l){line(l);});}
+
+kbd.addEventListener('input',function(){echo.textContent=kbd.value;scrollEnd();});
+kbd.addEventListener('keydown',function(e){
+  if(!booted)return;
+  if(e.key==='Enter'){e.preventDefault();commit();}
+  else if(e.key==='ArrowUp'){e.preventDefault();histNav(-1);}
+  else if(e.key==='ArrowDown'){e.preventDefault();histNav(1);}
+  else if(e.key==='Escape'){setInput('');}
+  else if(e.key==='Tab'&&!e.shiftKey&&kbd.value.trim()!==''){e.preventDefault();complete();}
+  else if(e.ctrlKey&&(e.key==='l'||e.key==='L')){e.preventDefault();term.innerHTML='';}
+  else if(e.ctrlKey&&(e.key==='c'||e.key==='C')){
+    var sel=window.getSelection&&window.getSelection();
+    if(sel&&String(sel).length)return;
+    e.preventDefault();line(prefix()+esc(kbd.value)+'^C');setInput('');
+  }
+});
+
+function commit(){
+  var raw=kbd.value;setInput('');
+  line(prefix()+esc(raw));
+  var t=raw.trim();
+  if(!t){scrollEnd();return;}
+  if(hist[hist.length-1]!==raw)hist.push(raw);
+  hidx=hist.length;
+  hint.classList.add('gone');
+  exec(t);
+}
+function histNav(d){
+  if(!hist.length)return;
+  hidx=Math.min(hist.length,Math.max(0,hidx+d));
+  setInput(hidx===hist.length?'':hist[hidx]);
+}
+var NAMES=['about','summit','projects','contact','clear','help','ls','whoami','echo','exit','sudo make world-better'];
+function complete(){
+  var v=kbd.value.replace(/^\s+/,'').toLowerCase();
+  var c=NAMES.filter(function(n){return n.indexOf(v)===0;});
+  if(!c.length)return;
+  if(c.length===1){setInput(c[0]);return;}
+  var p=c[0];
+  c.forEach(function(n){
+    var i=0;
+    while(i<p.length&&i<n.length&&p[i]===n[i])i++;
+    p=p.slice(0,i);
+  });
+  if(p.length>v.length)setInput(p);
+}
+
+var CMDS={
+help:function(){block([
+ 'commands:',
+ '  <b>about</b>      the crew',
+ '  <b>summit</b>     the flagship framework',
+ '  <b>projects</b>   what is on the bench',
+ '  <b>contact</b>    where to find us',
+ '  <b>clear</b>      wipe the phosphor',
+ '  <b>help</b>       this list',
+ '',
+ '<span class="dim">arrows recall history. tab completes.</span>',
+ '<span class="dim">some commands are not on this list.</span>',
+ '']);},
+about:function(){block([
+ 'velofy. AI native builders out of Gurgaon, India.',
+ '',
+ 'we build tools that treat AI agents as',
+ 'first-class users: machine-readable docs,',
+ 'drop-in AGENTS.md, zero build steps,',
+ 'nothing hidden behind a compiler.',
+ '',
+ 'motto: <b>Open Source. by Nature.</b>',
+ 'org:   '+a(REPO),
+ '']);},
+summit:function(){
+ block([
+ '<b>summit.js</b>, the flagship.',
+ 'an open source, AI agent native JavaScript',
+ 'framework for composing behavior directly',
+ 'in HTML. no build step. no virtual DOM.',
+ 'no eval.',
+ '']);
+ var pre=document.createElement('pre');
+ pre.className='code';
+ pre.innerHTML='&lt;div s-data="{ open: false }"&gt;\n  &lt;button @click="open = !open"&gt;Toggle&lt;/button&gt;\n  &lt;p s-show="open"&gt;Hello from Summit&lt;/p&gt;\n&lt;/div&gt;';
+ term.appendChild(pre);
+ block([
+ '',
+ '  - CSP-safe interpreted expressions',
+ '  - fine-grained signal engine',
+ '  - keyed list rendering',
+ '  - bundled accessible UI library',
+ '  - about 16KB gzipped',
+ '  - llms.txt + AGENTS.md for machine readers',
+ '',
+ 'repo  '+a(SREPO),
+ 'docs  '+a(DOCS),
+ '']);
+ scrollEnd();
+},
+projects:function(){block([
+ 'public:',
+ '  summit/    AI agent native JS framework',
+ '             '+a(SREPO,'github.com/velofy/summit'),
+ '',
+ 'in the lab (names redacted):',
+ '  ████████████    opening soon',
+ '  ████████        opening soon',
+ '',
+ 'watch '+a(REPO)+' for the next unlock.',
+ '']);},
+ls:function(r){CMDS.projects(r);},
+contact:function(){block([
+ 'github   '+a(REPO),
+ 'summit   '+a(SREPO),
+ 'docs     '+a(DOCS),
+ 'base     Gurgaon, India (UTC+05:30)',
+ '',
+ 'open an issue on any repo.',
+ '<span class="dim">humans and agents both read them.</span>',
+ '']);},
+clear:function(){term.innerHTML='';},
+whoami:function(){block(['guest. around here, guests become maintainers.','']);},
+echo:function(rest){block([rest?esc(rest):'','']);},
+exit:function(){block(["this tty has no exit. try 'summit' instead.",'']);}
+};
+CMDS.quit=CMDS.exit;
+
+function egg(){
+  var rows=[
+   ['[sudo] password for guest: ********','dim'],
+   ["make: entering directory '/world'",null],
+   ['  cc -O2 optimism.c ........ <b>ok</b>',null],
+   ['  linking libcommons ....... <b>ok</b>',null],
+   ['  test: kindness_spec ...... <b>pass</b>',null],
+   ['  test: patience_spec ...... <b>pass</b> <span class="dim">(retry)</span>',null],
+   ["make: leaving directory '/world'",null],
+   ['',null],
+   ["<b>'world-better' compiled clean.</b>",null],
+   ['it ships a little with every repo we open.',null],
+   [a(REPO),null],
+   ['',null]
+  ];
+  var ch=Promise.resolve();
+  rows.forEach(function(r){
+    ch=ch.then(function(){line(r[0],r[1]);return pause(reduced?0:120);});
+  });
+}
+
+var QUIPS=[
+ "try 'help'. it is shorter than guessing.",
+ 'not a command. the machine stays calm.',
+ 'this shell is open source, not omniscient.'
+];
+function unknown(cmd){
+  line('velofysh: '+esc(cmd)+': command not found');
+  line('<span class="dim">'+QUIPS[qi++%QUIPS.length]+'</span>');
+  line('');
+}
+
+function exec(t){
+  var lower=t.toLowerCase().replace(/\s+/g,' ');
+  if(lower==='sudo make world-better'){egg();return;}
+  if(lower==='make world-better'){
+    block(['make: insufficient optimism (need root).','try: <b>sudo make world-better</b>','']);
+    return;
+  }
+  if(/^sudo(\s|$)/.test(lower)){
+    block(['guest is not in the sudoers file.','this incident will be reported to nobody.','<span class="dim">we do not track you.</span>','']);
+    return;
+  }
+  var cmd=t.split(/\s+/)[0].toLowerCase();
+  var rest=t.slice(cmd.length).trim();
+  if(CMDS[cmd]){CMDS[cmd](rest);}else{unknown(cmd);}
+}
+
+runBoot();
+})();
+</script>
+
+</body>
+</html>

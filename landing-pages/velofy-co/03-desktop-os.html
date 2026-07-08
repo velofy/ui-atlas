@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofyOS</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  :root{
+    --ink:#0d0d0d;
+    --paper:#ffffff;
+    --gray:#8f8f8f;
+    --gray-lt:#d6d6d6;
+    --accent:#9e1b1b;
+    --ui:"Charcoal","Chicago",Geneva,Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --mono:Monaco,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  }
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#8f8f8f}
+  #velofyos{
+    position:fixed;inset:0;overflow:hidden;
+    font-family:var(--ui);font-size:13px;line-height:1.4;color:var(--ink);
+    background-color:#8f8f8f;
+    background-image:conic-gradient(#6c6c6c 25%,#a4a4a4 0 50%,#6c6c6c 0 75%,#a4a4a4 0);
+    background-size:4px 4px;
+    -webkit-text-size-adjust:100%;
+  }
+  #velofyos :focus{outline:none}
+  #velofyos :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #velofyos svg{display:block}
+
+  /* ---------- menu bar ---------- */
+  #menubar{
+    position:relative;z-index:5000;display:flex;align-items:stretch;
+    height:26px;background:var(--paper);border-bottom:1px solid var(--ink);
+    padding:0 4px;user-select:none;-webkit-user-select:none;
+  }
+  .menu{position:relative;display:flex}
+  .mtitle{
+    font:inherit;font-weight:bold;color:var(--ink);background:none;border:0;
+    padding:0 10px;display:flex;align-items:center;gap:6px;cursor:default;
+  }
+  .menu.open .mtitle{background:var(--accent);color:var(--paper)}
+  .menu.open .mtitle svg{color:var(--paper)}
+  .mtitle svg{width:13px;height:13px;color:var(--ink)}
+  .mdrop{
+    display:none;position:absolute;top:100%;left:0;min-width:196px;
+    background:var(--paper);border:1px solid var(--ink);
+    box-shadow:2px 2px 0 var(--ink);padding:3px 0;z-index:6000;
+  }
+  .menu.open .mdrop{display:block}
+  .mitem{
+    display:block;width:100%;box-sizing:border-box;text-align:left;
+    font:inherit;color:var(--ink);background:none;border:0;
+    padding:4px 16px;cursor:default;text-decoration:none;white-space:nowrap;
+  }
+  .mitem:hover:not([disabled]),.mitem:focus-visible{background:var(--accent);color:var(--paper);outline:none}
+  .mitem[disabled]{color:var(--gray)}
+  .msep{height:1px;background:var(--gray-lt);margin:3px 1px}
+  #clock{
+    margin-left:auto;display:flex;align-items:center;padding:0 8px;
+    font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+
+  /* ---------- desktop ---------- */
+  #desktop{position:absolute;top:27px;left:0;right:0;bottom:0;overflow:hidden}
+  #icons{
+    position:absolute;top:12px;right:6px;display:flex;flex-direction:column;
+    gap:12px;align-items:center;user-select:none;-webkit-user-select:none;
+  }
+  .dicon{
+    width:92px;background:none;border:0;font:inherit;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:4px 2px;cursor:default;
+  }
+  .dicon .art{width:36px;height:36px;color:var(--ink)}
+  .dicon .art svg{width:100%;height:100%}
+  .dicon .lbl{
+    background:var(--paper);color:var(--ink);padding:1px 6px;
+    font-size:12px;line-height:1.25;text-align:center;max-width:100%;
+  }
+  .dicon.selected .art{color:var(--paper);--icon-fill:var(--ink)}
+  .dicon.selected .lbl{background:var(--accent);color:var(--paper)}
+
+  /* 1-bit icon strokes */
+  .s{fill:var(--icon-fill,#fff);stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+  .f{fill:currentColor;stroke:none}
+  .ln{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------- windows ---------- */
+  .window{
+    position:absolute;display:none;flex-direction:column;
+    background:var(--paper);border:1px solid var(--ink);
+    box-shadow:2px 2px 0 var(--ink);
+    max-width:min(92vw,560px);
+  }
+  .window.open{display:flex}
+  .titlebar{
+    position:relative;display:flex;align-items:center;height:21px;
+    padding:0 6px;border-bottom:1px solid var(--ink);background:var(--paper);
+    user-select:none;-webkit-user-select:none;touch-action:none;flex:none;
+  }
+  .window.active .titlebar::before{
+    content:"";position:absolute;left:5px;right:5px;top:4px;bottom:4px;
+    background:repeating-linear-gradient(to bottom,var(--ink) 0 1px,transparent 1px 3px);
+  }
+  .wtitle{
+    position:relative;margin:0 auto;padding:0 8px;background:var(--paper);
+    font-weight:bold;font-size:13px;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:72%;
+  }
+  .closebox{
+    position:relative;flex:none;width:13px;height:13px;padding:0;
+    border:1px solid var(--ink);background:var(--paper);
+    box-shadow:0 0 0 3px var(--paper);cursor:default;
+  }
+  .closebox:active{background:var(--ink)}
+  .window:not(.active) .titlebar::before{display:none}
+  .window:not(.active) .closebox{visibility:hidden}
+  .window:not(.active) .wtitle{color:var(--gray)}
+  .wbody{
+    padding:13px 15px 15px;overflow:auto;overscroll-behavior:contain;
+    max-height:min(62vh,430px);
+  }
+  .wbody p{margin:0 0 10px}
+  .wbody p:last-child{margin-bottom:0}
+  .wbody a{color:var(--accent);text-decoration:underline;cursor:pointer}
+  .rule{border:0;border-top:1px dotted var(--gray);margin:12px 0}
+
+  #win-about{width:342px}
+  #win-summit{width:474px}
+  #win-projects{width:436px}
+  #win-readme{width:436px}
+  #win-trash{width:308px}
+  #win-shutdown{width:336px}
+
+  /* about window */
+  .about-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin-bottom:10px}
+  .about-head .art{width:46px;height:46px;color:var(--ink);margin-bottom:4px}
+  .about-head .art svg{width:100%;height:100%}
+  .about-name{font-size:20px;font-weight:bold;letter-spacing:.5px;margin:0}
+  .motto{
+    font-size:11px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;
+    border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);
+    padding:3px 10px;margin-top:2px;
+  }
+  .sysinfo{font-family:var(--mono);font-size:11px;line-height:1.7;margin:0 0 12px}
+  .sysinfo b{display:inline-block;min-width:84px;font-weight:normal;color:var(--gray)}
+
+  /* buttons */
+  .btnrow{display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 2px;justify-content:center}
+  .btn{
+    font:inherit;font-size:13px;color:var(--ink);background:var(--paper);
+    border:1px solid var(--ink);border-radius:8px;padding:4px 16px;
+    text-decoration:none;display:inline-block;cursor:pointer;text-align:center;
+  }
+  .btn:active{background:var(--ink);color:var(--paper)}
+  .btn.default{box-shadow:0 0 0 2px var(--paper),0 0 0 3px var(--ink)}
+
+  /* summit window */
+  .app-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .app-head .art{width:34px;height:34px;flex:none;color:var(--ink)}
+  .app-head .art svg{width:100%;height:100%}
+  .app-head h2{margin:0;font-size:16px}
+  .app-head .kind{font-size:11px;color:var(--gray)}
+  .codebox{
+    font-family:var(--mono);font-size:11.5px;line-height:1.55;
+    background:var(--paper);border:1px solid var(--ink);
+    box-shadow:inset 1px 1px 0 var(--gray-lt);
+    padding:10px 12px;margin:0 0 12px;overflow-x:auto;white-space:pre;
+  }
+  .codelabel{font-size:11px;color:var(--gray);margin:0 0 4px;font-family:var(--mono)}
+
+  /* projects list */
+  #win-projects .wbody{padding:0}
+  .listhead,.listrow{
+    display:grid;grid-template-columns:minmax(0,1fr) 112px 108px;
+    gap:8px;align-items:center;padding:5px 12px;
+  }
+  .listhead{border-bottom:1px solid var(--ink);font-weight:bold;font-size:12px}
+  .listrow{border-bottom:1px solid var(--gray-lt);font-size:12.5px}
+  .listrow:hover{background:var(--accent);color:var(--paper)}
+  .listrow:hover .st-open,.listrow:hover .st-dev,.listrow:hover .kind{color:var(--paper)}
+  .listrow:hover .rowart{color:var(--paper)}
+  .rowname{display:flex;align-items:center;gap:8px;min-width:0}
+  .rowname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rowart{width:16px;height:16px;flex:none;color:var(--ink)}
+  .rowart svg{width:100%;height:100%}
+  .listrow .kind{color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-open{color:var(--accent);font-weight:bold;white-space:nowrap}
+  .st-dev{color:var(--gray);font-style:italic;white-space:nowrap}
+  .listfoot{padding:6px 12px 8px;font-size:11px;font-family:var(--mono);color:#555}
+
+  /* readme window */
+  #win-readme .wbody{font-family:var(--mono);font-size:11.5px;line-height:1.65}
+  #win-readme h3{font-size:11.5px;margin:14px 0 4px;letter-spacing:.12em}
+  #win-readme h3:first-child{margin-top:0}
+  #win-readme ol{margin:0 0 10px;padding-left:22px}
+  #win-readme li{margin:2px 0}
+  .linklist{list-style:none;margin:0;padding:0}
+  .linklist li{margin:3px 0}
+
+  /* trash + alert windows */
+  .empty-title{font-weight:bold;margin:0 0 4px}
+  .fineprint{font-family:var(--mono);font-size:11px;color:var(--gray);margin:0 0 10px}
+  .alertbody{display:flex;gap:14px;align-items:flex-start}
+  .alertbody .art{width:34px;height:34px;flex:none;color:var(--ink);margin-top:2px}
+  .alertbody .art svg{width:100%;height:100%}
+
+  /* ---------- boot splash ---------- */
+  #boot{
+    position:absolute;inset:0;z-index:9000;
+    display:flex;align-items:center;justify-content:center;
+    background-color:#8f8f8f;
+    background-image:conic-gradient(#6c6c6c 25%,#a4a4a4 0 50%,#6c6c6c 0 75%,#a4a4a4 0);
+    background-size:4px 4px;
+  }
+  #boot.done{opacity:0;transition:opacity .35s ease;pointer-events:none}
+  #boot.gone{display:none}
+  .bootbox{
+    background:var(--paper);border:1px solid var(--ink);border-radius:10px;
+    box-shadow:2px 2px 0 var(--ink);
+    padding:30px 44px 24px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    max-width:82vw;box-sizing:border-box;
+  }
+  .bootbox .art{width:60px;height:60px;color:var(--ink)}
+  .bootbox .art svg{width:100%;height:100%}
+  .bootmsg{margin:0;font-size:16px;font-weight:bold}
+  .pbar{width:200px;max-width:100%;height:10px;border:1px solid var(--ink);padding:1px;box-sizing:border-box}
+  .pfill{height:100%;width:0;background:var(--accent);animation:bootfill 1.5s steps(12,end) forwards}
+  @keyframes bootfill{to{width:100%}}
+  .boothint{margin:0;font-size:10px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;color:var(--gray)}
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    #boot{display:none}
+    #velofyos *{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+  }
+
+  /* ---------- small screens: stacked cards ---------- */
+  @media (max-width: 720px){
+    #desktop{overflow-y:auto;overflow-x:hidden}
+    #icons{
+      position:static;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;
+      gap:2px;padding:8px 4px 2px;
+    }
+    .dicon{width:82px}
+    .window{
+      position:relative !important;left:auto !important;top:auto !important;
+      width:auto !important;max-width:none;margin:10px 10px 14px;z-index:auto !important;
+    }
+    .window .closebox{visibility:visible}
+    .wbody{max-height:none}
+    .mtitle{padding:0 7px}
+    #clock{padding:0 4px}
+    .listhead,.listrow{grid-template-columns:minmax(0,1fr) 104px}
+    .listhead .kind,.listrow .kind{display:none}
+  }
+</style>
+
+<div id="velofyos">
+
+  <!-- menu bar -->
+  <div id="menubar">
+    <div class="menu" id="menu-os">
+      <button class="mtitle" aria-haspopup="true">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path class="f" d="M4 5h8l4 11 4-11h8L18 27h-4z"/></svg>
+        velofyOS
+      </button>
+      <div class="mdrop" role="menu">
+        <button class="mitem" role="menuitem" data-open="win-about">About velofy...</button>
+        <div class="msep" role="separator"></div>
+        <button class="mitem" role="menuitem" data-action="restart">Restart velofyOS</button>
+        <button class="mitem" role="menuitem" data-open="win-shutdown">Shut Down...</button>
+      </div>
+    </div>
+    <div class="menu" id="menu-file">
+      <button class="mtitle" aria-haspopup="true">File</button>
+      <div class="mdrop" role="menu">
+        <button class="mitem" role="menuitem" data-open="win-readme">Open README.txt</button>
+        <button class="mitem" role="menuitem" data-open="win-trash">Open Trash</button>
+        <button class="mitem" role="menuitem" data-action="close">Close Window</button>
+        <div class="msep" role="separator"></div>
+        <button class="mitem" role="menuitem" disabled>Empty Trash (already empty)</button>
+      </div>
+    </div>
+    <div class="menu" id="menu-projects">
+      <button class="mtitle" aria-haspopup="true">Projects</button>
+      <div class="mdrop" role="menu">
+        <button class="mitem" role="menuitem" data-open="win-summit">summit.js</button>
+        <button class="mitem" role="menuitem" data-open="win-projects">All Projects</button>
+        <div class="msep" role="separator"></div>
+        <button class="mitem" role="menuitem" disabled>More repos opening soon</button>
+      </div>
+    </div>
+    <div class="menu" id="menu-help">
+      <button class="mtitle" aria-haspopup="true">Help</button>
+      <div class="mdrop" role="menu">
+        <button class="mitem" role="menuitem" data-open="win-about">About velofy</button>
+        <button class="mitem" role="menuitem" data-open="win-readme">README.txt</button>
+        <div class="msep" role="separator"></div>
+        <a class="mitem" role="menuitem" href="https://velofy.github.io/summit/" target="_blank" rel="noopener">summit.js Docs</a>
+        <a class="mitem" role="menuitem" href="https://github.com/velofy" target="_blank" rel="noopener">velofy on GitHub</a>
+      </div>
+    </div>
+    <span id="clock">velofyOS</span>
+  </div>
+
+  <!-- desktop -->
+  <div id="desktop">
+
+    <div id="icons">
+      <button class="dicon" data-open="win-about">
+        <span class="art" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path class="s" d="M4 5h8l4 11 4-11h8L18 27h-4z"/></svg>
+        </span>
+        <span class="lbl">About velofy</span>
+      </button>
+      <button class="dicon" data-open="win-summit">
+        <span class="art" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path class="s" d="M3 26 12 10l5 7 4-8 8 17z"/>
+            <line class="ln" x1="21" y1="9" x2="21" y2="3"/>
+            <path class="f" d="M21 3h6l-2 2.5 2 2.5h-6z"/>
+          </svg>
+        </span>
+        <span class="lbl">summit.js</span>
+      </button>
+      <button class="dicon" data-open="win-projects">
+        <span class="art" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path class="s" d="M3 25V8h9l2.5 3H29v14z"/><line class="ln" x1="3" y1="11" x2="14.5" y2="11"/></svg>
+        </span>
+        <span class="lbl">Projects</span>
+      </button>
+      <button class="dicon" data-open="win-readme">
+        <span class="art" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path class="s" d="M7 3h13l5 5v21H7z"/>
+            <path class="ln" d="M20 3v5h5"/>
+            <line class="ln" x1="11" y1="13" x2="21" y2="13"/>
+            <line class="ln" x1="11" y1="17" x2="21" y2="17"/>
+            <line class="ln" x1="11" y1="21" x2="21" y2="21"/>
+            <line class="ln" x1="11" y1="25" x2="17" y2="25"/>
+          </svg>
+        </span>
+        <span class="lbl">README.txt</span>
+      </button>
+      <button class="dicon" data-open="win-trash">
+        <span class="art" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path class="s" d="M13 8V6h6v2"/>
+            <path class="s" d="M6 8h20v3H6z"/>
+            <path class="s" d="M8.5 11h15L22 29H10z"/>
+            <line class="ln" x1="13" y1="14.5" x2="13.5" y2="25.5"/>
+            <line class="ln" x1="16" y1="14.5" x2="16" y2="25.5"/>
+            <line class="ln" x1="19" y1="14.5" x2="18.5" y2="25.5"/>
+          </svg>
+        </span>
+        <span class="lbl">Trash</span>
+      </button>
+    </div>
+
+    <!-- About velofy -->
+    <section class="window" id="win-about" role="dialog" aria-labelledby="t-about" tabindex="-1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close About velofy"></button>
+        <span class="wtitle" id="t-about">About velofy</span>
+      </div>
+      <div class="wbody">
+        <div class="about-head">
+          <span class="art" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><rect class="s" x="2" y="2" width="44" height="44" rx="9"/><path class="s" d="M10 10h9l5 14 5-14h9L26 39h-4z"/></svg>
+          </span>
+          <h1 class="about-name">velofy</h1>
+          <p style="margin:0">AI Native builders out of Gurgaon, India.</p>
+          <p class="motto">Open Source. by Nature.</p>
+        </div>
+        <p>We build for a web where humans and agents write software together: frameworks that live in plain HTML, docs that machines can read, and repositories that anyone can open, fork, and ship. Everything we make starts open and stays open.</p>
+        <hr class="rule">
+        <p class="sysinfo">
+          <b>System</b> velofyOS 1.0<br>
+          <b>Location</b> Gurgaon, India<br>
+          <b>Memory</b> 16KB is plenty<br>
+          <b>License</b> open, always
+        </p>
+        <div class="btnrow">
+          <a class="btn default" href="https://github.com/velofy" target="_blank" rel="noopener">Visit GitHub</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- summit.js -->
+    <section class="window" id="win-summit" role="dialog" aria-labelledby="t-summit" tabindex="-1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close summit.js"></button>
+        <span class="wtitle" id="t-summit">summit.js</span>
+      </div>
+      <div class="wbody">
+        <div class="app-head">
+          <span class="art" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <path class="s" d="M3 26 12 10l5 7 4-8 8 17z"/>
+              <line class="ln" x1="21" y1="9" x2="21" y2="3"/>
+              <path class="f" d="M21 3h6l-2 2.5 2 2.5h-6z"/>
+            </svg>
+          </span>
+          <div>
+            <h2>Summit.js</h2>
+            <span class="kind">an open source, AI Agent Native JavaScript framework</span>
+          </div>
+        </div>
+        <p>Summit composes behavior directly in HTML. No build step, no virtual DOM, no eval. Expressions are interpreted and CSP safe, state runs on a fine grained signal engine, lists render keyed, and an accessible UI library ships in the box. All of it in about 16KB gzipped.</p>
+        <p>Agents are first class readers here: docs ship as llms.txt, and a drop in AGENTS.md teaches your coding agent the whole framework in one file.</p>
+        <p class="codelabel">hello.html</p>
+        <pre class="codebox">&lt;div s-data="{ open: false }"&gt;
+  &lt;button @click="open = !open"&gt;Toggle&lt;/button&gt;
+  &lt;p s-show="open"&gt;Hello from Summit&lt;/p&gt;
+&lt;/div&gt;</pre>
+        <div class="btnrow">
+          <a class="btn default" href="https://github.com/velofy/summit" target="_blank" rel="noopener">Open the Repo</a>
+          <a class="btn" href="https://velofy.github.io/summit/" target="_blank" rel="noopener">Read the Docs</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="window" id="win-projects" role="dialog" aria-labelledby="t-projects" tabindex="-1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close Projects"></button>
+        <span class="wtitle" id="t-projects">Projects</span>
+      </div>
+      <div class="wbody">
+        <div class="listhead"><span>Name</span><span class="kind">Kind</span><span>Status</span></div>
+        <a class="listrow" href="https://github.com/velofy/summit" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+          <span class="rowname">
+            <span class="rowart" aria-hidden="true"><svg viewBox="0 0 16 16"><path class="ln" d="M1 14 6 4l3 5 2-4 4 9z"/></svg></span>
+            <span>summit.js</span>
+          </span>
+          <span class="kind">JS framework</span>
+          <span class="st-open">open source</span>
+        </a>
+        <div class="listrow">
+          <span class="rowname">
+            <span class="rowart" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.4 1.8"/></svg></span>
+            <span>Codename: Cairn</span>
+          </span>
+          <span class="kind">machine docs</span>
+          <span class="st-dev">in development</span>
+        </div>
+        <div class="listrow">
+          <span class="rowname">
+            <span class="rowart" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.4 1.8"/></svg></span>
+            <span>Codename: Ridgeline</span>
+          </span>
+          <span class="kind">agent runtime</span>
+          <span class="st-dev">in development</span>
+        </div>
+        <div class="listrow">
+          <span class="rowname">
+            <span class="rowart" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.4 1.8"/></svg></span>
+            <span>Codename: Scree</span>
+          </span>
+          <span class="kind">UI toolkit</span>
+          <span class="st-dev">in development</span>
+        </div>
+        <div class="listfoot">4 items on disk. More repos opening soon.</div>
+      </div>
+    </section>
+
+    <!-- README.txt -->
+    <section class="window" id="win-readme" role="dialog" aria-labelledby="t-readme" tabindex="-1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close README.txt"></button>
+        <span class="wtitle" id="t-readme">README.txt</span>
+      </div>
+      <div class="wbody">
+        <h3>VELOFY README</h3>
+        <p>version 1.0, written in Gurgaon, India</p>
+        <p>We are AI Native builders. We think the next generation of software will be written with agents, read by agents, and shipped in the open.</p>
+        <p>So we make tools that speak plain HTML, publish docs that machines can parse, and never ask you to install a build step before you say hello world.</p>
+        <h3>HOUSE RULES</h3>
+        <ol>
+          <li>Ship in the open.</li>
+          <li>Keep the runtime honest. No eval, no magic.</li>
+          <li>Write docs for humans and machines alike.</li>
+          <li>Small is a feature. 16KB is a statement.</li>
+        </ol>
+        <h3>LINKS</h3>
+        <ul class="linklist">
+          <li><a href="https://github.com/velofy" target="_blank" rel="noopener">github.com/velofy</a></li>
+          <li><a href="https://github.com/velofy/summit" target="_blank" rel="noopener">github.com/velofy/summit</a></li>
+          <li><a href="https://velofy.github.io/summit/" target="_blank" rel="noopener">velofy.github.io/summit</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Trash -->
+    <section class="window" id="win-trash" role="dialog" aria-labelledby="t-trash" tabindex="-1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close Trash"></button>
+        <span class="wtitle" id="t-trash">Trash</span>
+      </div>
+      <div class="wbody">
+        <p class="empty-title">The Trash is empty.</p>
+        <p class="fineprint">0 items. 0K on disk.</p>
+        <p>Nothing gets thrown away at velofy. Ideas that do not ship today become the repos we open tomorrow.</p>
+      </div>
+    </section>
+
+    <!-- Shut Down alert -->
+    <section class="window" id="win-shutdown" role="alertdialog" aria-labelledby="t-shutdown" tabindex="-1" data-center="1">
+      <div class="titlebar">
+        <button class="closebox" aria-label="Close Shut Down"></button>
+        <span class="wtitle" id="t-shutdown">Shut Down</span>
+      </div>
+      <div class="wbody">
+        <div class="alertbody">
+          <span class="art" aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+              <path class="s" d="M16 3 30 28H2z"/>
+              <line class="ln" x1="16" y1="12" x2="16" y2="20"/>
+              <line class="ln" x1="16" y1="23.5" x2="16" y2="24"/>
+            </svg>
+          </span>
+          <p>velofyOS does not shut down. Open source runs around the clock. Open a window instead.</p>
+        </div>
+        <div class="btnrow">
+          <button class="btn default" data-action="close-self">OK</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- boot splash -->
+  <div id="boot">
+    <div class="bootbox">
+      <span class="art" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><rect class="s" x="2" y="2" width="44" height="44" rx="9"/><path class="s" d="M10 10h9l5 14 5-14h9L26 39h-4z"/></svg>
+      </span>
+      <p class="bootmsg">Welcome to velofyOS.</p>
+      <div class="pbar" aria-hidden="true"><div class="pfill"></div></div>
+      <p class="boothint">Open Source. by Nature.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  var desktop = $("#desktop");
+  var boot = $("#boot");
+  var clock = $("#clock");
+
+  var mobileQ = window.matchMedia("(max-width: 720px)");
+  var coarseQ = window.matchMedia("(pointer: coarse)");
+  var reduceQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  var zi = 10;
+  var cascade = 0;
+  var activeWin = null;
+
+  /* ---------- clock ---------- */
+  function tick(){
+    var d = new Date();
+    var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    var h = d.getHours();
+    var ap = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    var m = String(d.getMinutes());
+    if(m.length < 2){ m = "0" + m; }
+    clock.textContent = days[d.getDay()] + " " + h + ":" + m + " " + ap;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- window management ---------- */
+  function focusWin(w){
+    if(!w || !w.classList.contains("open")){ return; }
+    zi += 1;
+    w.style.zIndex = zi;
+    $$(".window").forEach(function(x){ x.classList.toggle("active", x === w); });
+    activeWin = w;
+  }
+
+  function placeWin(w){
+    var dw = desktop.clientWidth;
+    var dh = desktop.clientHeight;
+    var r = w.getBoundingClientRect();
+    var x, y;
+    if(w.dataset.center){
+      x = Math.max(8, (dw - r.width) / 2);
+      y = Math.max(8, (dh - r.height) / 3);
+    } else {
+      x = 34 + cascade * 26;
+      y = 24 + cascade * 22;
+      x = Math.max(8, Math.min(x, dw - r.width - 12));
+      y = Math.max(6, Math.min(y, dh - r.height - 10));
+      cascade = (cascade + 1) % 8;
+    }
+    w.style.left = Math.round(x) + "px";
+    w.style.top = Math.round(y) + "px";
+  }
+
+  function openWindow(id){
+    var w = document.getElementById(id);
+    if(!w){ return; }
+    var wasOpen = w.classList.contains("open");
+    w.classList.add("open");
+    if(!wasOpen && !mobileQ.matches){ placeWin(w); }
+    focusWin(w);
+    if(mobileQ.matches){
+      w.scrollIntoView({ behavior: reduceQ.matches ? "auto" : "smooth", block: "nearest" });
+    }
+    w.focus({ preventScroll: true });
+  }
+
+  function closeWindow(w){
+    if(!w){ return; }
+    var hadFocus = w.contains(document.activeElement);
+    w.classList.remove("open");
+    w.classList.remove("active");
+    if(activeWin === w){ activeWin = null; }
+    var top = null;
+    $$(".window.open").forEach(function(x){
+      if(!top || (+x.style.zIndex || 0) > (+top.style.zIndex || 0)){ top = x; }
+    });
+    if(top){ focusWin(top); }
+    if(hadFocus){
+      if(top){ top.focus({ preventScroll: true }); }
+      else {
+        var icon = $(".dicon");
+        if(icon){ icon.focus({ preventScroll: true }); }
+      }
+    }
+  }
+
+  $$(".window").forEach(function(w){
+    w.addEventListener("pointerdown", function(){ focusWin(w); });
+    var cb = w.querySelector(".closebox");
+    if(cb){
+      cb.addEventListener("click", function(e){
+        e.stopPropagation();
+        closeWindow(w);
+      });
+    }
+    var self = w.querySelector("[data-action='close-self']");
+    if(self){
+      self.addEventListener("click", function(){ closeWindow(w); });
+    }
+  });
+
+  /* ---------- dragging (pointer events, touch friendly) ---------- */
+  $$(".window .titlebar").forEach(function(bar){
+    bar.addEventListener("pointerdown", function(e){
+      var w = bar.closest(".window");
+      focusWin(w);
+      if(mobileQ.matches){ return; }
+      if(e.target.closest(".closebox")){ return; }
+      e.preventDefault();
+      var wr = w.getBoundingClientRect();
+      var dr = desktop.getBoundingClientRect();
+      var ox = e.clientX - wr.left;
+      var oy = e.clientY - wr.top;
+      var move = function(ev){
+        var x = ev.clientX - dr.left - ox;
+        var y = ev.clientY - dr.top - oy;
+        x = Math.max(56 - wr.width, Math.min(x, dr.width - 56));
+        y = Math.max(0, Math.min(y, dr.height - 24));
+        w.style.left = Math.round(x) + "px";
+        w.style.top = Math.round(y) + "px";
+      };
+      var up = function(){
+        bar.removeEventListener("pointermove", move);
+        bar.removeEventListener("pointerup", up);
+        bar.removeEventListener("pointercancel", up);
+      };
+      try { bar.setPointerCapture(e.pointerId); } catch(err){}
+      bar.addEventListener("pointermove", move);
+      bar.addEventListener("pointerup", up);
+      bar.addEventListener("pointercancel", up);
+    });
+  });
+
+  /* ---------- desktop icons ---------- */
+  function clearSelection(){
+    $$(".dicon.selected").forEach(function(b){ b.classList.remove("selected"); });
+  }
+
+  $$(".dicon").forEach(function(b){
+    b.addEventListener("click", function(e){
+      /* keyboard "click" has detail 0: Enter or Space opens directly */
+      if(e.detail === 0 || coarseQ.matches || mobileQ.matches){
+        clearSelection();
+        openWindow(b.dataset.open);
+      } else {
+        clearSelection();
+        b.classList.add("selected");
+      }
+    });
+    b.addEventListener("dblclick", function(){
+      clearSelection();
+      openWindow(b.dataset.open);
+    });
+  });
+
+  desktop.addEventListener("pointerdown", function(e){
+    if(!e.target.closest(".dicon")){ clearSelection(); }
+  });
+
+  /* ---------- menu bar ---------- */
+  var menuOpen = null;
+  function setMenu(m){
+    if(menuOpen){ menuOpen.classList.remove("open"); }
+    menuOpen = m || null;
+    if(menuOpen){ menuOpen.classList.add("open"); }
+  }
+
+  $$(".menu").forEach(function(m){
+    var t = m.querySelector(".mtitle");
+    t.addEventListener("click", function(){
+      setMenu(menuOpen === m ? null : m);
+    });
+    t.addEventListener("pointerenter", function(){
+      if(menuOpen && menuOpen !== m){ setMenu(m); }
+    });
+  });
+
+  document.addEventListener("pointerdown", function(e){
+    if(menuOpen && !e.target.closest(".menu")){ setMenu(null); }
+  });
+
+  $$(".mitem").forEach(function(item){
+    item.addEventListener("click", function(){
+      if(item.disabled){ return; }
+      var openId = item.getAttribute("data-open");
+      var action = item.getAttribute("data-action");
+      setMenu(null);
+      if(openId){ openWindow(openId); }
+      if(action === "close" && activeWin){ closeWindow(activeWin); }
+      if(action === "restart"){ restart(); }
+    });
+  });
+
+  /* ---------- keyboard: Esc closes menu, then focused window ---------- */
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Escape"){ return; }
+    if(menuOpen){ setMenu(null); return; }
+    var w = e.target && e.target.closest ? e.target.closest(".window") : null;
+    var target = (w && w.classList.contains("open")) ? w : activeWin;
+    if(target){ closeWindow(target); }
+  });
+
+  /* ---------- boot sequence ---------- */
+  var bootTimer = null;
+
+  function finishBoot(){
+    if(bootTimer){ clearTimeout(bootTimer); bootTimer = null; }
+    boot.classList.add("done");
+    setTimeout(function(){ boot.classList.add("gone"); }, 380);
+    if(!$("#win-about").classList.contains("open")){ openWindow("win-about"); }
+  }
+
+  function runBoot(){
+    if(reduceQ.matches){
+      boot.classList.add("gone");
+      openWindow("win-about");
+      return;
+    }
+    boot.classList.remove("gone");
+    boot.classList.remove("done");
+    var fill = boot.querySelector(".pfill");
+    fill.style.animation = "none";
+    void fill.offsetWidth;
+    fill.style.animation = "";
+    bootTimer = setTimeout(finishBoot, 1800);
+  }
+
+  function restart(){
+    $$(".window.open").forEach(function(w){
+      w.classList.remove("open");
+      w.classList.remove("active");
+    });
+    activeWin = null;
+    cascade = 0;
+    zi = 10;
+    runBoot();
+  }
+
+  boot.addEventListener("click", finishBoot);
+
+  runBoot();
+})();
+</script>
+
+</body>
+</html>
