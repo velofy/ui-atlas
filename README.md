@@ -19,7 +19,7 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`07-swiss.html`](landing-pages/velofy-co/07-swiss.html) | The Poster | Swiss International Style: 12-column grid, one red, baseline rhythm. Press G to reveal the proofing grid. |
 | [`08-literate.html`](landing-pages/velofy-co/08-literate.html) | View Source | The page is its own annotated source code. A render toggle flips the same DOM into a clean landing page and back. |
 | [`09-showreel.html`](landing-pages/velofy-co/09-showreel.html) | The Showreel | Site-of-the-day vocabulary in pure vanilla JS: preloader counter, kinetic wordmark, pinned scenes, a horizontal gallery, and a magnetic footer CTA. |
-| [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | The disciplined startup landing page. Its hero shows the Summit example as code on one pane, and the same code running live on the other. |
+| [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A pale-yellow startup page that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
 
 ## Ground rules every reference follows
 
