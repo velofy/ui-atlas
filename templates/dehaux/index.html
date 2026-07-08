@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="copper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dehaux: Operations Hub</title>
+<link rel="stylesheet" href="assets/dehaux.css">
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="tile">D</div>
+      <div>
+        <div class="name">Dehaux</div>
+        <div class="sub">Operations Hub</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Hub</div>
+    <a class="nav-item active" href="index.html" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+      Welcome
+    </a>
+    <a class="nav-item" href="projects.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M8 5V3m8 2V3"/></svg>
+      Supply Chain
+    </a>
+    <div class="nav-sub">
+      <a class="nav-item" href="projects.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4m0 0 8-4m-8 4v8"/></svg>
+        Shipments <span class="ext">&#8599;</span>
+      </a>
+    </div>
+    <a class="nav-item" href="projects.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M5 4h14v16H5zM9 8h6M9 12h6M9 16h4"/></svg>
+      Catalog
+    </a>
+    <a class="nav-item" href="projects.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/></svg>
+      Projects <span class="count">7</span>
+    </a>
+    <a class="nav-item" href="projects.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
+      Feature Requests <span class="count">9</span>
+    </a>
+    <a class="nav-item" href="projects.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M21 12a8 8 0 1 0-3.1 6.3L21 19z"/></svg>
+      Customer Support
+    </a>
+
+    <div class="nav-label">Legacy</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10"/></svg>
+      Console <span class="ext">&#8599;</span>
+    </a>
+
+    <div class="foot">
+      <div class="signed-card">
+        <div class="avatar">OP</div>
+        <div class="who"><b>Signed in</b><span>Operator</span></div>
+        <a class="out" href="sign-out.html">Sign out</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <span class="eyebrow">Dehaux &middot; Operations Hub</span>
+      <h1 style="margin-top:10px">Quick Access <em>Dehaux Ops</em></h1>
+
+      <div class="section-head">
+        <div><span class="num">01</span><h2>Where to go next</h2></div>
+        <span class="aside">Jump straight in</span>
+      </div>
+
+      <div class="quick-grid">
+        <a class="card quick-card" href="projects.html">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="k">Feature requests</div>
+          <h3>Add a Feature Request</h3>
+          <p>Log something that would make ops smoother. Goes straight onto the board.</p>
+          <div class="go"><span>Open form</span><span>&rarr;</span></div>
+        </a>
+        <a class="card quick-card" href="projects.html">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/><path d="M13 7.5h7M4 16.5h7"/></svg></div>
+          <div class="k">Projects</div>
+          <h3>Propose a New Project</h3>
+          <p>Name it, describe it, assign a team. Lands on the projects board immediately.</p>
+          <div class="go"><span>Open form</span><span>&rarr;</span></div>
+        </a>
+      </div>
+
+      <div class="section-head">
+        <div><span class="num">02</span><h2>What we've shipped</h2></div>
+        <span class="aside">Now live</span>
+      </div>
+
+      <div class="card ship-list">
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Orders Desk</span><span class="desc">Stranded order lines surfaced and pushed back to fulfillment without copy-paste</span></div>
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Container Planning</span><span class="desc">SKU-level allocation across inbound shipments, vessel ETAs, and volume budgets</span></div>
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Vendor Portal</span><span class="desc">Vendors upload catalogs, the hub parses and surfaces SKUs; POs tracked end to end</span></div>
+        <div class="ship-row"><span class="pill quiet"><i></i>Live in chat</span><span class="title">Assistants</span><span class="desc">A planning agent that drafts operations moves and an analyst that answers plain-English questions</span></div>
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Customer Support</span><span class="desc">Stale unpaid orders surfaced and ready to action without touching the storefront admin</span></div>
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Single sign-in</span><span class="desc">One session across every tool in the hub</span></div>
+        <div class="ship-row"><span class="pill"><i></i>Live</span><span class="title">Projects &amp; Feature Requests</span><span class="desc">One board to track what we're building, who owns it, and when it ships</span></div>
+      </div>
+
+      <div class="callout">
+        <p>The Operations Hub is the start. The arc is bigger: <span class="hl">one source of truth for everything</span>. Today's focus is streamlining ops and pulling the data together. The rest is on the way.</p>
+      </div>
+
+      <div class="page-foot">
+        <span>V1 &middot; Operations Hub &middot; Internal</span>
+        <span data-clock>00:00</span>
+        <span class="status-dot"><i></i>Systems nominal</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="palette-dock" role="group" aria-label="Palette">
+  <span class="lab">Palette</span>
+  <button class="sw-copper" data-set="copper" aria-label="Copper palette"></button>
+  <button class="sw-brass" data-set="brass" aria-label="Brass palette"></button>
+  <button class="sw-verdigris" data-set="verdigris" aria-label="Verdigris palette"></button>
+</div>
+
+<script src="assets/dehaux.js"></script>
+</body>
+</html>

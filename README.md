@@ -4,6 +4,14 @@
 
 An atlas from [velofy](https://github.com/velofy): AI Native builders out of Gurgaon, India. Every reference here is a complete, self-contained HTML file: inline CSS and JS, system fonts, zero dependencies, no build step. Open it in a browser, or hand it to a coding agent as a design reference it can parse directly from the DOM.
 
+## Featured template: Dehaux
+
+[**Dehaux**](templates/dehaux/) is a full multi-page operations-hub template: dark editorial, espresso ground, display serif voice, three switchable accent palettes (copper, brass, verdigris). Six pages: dashboard, projects board, split login, sign-out ceremony, design-system styleguide, and a 404.
+
+- Browse it live: [velofy.github.io/ui-atlas/templates/dehaux](https://velofy.github.io/ui-atlas/templates/dehaux/) or [velofy.github.io/dehaux](https://velofy.github.io/dehaux/)
+- Source repo: [github.com/velofy/dehaux](https://github.com/velofy/dehaux)
+- Docs: [`templates/dehaux/README.md`](templates/dehaux/README.md)
+
 ## Collection 01: velofy.co landing concepts
 
 Eight art directions explored for the velofy.co landing page. Same brand, same content, eight very different answers. Each file lives in [`landing-pages/velofy-co/`](landing-pages/velofy-co/).
@@ -19,7 +27,7 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`07-swiss.html`](landing-pages/velofy-co/07-swiss.html) | The Poster | Swiss International Style: 12-column grid, one red, baseline rhythm. Press G to reveal the proofing grid. |
 | [`08-literate.html`](landing-pages/velofy-co/08-literate.html) | View Source | The page is its own annotated source code. A render toggle flips the same DOM into a clean landing page and back. |
 | [`09-showreel.html`](landing-pages/velofy-co/09-showreel.html) | The Showreel | Site-of-the-day vocabulary in pure vanilla JS: preloader counter, kinetic wordmark, pinned scenes, a horizontal gallery, and a magnetic footer CTA. |
-| [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A pale-yellow startup page that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
+| [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A monochrome dark startup page in white grotesk type that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
 
 ## Ground rules every reference follows
 

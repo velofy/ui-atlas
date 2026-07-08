@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="copper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dehaux: Sign in</title>
+<link rel="stylesheet" href="assets/dehaux.css">
+</head>
+<body>
+<div class="split">
+
+  <section class="pane-hero">
+    <div class="brand" style="padding:0">
+      <div class="tile">D</div>
+      <div>
+        <div class="name">Dehaux</div>
+        <div class="sub">Operations Hub</div>
+      </div>
+    </div>
+
+    <div class="headline">
+      <span class="eyebrow">Operations Hub &middot; Internal access</span>
+      <h1 style="margin-top:14px">The calm side of <em>operations</em>.</h1>
+    </div>
+
+    <div class="foot-row">
+      <span>V1 &middot; Operations Hub &middot; Internal</span>
+      <span class="status-dot"><i></i>Systems nominal</span>
+    </div>
+  </section>
+
+  <section class="pane-form">
+    <span class="eyebrow accent">Single sign-in</span>
+    <h2 class="serif" style="font-size:30px;margin:12px 0 10px">Welcome back, <em>operator</em>.</h2>
+    <p style="color:var(--muted);margin:0 0 24px">Use your Dehaux credentials. One session signs you into the whole hub.</p>
+
+    <div class="note" data-signednote>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12.5 10 18 20 6"/></svg>
+      You've been signed out. See you soon.
+    </div>
+
+    <form action="index.html" method="get">
+      <div class="field">
+        <label for="dx-user">Username</label>
+        <div class="control">
+          <input id="dx-user" type="text" autocomplete="username" value="operator@dehaux.dev">
+        </div>
+      </div>
+      <div class="field">
+        <label for="dx-pass">Password</label>
+        <div class="control">
+          <input id="dx-pass" type="password" autocomplete="current-password" value="placeholder">
+          <button class="trail" type="button" data-reveal="dx-pass" aria-label="Show password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn ink block" type="submit">Sign in&nbsp;&nbsp;&rarr;</button>
+    </form>
+
+    <div class="form-links">
+      <a href="#">Forgot password?</a>
+      <a href="#">Create account</a>
+    </div>
+  </section>
+</div>
+
+<div class="palette-dock" role="group" aria-label="Palette">
+  <span class="lab">Palette</span>
+  <button class="sw-copper" data-set="copper" aria-label="Copper palette"></button>
+  <button class="sw-brass" data-set="brass" aria-label="Brass palette"></button>
+  <button class="sw-verdigris" data-set="verdigris" aria-label="Verdigris palette"></button>
+</div>
+
+<script src="assets/dehaux.js"></script>
+</body>
+</html>

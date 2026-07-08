@@ -515,50 +515,59 @@
 }
 
 
-/* Pale-yellow reskin: Summit components read tokens, so the whole kit re-themes here.
-   The docs-flavored component CSS also reads the docs site variables (accent, border,
-   surface, ink...), so both vocabularies are mapped to the same butter palette. */
+/* Dark reskin: Summit components read tokens, so the whole kit re-themes here.
+   White grotesk type on a neutral ink ground, no color accents at all. The
+   docs-flavored component CSS also reads the docs site variables (accent, border,
+   surface, ink...), so both vocabularies are mapped to the same palette. */
 :root, :root[data-theme="dark"], :root[data-theme="light"] {
-  color-scheme: light;
-  --accent: #7E6300;
-  --accent-2: #2A250F;
-  --accent-soft: color-mix(in srgb, #7E6300 14%, #FAF4D6);
-  --bg: #FAF4D6;
-  --surface: #FFFCEE;
-  --surface-2: #F3EABF;
-  --border: #E1D59F;
-  --text: #2A250F;
-  --ink: #2A250F;
-  --ink-contrast: #FFFBE8;
-  --muted: #6F663F;
-  --faint: #8A7F55;
-  --logo: #2A250F;
-  --shadow: 0 1px 2px rgba(58,48,8,.08), 0 8px 24px rgba(58,48,8,.08);
-  --shadow-lg: 0 12px 40px rgba(58,48,8,.14);
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+  --grotesk: "Neue Haas Grotesk Text Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --accent: #F5F5F2;
+  --accent-2: #F5F5F2;
+  --accent-soft: color-mix(in srgb, #F5F5F2 10%, #1B1B1B);
+  --bg: #121212;
+  --surface: #1B1B1B;
+  --surface-2: #242424;
+  --border: #343434;
+  --text: #F5F5F2;
+  --ink: #F5F5F2;
+  --ink-contrast: #121212;
+  --muted: #A3A3A0;
+  --faint: #7C7C78;
+  --logo: #F5F5F2;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  --shadow-lg: 0 16px 44px rgba(0,0,0,.5);
+  --font: var(--grotesk);
+  --body: var(--grotesk);
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --s-bg: #FAF4D6;
-  --s-surface: #FFFCEE;
-  --s-surface-2: #F3EABF;
-  --s-border: #E1D59F;
-  --s-text: #2A250F;
-  --s-muted: #6F663F;
-  --s-accent: #7E6300;
-  --s-accent-strong: #665000;
-  --s-accent-2: #2A250F;
-  --s-accent-contrast: #FFFBE8;
-  --s-shadow: 0 1px 2px rgba(58,48,8,.08), 0 8px 24px rgba(58,48,8,.08);
-  --s-shadow-lg: 0 12px 40px rgba(58,48,8,.14);
-  --s-ring: 0 0 0 3px color-mix(in srgb, var(--s-accent) 30%, transparent);
+  --s-font: var(--grotesk);
+  --s-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --s-bg: #121212;
+  --s-surface: #1B1B1B;
+  --s-surface-2: #242424;
+  --s-border: #343434;
+  --s-text: #F5F5F2;
+  --s-muted: #A3A3A0;
+  --s-accent: #F5F5F2;
+  --s-accent-strong: #FFFFFF;
+  --s-accent-2: #F5F5F2;
+  --s-accent-contrast: #121212;
+  --s-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  --s-shadow-lg: 0 16px 44px rgba(0,0,0,.5);
+  --s-ring: 0 0 0 3px color-mix(in srgb, var(--s-accent) 35%, transparent);
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --s-bg: #FAF4D6; --s-surface: #FFFCEE; --s-surface-2: #F3EABF;
-    --s-border: #E1D59F; --s-text: #2A250F; --s-muted: #6F663F;
-    --s-accent: #8F7100; --s-accent-strong: #745B00; --s-accent-contrast: #FFFBE8;
+    --s-bg: #121212; --s-surface: #1B1B1B; --s-surface-2: #242424;
+    --s-border: #343434; --s-text: #F5F5F2; --s-muted: #A3A3A0;
+    --s-accent: #F5F5F2; --s-accent-strong: #FFFFFF; --s-accent-contrast: #121212;
   }
 }
+
+/* Yellow CTAs on dark ground want dark button text; the component ships white. */
+.s-btn, :root[data-theme="dark"] .s-btn, :root[data-theme="light"] .s-btn { color: #121212; }
+.s-btn-outline, :root[data-theme="dark"] .s-btn-outline, :root[data-theme="light"] .s-btn-outline,
+.s-btn-ghost, :root[data-theme="dark"] .s-btn-ghost, :root[data-theme="light"] .s-btn-ghost { color: var(--text); background: transparent; }
 
 [s-cloak] { display: none !important; }
 
@@ -577,8 +586,8 @@ body { background: var(--s-bg); color: var(--s-text); font-family: var(--s-font)
 .topnav nav a:hover { color: var(--s-text); }
 
 .hero { padding: 72px 0 30px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 44px; align-items: center; }
-.hero h1 { font-size: clamp(34px, 4.6vw, 54px); line-height: 1.06; letter-spacing: -.025em; margin: 14px 0 16px; font-weight: 750; }
-.hero h1 .hl { color: var(--s-accent); }
+.hero h1 { font-size: clamp(34px, 4.6vw, 56px); line-height: 1.04; letter-spacing: -.03em; margin: 14px 0 16px; font-weight: 700; color: var(--s-text); }
+.hero h1 .hl { color: var(--s-text); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 7px; text-decoration-color: var(--s-muted); }
 .hero .sub { font-size: 17px; color: var(--s-muted); max-width: 46ch; margin: 0 0 24px; }
 .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
@@ -586,7 +595,7 @@ body { background: var(--s-bg); color: var(--s-text); font-family: var(--s-font)
 .metrics b { color: var(--s-text); font-variant-numeric: tabular-nums; }
 
 section.block { padding: 42px 0; }
-.kicker { font-family: var(--s-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--s-accent); }
+.kicker { font-family: var(--s-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--s-muted); }
 h2.title { font-size: 28px; letter-spacing: -.015em; margin: 8px 0 6px; font-weight: 700; }
 p.lede { color: var(--s-muted); margin: 0 0 26px; max-width: 60ch; }
 
@@ -596,9 +605,9 @@ p.lede { color: var(--s-muted); margin: 0 0 26px; max-width: 60ch; }
 .browser .bar .url { margin-left: 10px; font-family: var(--s-mono); font-size: 11px; color: var(--s-muted); }
 .demo-split { display: grid; grid-template-columns: 1fr 1fr; }
 .demo-split > div { padding: 22px; min-width: 0; }
-.demo-split .code { border-right: 1px solid var(--s-border); background: #2A250F; overflow-x: auto; }
-pre.snip { margin: 0; font-family: var(--s-mono); font-size: 12.5px; line-height: 1.7; color: #F3EABF; }
-pre.snip .tg { color: #E8C55C; } pre.snip .at { color: #B9CE8F; } pre.snip .st { color: #FFF6D8; } pre.snip .cm { color: #8D8154; }
+.demo-split .code { border-right: 1px solid var(--s-border); background: #0D0D0D; overflow-x: auto; }
+pre.snip { margin: 0; font-family: var(--s-mono); font-size: 12.5px; line-height: 1.7; color: #E4E4E1; }
+pre.snip .tg { color: #FFFFFF; } pre.snip .at { color: #9FB6C9; } pre.snip .st { color: #CFCFC9; } pre.snip .cm { color: #6F6F6A; }
 .code-caption { font-size: 12.5px; color: var(--s-muted); padding: 12px 18px; border-top: 1px solid var(--s-border); background: var(--s-surface); }
 
 .loader-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 14px; }
@@ -608,7 +617,7 @@ pre.snip .tg { color: #E8C55C; } pre.snip .at { color: #B9CE8F; } pre.snip .st {
 
 .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .step-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.step-grid .s-card-body pre.snip { background: #2A250F; border-radius: var(--s-radius-sm); padding: 12px; margin-top: 10px; }
+.step-grid .s-card-body pre.snip { background: #0D0D0D; border-radius: var(--s-radius-sm); padding: 12px; margin-top: 10px; }
 
 .foot { border-top: 1px solid var(--s-border); padding: 34px 0 44px; margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; color: var(--s-muted); font-size: 13.5px; }
 
@@ -705,7 +714,7 @@ pre.snip .tg { color: #E8C55C; } pre.snip .at { color: #B9CE8F; } pre.snip .st {
   <section class="block" id="loaders">
     <span class="kicker">The loader arsenal</span>
     <h2 class="title">Advanced loaders, pure CSS, zero main-thread cost</h2>
-    <p class="lede">Summit ships a full gallery of loading states. Every one below is the framework's own class, inheriting this page's pale-yellow tokens automatically.</p>
+    <p class="lede">Summit ships a full gallery of loading states. Every one below is the framework's own class, inheriting this page's monochrome ink tokens automatically.</p>
     <div class="loader-grid">
       <div class="loader-cell"><div class="stage"><span class="s-spinner"></span></div><p>Ring</p></div>
       <div class="loader-cell"><div class="stage"><span class="s-load-dual"></span></div><p>Dual ring</p></div>

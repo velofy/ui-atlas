@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="copper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dehaux: Design System</title>
+<link rel="stylesheet" href="assets/dehaux.css">
+<style>
+  .sg { max-width: 1020px; margin: 0 auto; padding: 76px clamp(20px, 5vw, 48px) 56px; }
+  .sg .lede { color: var(--muted); font-size: 15.5px; max-width: 640px; margin: 16px 0 0; }
+  .sg .t-mono {
+    display: block;
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); line-height: 1.8;
+  }
+  .lead-cap { margin: -4px 0 26px; }
+  .pal { margin-bottom: 40px; }
+  .pal-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .pal-head h3 { font-size: 20px; }
+  .pal-head .t-mono { display: inline; color: var(--accent); }
+  .pal .when { margin: 0 0 16px; font-size: 13.5px; color: var(--body); max-width: 680px; }
+  .pal .const { margin-top: 12px; }
+  .combo-head { display: flex; align-items: baseline; gap: 12px; margin: 46px 0 14px; }
+  .combo-head h3 { font-size: 20px; }
+  .spec { padding: 26px 0 20px; border-bottom: 1px solid var(--line-soft); }
+  .spec:last-child { border-bottom: none; }
+  .spec .t-mono { margin-top: 12px; }
+  .spec .mono { color: var(--ink); }
+  .spec p { margin: 0; max-width: 640px; }
+  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .comp { padding: 20px 22px; }
+  .comp.wide { grid-column: 1 / -1; }
+  .comp > .t-mono:first-child { margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px dashed var(--line-soft); }
+  .comp .after { margin-top: 14px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .comp .callout { margin-top: 0; }
+  .comp .note:last-child { margin-bottom: 0; }
+  .comp .field { margin-bottom: 12px; }
+  .comp .brand { padding: 2px 0; }
+  .comp .table-wrap { border: 1px solid var(--line-soft); }
+  .centered { display: flex; justify-content: center; padding: 16px 0; }
+  @media (max-width: 760px) {
+    .comp-grid { grid-template-columns: 1fr; }
+    .comp.wide { grid-column: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sg">
+
+  <span class="eyebrow">Dehaux &middot; Design System</span>
+  <h1 style="margin-top:12px">The <em>Dehaux</em> System</h1>
+  <p class="lede">Dark editorial operations UI. One espresso ground, three accents that never fight.</p>
+
+  <!-- 01 · Palettes -->
+  <div class="section-head">
+    <div><span class="num">01</span><h2>Palettes</h2></div>
+    <span class="aside">Three accents &middot; One ground</span>
+  </div>
+
+  <span class="t-mono lead-cap">Flip the dock at lower right: the page re-themes live, the printed chips below hold still. That contrast is the point.</span>
+
+  <div class="pal">
+    <div class="pal-head"><h3>Copper</h3><span class="t-mono">Default</span></div>
+    <p class="when">The default. Warm and closest to the original terracotta soul of the hub; choose it when the room should feel lived in.</p>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chipc" style="background:#171210"></div><div class="meta"><b>Ground</b><span>#171210</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#1F1915"></div><div class="meta"><b>Panel</b><span>#1F1915</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#3A2F24"></div><div class="meta"><b>Line</b><span>#3A2F24</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#EFE6D5"></div><div class="meta"><b>Ink</b><span>#EFE6D5</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#A69687"></div><div class="meta"><b>Muted</b><span>#A69687</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#CE8354"></div><div class="meta"><b>Accent</b><span>#CE8354</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#93A583"></div><div class="meta"><b>OK</b><span>#93A583</span></div></div>
+    </div>
+    <span class="t-mono const">Constant: status green for live &middot; semantic warn and danger &middot; the espresso ground family</span>
+  </div>
+
+  <div class="pal">
+    <div class="pal-head"><h3>Brass</h3><span class="t-mono">Gilded</span></div>
+    <p class="when">Gilded and low lit; for teams that want the hub to feel like a private library.</p>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chipc" style="background:#14100A"></div><div class="meta"><b>Ground</b><span>#14100A</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#1D1710"></div><div class="meta"><b>Panel</b><span>#1D1710</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#EDE3CC"></div><div class="meta"><b>Ink</b><span>#EDE3CC</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#A2957D"></div><div class="meta"><b>Muted</b><span>#A2957D</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#C9A45C"></div><div class="meta"><b>Accent</b><span>#C9A45C</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#9B9A6B"></div><div class="meta"><b>OK</b><span>#9B9A6B</span></div></div>
+    </div>
+    <span class="t-mono const">Constant: live stays green &middot; warn and danger keep their hues &middot; the ground stays espresso</span>
+  </div>
+
+  <div class="pal">
+    <div class="pal-head"><h3>Verdigris</h3><span class="t-mono">Botanical</span></div>
+    <p class="when">Cooler and botanical, the calmest of the three; choose it for long reading sessions and quiet dashboards.</p>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chipc" style="background:#131511"></div><div class="meta"><b>Ground</b><span>#131511</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#1A1D18"></div><div class="meta"><b>Panel</b><span>#1A1D18</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#E8E7DA"></div><div class="meta"><b>Ink</b><span>#E8E7DA</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#9AA091"></div><div class="meta"><b>Muted</b><span>#9AA091</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#83B098"></div><div class="meta"><b>Accent</b><span>#83B098</span></div></div>
+      <div class="swatch"><div class="chipc" style="background:#A8B080"></div><div class="meta"><b>OK</b><span>#A8B080</span></div></div>
+    </div>
+    <span class="t-mono const">Constant: status greens for live &middot; semantic warn and danger &middot; one espresso ground family</span>
+  </div>
+
+  <div class="combo-head"><h3>Combinations that hold</h3><span class="t-mono">Field notes</span></div>
+  <div class="card ship-list">
+    <div class="ship-row"><span class="title">Copper, sage, bone</span><span class="desc">Pair the copper accent with sage status pills and bone ink. This is the default, and it holds without effort.</span></div>
+    <div class="ship-row"><span class="title">Brass runs deeper</span><span class="desc">Brass likes deeper shadows and a hush; keep the callout sparse and let the gilt do the talking.</span></div>
+    <div class="ship-row"><span class="title">Verdigris with olive</span><span class="desc">Verdigris reads best with olive status. Never mix two accent palettes on one screen.</span></div>
+    <div class="ship-row"><span class="title">Italic serif is spoken for</span><span class="desc">The italic serif is always the accent color, never a second hue.</span></div>
+  </div>
+
+  <!-- 02 · Type -->
+  <div class="section-head">
+    <div><span class="num">02</span><h2>Type</h2></div>
+    <span class="aside">Specimens</span>
+  </div>
+
+  <div class="spec-list">
+    <div class="spec">
+      <div class="display display-xl">Quick Access, set in <em>Didot</em></div>
+      <span class="t-mono">Display &middot; Didot, Bodoni 72, Georgia</span>
+    </div>
+    <div class="spec">
+      <h1>Everything in <em>one ledger</em></h1>
+      <span class="t-mono">Page title &middot; the italic em always takes the accent</span>
+    </div>
+    <div class="spec">
+      <h2>A season of steady shipping</h2>
+      <span class="t-mono">Section</span>
+    </div>
+    <div class="spec">
+      <h3>Container Planning</h3>
+      <span class="t-mono">Card title</span>
+    </div>
+    <div class="spec">
+      <p>The hub reads like a well set page: hairline borders, a calm measure, monospace whispers in the margins. Body text holds at fifteen pixels with a relaxed line, so long operational notes stay legible at the end of a shift.</p>
+      <span class="t-mono">Body &middot; Avenir Next system stack</span>
+    </div>
+    <div class="spec">
+      <span class="mono">Batch 07 &middot; Reviewed &middot; Cleared for release</span>
+      <span class="t-mono">Micro label &middot; SF Mono stack, uppercase, tracked wide</span>
+    </div>
+    <div class="spec">
+      <span class="eyebrow">Dehaux &middot; Specimen</span>
+      <span class="t-mono">Eyebrow &middot; the dash is drawn, never typed</span>
+    </div>
+  </div>
+
+  <!-- 03 · Components -->
+  <div class="section-head">
+    <div><span class="num">03</span><h2>Components</h2></div>
+    <span class="aside">The working kit</span>
+  </div>
+
+  <div class="comp-grid">
+
+    <div class="card comp">
+      <span class="t-mono">Buttons &middot; primary, ink, ghost</span>
+      <div class="row">
+        <button class="btn primary">Primary action</button>
+        <button class="btn ink">Ink</button>
+        <button class="btn ghost">Ghost</button>
+      </div>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Pills &middot; status language</span>
+      <div class="row">
+        <span class="pill"><i></i>Live</span>
+        <span class="pill warn"><i></i>Building</span>
+        <span class="pill danger"><i></i>Blocked</span>
+        <span class="pill quiet"><i></i>Paused</span>
+      </div>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Form field</span>
+      <div class="field">
+        <label for="sg-name">Workspace name</label>
+        <div class="control"><input id="sg-name" type="text" placeholder="e.g. Atelier Ops"></div>
+      </div>
+      <span class="t-mono">On focus: border turns accent with a soft 3px accent glow</span>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Note banners &middot; ok and warn</span>
+      <div class="note"><span>Saved. The board will refresh on its own.</span></div>
+      <div class="note warn"><span>Two shipments are missing vessel ETAs.</span></div>
+    </div>
+
+    <div class="card comp wide">
+      <span class="t-mono">Callout &middot; the editorial voice</span>
+      <div class="callout">
+        <p>The hub is the start. The arc is bigger: <span class="hl">one source of truth for everything</span>, typeset calmly enough to read at midnight.</p>
+      </div>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Table &middot; table.dx</span>
+      <div class="table-wrap">
+        <table class="dx">
+          <thead><tr><th>Project</th><th>Stage</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="t-title">Orders Desk</td><td class="t-mono">Rollout</td><td><span class="pill"><i></i>Live</span></td></tr>
+            <tr><td class="t-title">Vendor Portal</td><td class="t-mono">Build</td><td><span class="pill warn"><i></i>Building</span></td></tr>
+            <tr><td class="t-title">Archive Sweep</td><td class="t-mono">Hold</td><td><span class="pill quiet"><i></i>Paused</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Brand tile &middot; the lockup</span>
+      <div class="brand">
+        <div class="tile">D</div>
+        <div>
+          <div class="name">Dehaux</div>
+          <div class="sub">Design System</div>
+        </div>
+      </div>
+      <span class="t-mono after">Serif D on the accent gradient; the sub always in tracked mono</span>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Chips &middot; filter row</span>
+      <div class="row">
+        <button class="chip">All</button>
+        <button class="chip on">Live</button>
+        <button class="chip">Building</button>
+        <button class="chip">Paused</button>
+      </div>
+      <span class="t-mono after">One chip carries .on at a time; it borrows the accent</span>
+    </div>
+
+    <div class="card comp">
+      <span class="t-mono">Rule label &middot; terminal punctuation</span>
+      <div class="centered"><span class="rule-label">Nothing further below</span></div>
+    </div>
+
+  </div>
+
+  <div class="page-foot">
+    <span>Dehaux Design System &middot; V1</span>
+    <span class="status-dot"><i></i>Tokens stable</span>
+  </div>
+
+</div>
+
+<div class="palette-dock" role="group" aria-label="Palette">
+  <span class="lab">Palette</span>
+  <button class="sw-copper" data-set="copper" aria-label="Copper palette"></button>
+  <button class="sw-brass" data-set="brass" aria-label="Brass palette"></button>
+  <button class="sw-verdigris" data-set="verdigris" aria-label="Verdigris palette"></button>
+</div>
+
+<script src="assets/dehaux.js"></script>
+</body>
+</html>
