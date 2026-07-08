@@ -4,14 +4,6 @@
 
 An atlas from [velofy](https://github.com/velofy): AI Native builders out of Gurgaon, India. Every reference here is a complete, self-contained HTML file: inline CSS and JS, system fonts, zero dependencies, no build step. Open it in a browser, or hand it to a coding agent as a design reference it can parse directly from the DOM.
 
-## Featured template: Dehaux
-
-[**Dehaux**](templates/dehaux/) is a full multi-page operations-hub template: dark editorial, espresso ground, display serif voice, three switchable accent palettes (copper, brass, verdigris). Six pages: dashboard, projects board, split login, sign-out ceremony, design-system styleguide, and a 404.
-
-- Browse it live: [velofy.github.io/ui-atlas/templates/dehaux](https://velofy.github.io/ui-atlas/templates/dehaux/) or [velofy.github.io/dehaux](https://velofy.github.io/dehaux/)
-- Source repo: [github.com/velofy/dehaux](https://github.com/velofy/dehaux)
-- Docs: [`templates/dehaux/README.md`](templates/dehaux/README.md)
-
 ## Collection 01: velofy.co landing concepts
 
 Eight art directions explored for the velofy.co landing page. Same brand, same content, eight very different answers. Each file lives in [`landing-pages/velofy-co/`](landing-pages/velofy-co/).

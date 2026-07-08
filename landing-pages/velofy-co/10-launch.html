@@ -568,6 +568,9 @@
 .s-btn, :root[data-theme="dark"] .s-btn, :root[data-theme="light"] .s-btn { color: #121212; }
 .s-btn-outline, :root[data-theme="dark"] .s-btn-outline, :root[data-theme="light"] .s-btn-outline,
 .s-btn-ghost, :root[data-theme="dark"] .s-btn-ghost, :root[data-theme="light"] .s-btn-ghost { color: var(--text); background: transparent; }
+a, a:hover { text-decoration: none; }
+.topnav nav a.s-btn, .topnav nav a.s-btn:hover { color: #121212; }
+main a:not(.s-btn):hover, .foot a:hover { text-decoration: underline; }
 
 [s-cloak] { display: none !important; }
 
@@ -617,7 +620,7 @@ pre.snip .tg { color: #FFFFFF; } pre.snip .at { color: #9FB6C9; } pre.snip .st {
 
 .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .step-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.step-grid .s-card-body pre.snip { background: #0D0D0D; border-radius: var(--s-radius-sm); padding: 12px; margin-top: 10px; }
+.step-grid .s-card-body pre.snip { background: #0D0D0D; border-radius: var(--s-radius-sm); padding: 12px; margin-top: 10px; white-space: pre-wrap; word-break: break-word; }
 
 .foot { border-top: 1px solid var(--s-border); padding: 34px 0 44px; margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; color: var(--s-muted); font-size: 13.5px; }
 
