@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>velofy: showreel</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  :root {
+    --ink: #151210;
+    --ink-2: #1c1714;
+    --ink-3: #211b17;
+    --bone: #ece4d6;
+    --bone-dim: #9b9184;
+    --bone-faint: rgba(236, 228, 214, 0.12);
+    --accent: #f4571f;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-inout: cubic-bezier(0.83, 0, 0.17, 1);
+    --ease-exp: cubic-bezier(0.76, 0, 0.24, 1);
+    --vskew: 0deg;
+  }
+
+  html {
+    background: var(--ink);
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  * { box-sizing: border-box; }
+  ::selection { background: var(--accent); color: var(--ink); }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  h1, h2, h3, p { margin: 0; }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+
+  /* velocity skew consumers: transform only, driven by one root var */
+  .k { transform: skewY(var(--vskew)); }
+
+  /* ---------- preloader ---------- */
+  #preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: #171310;
+    display: grid;
+    place-items: center;
+    animation: plLift 0.55s var(--ease-exp) 0.85s forwards;
+  }
+  @keyframes plLift {
+    to { transform: translateY(-101%); visibility: hidden; }
+  }
+  .pl-word {
+    font-size: clamp(40px, 9vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    clip-path: inset(0 100% 0 0);
+    animation: plWipe 0.6s var(--ease-inout) 0.1s forwards;
+  }
+  .pl-word b { color: var(--accent); }
+  @keyframes plWipe {
+    to { clip-path: inset(0 0 0 0); }
+  }
+  .pl-count {
+    position: absolute;
+    right: clamp(16px, 4vw, 48px);
+    bottom: clamp(16px, 4vh, 40px);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+
+  /* ---------- custom cursor (decorative overlay, native cursor untouched) ---------- */
+  .cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    display: none;
+  }
+  .cursor.on { display: block; }
+  .c-dot {
+    position: absolute;
+    top: -3px; left: -3px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .c-ring {
+    position: absolute;
+    top: -19px; left: -19px;
+    width: 38px; height: 38px;
+    will-change: transform;
+  }
+  .c-circle {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(236, 228, 214, 0.45);
+    transition: transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out), background-color 0.3s var(--ease-out);
+  }
+  .c-label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bone);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+  .cursor.hover .c-circle {
+    transform: scale(2.1);
+    border-color: var(--accent);
+    background: rgba(244, 87, 31, 0.1);
+  }
+  .cursor.hover .c-label { opacity: 1; }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(16px, 3vh, 28px) clamp(16px, 4vw, 48px);
+    opacity: 0;
+    animation: fadeUp 0.7s var(--ease-out) 1.35s forwards;
+  }
+  .topbar .mark {
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.03em;
+  }
+  .topbar .mark b { color: var(--accent); }
+  .topbar a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    transition: color 0.25s var(--ease-out);
+  }
+  .topbar a:hover { color: var(--accent); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 3vw;
+  }
+  .hero-word {
+    font-size: min(24vw, 38vh, 340px);
+    font-weight: 700;
+    line-height: 0.84;
+    letter-spacing: -0.035em;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .hl {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.06em;
+    margin-bottom: -0.06em;
+  }
+  .hl i {
+    display: inline-block;
+    font-style: normal;
+    transform: translateY(112%);
+    animation: rise 0.75s var(--ease-out) forwards;
+  }
+  .hl:nth-child(1) i { animation-delay: 0.92s; }
+  .hl:nth-child(2) i { animation-delay: 0.97s; }
+  .hl:nth-child(3) i { animation-delay: 1.02s; }
+  .hl:nth-child(4) i { animation-delay: 1.07s; }
+  .hl:nth-child(5) i { animation-delay: 1.12s; }
+  .hl:nth-child(6) i { animation-delay: 1.17s; }
+  @keyframes rise {
+    to { transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-foot {
+    position: absolute;
+    left: clamp(16px, 4vw, 48px);
+    right: clamp(16px, 4vw, 48px);
+    bottom: clamp(20px, 5vh, 48px);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .tagline {
+    font-size: clamp(15px, 2.2vw, 22px);
+    line-height: 1.25;
+    color: var(--bone-dim);
+  }
+  .tl-mask { display: block; overflow: hidden; }
+  .tl-mask span {
+    display: block;
+    transform: translateY(110%);
+    animation: rise 0.8s var(--ease-out) forwards;
+  }
+  .tl-mask:nth-child(1) span { animation-delay: 1.22s; }
+  .tl-mask:nth-child(2) span { animation-delay: 1.3s; }
+  .tagline em { font-style: normal; color: var(--bone); }
+
+  .cue {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeUp 0.7s var(--ease-out) 1.5s forwards;
+  }
+  .cue span {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .cue-line {
+    width: 1px;
+    height: 44px;
+    background: var(--bone-faint);
+    overflow: hidden;
+  }
+  .cue-line i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: top;
+    animation: cueDrop 1.8s var(--ease-inout) infinite;
+  }
+  @keyframes cueDrop {
+    0% { transform: translateY(-100%); }
+    55% { transform: translateY(0); }
+    100% { transform: translateY(102%); }
+  }
+
+  /* ---------- sticky scene stack ---------- */
+  .stack { height: 330vh; height: 330svh; position: relative; }
+  .stack-vp {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+  }
+  .beat {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 clamp(16px, 6vw, 96px);
+    opacity: 0;
+  }
+  .beat:first-child { opacity: 1; }
+  .beat .label { margin-bottom: clamp(16px, 3vh, 32px); }
+  .beat .label b { color: var(--accent); font-weight: 400; }
+  .beat h2 {
+    font-size: clamp(2.1rem, 7.5vw, 6.4rem);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    max-width: 12em;
+  }
+  .beat p {
+    margin-top: clamp(18px, 3.5vh, 36px);
+    max-width: 34em;
+    font-size: clamp(15px, 1.6vw, 19px);
+    color: var(--bone-dim);
+  }
+  .beat p em { font-style: normal; color: var(--bone); }
+  .beat .motto-tail { color: var(--accent); }
+  .beat p.coords {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 8.5vw, 7.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+    max-width: none;
+    margin-top: clamp(14px, 3vh, 30px);
+  }
+  .beat p.coords b { color: var(--accent); font-weight: 700; }
+  .beat-meter {
+    position: absolute;
+    left: clamp(16px, 6vw, 96px);
+    bottom: clamp(20px, 5vh, 48px);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--bone-dim);
+  }
+  .beat-meter .num { color: var(--accent); }
+  .meter-bar {
+    width: 72px;
+    height: 1px;
+    background: var(--bone-faint);
+    overflow: hidden;
+  }
+  .meter-bar i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  /* ---------- pinned horizontal gallery ---------- */
+  .g-pin { position: relative; }
+  .g-vp {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .g-head {
+    position: absolute;
+    top: clamp(18px, 4vh, 40px);
+    left: clamp(16px, 6vw, 96px);
+    right: clamp(16px, 6vw, 96px);
+    display: flex;
+    justify-content: space-between;
+  }
+  .g-track {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(16px, 3vw, 48px);
+    padding: 0 clamp(16px, 6vw, 96px);
+    will-change: transform;
+  }
+  .g-lead {
+    flex: 0 0 auto;
+    width: min(64vw, 560px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .g-lead h2 {
+    font-size: clamp(3rem, 11vw, 9rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+  .g-lead h2 b { color: var(--accent); }
+  .g-lead .label { margin-top: 20px; }
+  .g-card {
+    flex: 0 0 auto;
+    width: min(82vw, 620px);
+    min-height: min(68vh, 560px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    padding: clamp(20px, 3vw, 44px);
+    background: var(--ink-2);
+    border: 1px solid rgba(236, 228, 214, 0.08);
+    border-radius: 3px;
+  }
+  .g-card .label b { color: var(--accent); font-weight: 400; }
+  .g-title {
+    font-size: clamp(2rem, 6vw, 4.4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-top: 14px;
+  }
+  .g-desc {
+    margin-top: 16px;
+    font-size: clamp(14px, 1.5vw, 17px);
+    color: var(--bone-dim);
+    max-width: 30em;
+  }
+  .g-desc em { font-style: normal; color: var(--bone); }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .chips span {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    border: 1px solid rgba(236, 228, 214, 0.16);
+    border-radius: 2px;
+    padding: 5px 9px;
+    white-space: nowrap;
+  }
+  .g-links {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+  .g-links a {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone);
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
+    transition: color 0.25s var(--ease-out);
+  }
+  .g-links a:hover { color: var(--accent); }
+  .g-card.dev { background: transparent; }
+  .g-card.dev .g-title { color: rgba(236, 228, 214, 0.3); }
+  @supports (-webkit-text-stroke: 1px #000) {
+    .g-card.dev .g-title {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(236, 228, 214, 0.38);
+    }
+  }
+  .g-card.tease {
+    background: transparent;
+    border: 1px dashed rgba(236, 228, 214, 0.22);
+    justify-content: center;
+    gap: 28px;
+  }
+  .g-card.tease .g-title { margin-top: 0; }
+  .g-card.tease .g-title b { color: var(--accent); }
+
+  /* ---------- marquee ---------- */
+  .marquee {
+    overflow: hidden;
+    border-top: 1px solid var(--bone-faint);
+    border-bottom: 1px solid var(--bone-faint);
+    padding: clamp(14px, 2.5vh, 26px) 0;
+  }
+  .m-track {
+    display: flex;
+    width: max-content;
+    animation: mScroll 26s linear infinite;
+  }
+  .m-group {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+  .m-group span {
+    font-size: clamp(1.7rem, 5vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    padding: 0 0.55em;
+    color: var(--bone);
+  }
+  .m-group i {
+    flex: 0 0 auto;
+    width: 0.45em;
+    height: 0.45em;
+    font-size: clamp(1.7rem, 5vw, 4rem);
+    background: var(--accent);
+    border-radius: 50%;
+    transform: scale(0.28);
+  }
+  @keyframes mScroll {
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- mega footer ---------- */
+  .cta {
+    display: block;
+    padding: clamp(64px, 16vh, 160px) clamp(16px, 6vw, 96px);
+    text-align: center;
+  }
+  .cta:focus-visible { outline-offset: -6px; }
+  .cta-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(18px, 3vh, 30px);
+    will-change: transform;
+  }
+  .cta-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .cta-big {
+    font-size: clamp(3.2rem, 13vw, 12rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--bone);
+  }
+  .cta-big em {
+    font-style: normal;
+    color: var(--accent);
+    display: inline-block;
+    transition: transform 0.35s var(--ease-out);
+  }
+  .cta:hover .cta-big em { transform: translate(0.06em, -0.06em); }
+  .cta-sub {
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: var(--bone-dim);
+    max-width: 30em;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 20px clamp(16px, 4vw, 48px) 28px;
+    border-top: 1px solid var(--bone-faint);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .meta nav { display: flex; gap: 22px; }
+  .meta a {
+    color: var(--bone-dim);
+    transition: color 0.25s var(--ease-out);
+  }
+  .meta a:hover { color: var(--accent); }
+
+  @media (max-width: 560px) {
+    .hero-foot { flex-direction: column; align-items: flex-start; }
+    .cue { flex-direction: row; align-items: center; }
+    .cue-line { width: 44px; height: 1px; }
+    .cue-line i {
+      transform-origin: left;
+      animation-name: cueSlide;
+    }
+    .meta { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+  @keyframes cueSlide {
+    0% { transform: translateX(-100%); }
+    55% { transform: translateX(0); }
+    100% { transform: translateX(102%); }
+  }
+
+  /* ---------- touch fallback: gallery becomes a swipeable strip ---------- */
+  .gallery.flow .g-pin { height: auto !important; }
+  .gallery.flow .g-vp {
+    position: static;
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 90px 0 40px;
+  }
+  .gallery.flow .g-track { transform: none !important; }
+  .gallery.flow .g-card, .gallery.flow .g-lead { scroll-snap-align: center; }
+  .gallery.flow .g-card { min-height: 0; }
+  .gallery.flow .g-head { top: 24px; }
+
+  /* ---------- reduced motion: everything static, fully readable ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    #preloader { display: none; }
+    .topbar, .cue, .hl i, .tl-mask span {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .cue-line i { animation: none; }
+    .k { transform: none !important; }
+    .cursor { display: none !important; }
+    .stack { height: auto; }
+    .stack-vp { position: static; height: auto; overflow: visible; }
+    .beat {
+      position: static;
+      opacity: 1 !important;
+      transform: none !important;
+      min-height: 70vh;
+      padding-top: 12vh;
+      padding-bottom: 12vh;
+    }
+    .beat-meter { display: none; }
+    .g-pin { height: auto !important; }
+    .g-vp {
+      position: static;
+      height: auto;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 90px 0 40px;
+    }
+    .g-track { transform: none !important; }
+    .g-card { min-height: 0; }
+    .g-head { top: 24px; }
+    .m-track { animation: none; }
+    .cta:hover .cta-big em { transform: none; }
+  }
+</style>
+
+<div id="preloader" aria-hidden="true">
+  <div class="pl-word">velofy<b>.</b></div>
+  <div class="pl-count"><span id="plNum">000</span> / 100</div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="c-dot" id="cDot"></div>
+  <div class="c-ring" id="cRing">
+    <div class="c-circle"></div>
+    <div class="c-label" id="cLabel"></div>
+  </div>
+</div>
+
+<header class="topbar">
+  <span class="mark">velofy<b>.</b></span>
+  <a href="https://github.com/velofy" data-cursor="open">GitHub &#8599;</a>
+</header>
+
+<section class="hero">
+  <h1 class="hero-word k" aria-label="VELOFY">
+    <span class="hl" aria-hidden="true"><i>V</i></span><span class="hl" aria-hidden="true"><i>E</i></span><span class="hl" aria-hidden="true"><i>L</i></span><span class="hl" aria-hidden="true"><i>O</i></span><span class="hl" aria-hidden="true"><i>F</i></span><span class="hl" aria-hidden="true"><i>Y</i></span>
+  </h1>
+  <div class="hero-foot">
+    <p class="tagline">
+      <span class="tl-mask"><span><em>AI Native builders</em></span></span>
+      <span class="tl-mask"><span>out of Gurgaon, India.</span></span>
+    </p>
+    <div class="cue" aria-hidden="true">
+      <span>scroll</span>
+      <span class="cue-line"><i></i></span>
+    </div>
+  </div>
+</section>
+
+<section class="stack" id="stack">
+  <div class="stack-vp">
+    <article class="beat">
+      <p class="label"><b>01</b> &middot; thesis</p>
+      <h2 class="k">We build for the second&nbsp;reader.</h2>
+      <p>Your next user is an agent. It reads <em>llms.txt</em> before it reads your homepage. We ship software both readers can parse.</p>
+    </article>
+    <article class="beat">
+      <p class="label"><b>02</b> &middot; method</p>
+      <h2 class="k">Open Source. <span class="motto-tail">by Nature.</span></h2>
+      <p>Not a strategy. A reflex. The repo <em>is</em> the product page, public from the first commit.</p>
+    </article>
+    <article class="beat">
+      <p class="label"><b>03</b> &middot; origin</p>
+      <h2 class="k">From Gurgaon, to everywhere.</h2>
+      <p class="coords k">28.4595&deg;&nbsp;<b>N</b><br>77.0266&deg;&nbsp;<b>E</b></p>
+      <p>Built in Gurgaon, India. Running wherever JavaScript does.</p>
+    </article>
+    <div class="beat-meter" aria-hidden="true">
+      <span class="num" id="beatNum">01</span>
+      <span>/ 03</span>
+      <span class="meter-bar"><i id="beatBar"></i></span>
+    </div>
+  </div>
+</section>
+
+<section class="gallery" id="gallery">
+  <div class="g-pin" id="gPin">
+    <div class="g-vp" id="gVp" data-cursor="drag">
+      <div class="g-head">
+        <span class="label">the reel</span>
+        <span class="label">velofy / projects</span>
+      </div>
+      <div class="g-track" id="gTrack">
+        <div class="g-lead">
+          <h2 class="k">The work<b>.</b></h2>
+          <p class="label">one shipped &middot; more in flight</p>
+        </div>
+
+        <article class="g-card">
+          <div>
+            <p class="label"><b>01 / 04</b> &middot; shipped &middot; open source</p>
+            <h3 class="g-title">Summit.js</h3>
+            <p class="g-desc">An AI Agent Native JavaScript framework. Compose behavior <em>directly in HTML</em>, in plain attributes an agent can write and a human can review. Machine-readable docs ship in the box: llms.txt and a drop-in AGENTS.md.</p>
+            <div class="chips" aria-label="Summit.js facts">
+              <span>~16KB gzipped</span>
+              <span>no build step</span>
+              <span>no virtual DOM</span>
+              <span>no eval</span>
+              <span>CSP-safe expressions</span>
+              <span>fine-grained signals</span>
+              <span>keyed lists</span>
+              <span>accessible UI bundled</span>
+            </div>
+          </div>
+          <div class="g-links">
+            <a href="https://github.com/velofy/summit" data-cursor="open">Repository &#8599;</a>
+            <a href="https://velofy.github.io/summit/" data-cursor="open">Documentation &#8599;</a>
+          </div>
+        </article>
+
+        <article class="g-card dev">
+          <div>
+            <p class="label">02 / 04 &middot; in development</p>
+            <h3 class="g-title">Cairn</h3>
+            <p class="g-desc">Codename. Unannounced.</p>
+          </div>
+          <p class="label">repo opens soon</p>
+        </article>
+
+        <article class="g-card dev">
+          <div>
+            <p class="label">03 / 04 &middot; in development</p>
+            <h3 class="g-title">Moraine</h3>
+            <p class="g-desc">Codename. Unannounced.</p>
+          </div>
+          <p class="label">repo opens soon</p>
+        </article>
+
+        <article class="g-card tease">
+          <div>
+            <p class="label">04 / 04 &middot; next</p>
+            <h3 class="g-title">More repos opening soon<b>.</b></h3>
+          </div>
+          <div class="g-links">
+            <a href="https://github.com/velofy" data-cursor="open">Watch the org &#8599;</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="m-track">
+    <div class="m-group">
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+    </div>
+    <div class="m-group">
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+      <span>open source</span><i></i><span>ai native</span><i></i><span>gurgaon, india</span><i></i>
+    </div>
+  </div>
+</div>
+
+<a class="cta" id="cta" href="https://github.com/velofy" data-cursor="open">
+  <span class="cta-inner" id="ctaInner">
+    <span class="cta-eyebrow">github.com/velofy</span>
+    <span class="cta-big k">Let&rsquo;s build<em>.</em></span>
+    <span class="cta-sub">Star it, fork it, or send your agent first. It will find its way around.</span>
+  </span>
+</a>
+
+<footer class="meta">
+  <span>&copy; 2026 Velofy &middot; Gurgaon, India</span>
+  <span>Open Source. by Nature.</span>
+  <nav aria-label="Project links">
+    <a href="https://github.com/velofy" data-cursor="open">org</a>
+    <a href="https://github.com/velofy/summit" data-cursor="open">summit</a>
+    <a href="https://velofy.github.io/summit/" data-cursor="open">docs</a>
+  </nav>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var coarse = matchMedia("(hover: none), (pointer: coarse)").matches;
+  var docEl = document.documentElement;
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var smooth = function (x) { return x * x * (3 - 2 * x); };
+
+  /* preloader: counter ticks while the wordmark wipes in, then the curtain lifts */
+  var pl = document.getElementById("preloader");
+  if (reduce) {
+    if (pl) pl.remove();
+  } else if (pl) {
+    var num = document.getElementById("plNum");
+    var t0 = performance.now(), DUR = 720;
+    var tick = function (t) {
+      var p = clamp((t - t0) / DUR, 0, 1);
+      p = 1 - Math.pow(1 - p, 3);
+      num.textContent = String(Math.round(p * 100)).padStart(3, "0");
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    pl.addEventListener("animationend", function (e) {
+      if (e.animationName === "plLift") pl.remove();
+    });
+    setTimeout(function () { if (pl.isConnected) pl.remove(); }, 2200);
+  }
+
+  /* gallery mode: pinned scroll-drive on fine pointers, plain strip on touch */
+  var gallery = document.getElementById("gallery");
+  var flow = reduce || coarse;
+  if (flow) gallery.classList.add("flow");
+
+  if (reduce) return; /* everything below is motion; static CSS already covers this case */
+
+  var stack = document.getElementById("stack");
+  var beats = stack.querySelectorAll(".beat");
+  var beatNum = document.getElementById("beatNum");
+  var beatBar = document.getElementById("beatBar");
+  var gPin = document.getElementById("gPin");
+  var gVp = document.getElementById("gVp");
+  var gTrack = document.getElementById("gTrack");
+  var ctaInner = document.getElementById("ctaInner");
+
+  var stackTop = 0, stackRange = 1;
+  var gTop = 0, gTravel = 0, gX = 0;
+  var stackActive = false, galActive = false;
+
+  function measure() {
+    var y = scrollY;
+    stackTop = stack.getBoundingClientRect().top + y;
+    stackRange = Math.max(1, stack.offsetHeight - innerHeight);
+    if (!flow) {
+      gTravel = Math.max(0, gTrack.scrollWidth - gVp.clientWidth);
+      gPin.style.height = (innerHeight + gTravel) + "px";
+      gTop = gPin.getBoundingClientRect().top + scrollY;
+    }
+  }
+  measure();
+  addEventListener("load", measure);
+  var rzT;
+  addEventListener("resize", function () {
+    clearTimeout(rzT);
+    rzT = setTimeout(measure, 150);
+  });
+
+  /* observers gate per-frame work to sections near the viewport */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.target === stack) stackActive = e.isIntersecting;
+      if (e.target === gPin) galActive = e.isIntersecting;
+    });
+  }, { rootMargin: "60% 0px" });
+  io.observe(stack);
+  io.observe(gPin);
+
+  /* cursor */
+  var cursor = document.getElementById("cursor");
+  var cDot = document.getElementById("cDot");
+  var cRing = document.getElementById("cRing");
+  var cLabel = document.getElementById("cLabel");
+  var mx = -100, my = -100, rx = -100, ry = -100, cursorLive = false;
+  if (finePointer) {
+    addEventListener("pointermove", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      mx = e.clientX; my = e.clientY;
+      if (!cursorLive) {
+        cursorLive = true;
+        rx = mx; ry = my;
+        cursor.classList.add("on");
+      }
+    }, { passive: true });
+    docEl.addEventListener("mouseleave", function () {
+      cursor.classList.remove("on");
+      cursorLive = false;
+    });
+    addEventListener("mouseover", function (e) {
+      var t = e.target.closest && e.target.closest("[data-cursor]");
+      if (t) {
+        cLabel.textContent = t.getAttribute("data-cursor");
+        cursor.classList.add("hover");
+      } else {
+        cursor.classList.remove("hover");
+      }
+    });
+  }
+
+  /* magnetic footer pull, a few px only */
+  var magX = 0, magY = 0, curMagX = 0, curMagY = 0;
+  if (finePointer) {
+    var cta = document.getElementById("cta");
+    cta.addEventListener("pointermove", function (e) {
+      var r = cta.getBoundingClientRect();
+      magX = clamp((e.clientX - (r.left + r.width / 2)) * 0.05, -10, 10);
+      magY = clamp((e.clientY - (r.top + r.height / 2)) * 0.08, -8, 8);
+    });
+    cta.addEventListener("pointerleave", function () { magX = 0; magY = 0; });
+  }
+
+  /* keyboard support: focusing a card inside the pin scrolls the page to reveal it */
+  if (!flow) {
+    gTrack.addEventListener("focusin", function (e) {
+      var card = e.target.closest(".g-card");
+      if (!card) return;
+      var target = clamp(card.offsetLeft - (gVp.clientWidth - card.offsetWidth) / 2, 0, gTravel);
+      scrollTo(0, gTop + target);
+    });
+  }
+
+  function stackFrame(y) {
+    var p = clamp((y - stackTop) / stackRange, 0, 1);
+    var seg = p * 3;
+    for (var i = 0; i < beats.length; i++) {
+      var t = seg - i;
+      var fadeIn = i === 0 ? 1 : clamp(t / 0.22, 0, 1);
+      var fadeOut = i === beats.length - 1 ? 1 : clamp((1 - t) / 0.22, 0, 1);
+      var vis = smooth(clamp(Math.min(fadeIn, fadeOut), 0, 1));
+      var dy = (1 - smooth(fadeIn)) * 64 - (1 - smooth(fadeOut)) * 44;
+      beats[i].style.opacity = vis.toFixed(3);
+      beats[i].style.transform = "translate3d(0," + dy.toFixed(2) + "px,0)";
+    }
+    var idx = clamp(Math.floor(seg), 0, 2);
+    beatNum.textContent = "0" + (idx + 1);
+    beatBar.style.transform = "scaleX(" + p.toFixed(4) + ")";
+  }
+
+  /* main loop: skew, stack, gallery, cursor, magnet. Paused when the tab hides. */
+  var lastY = scrollY, smVel = 0, lastSkew = 0, raf = 0, running = true;
+  function loop() {
+    var y = scrollY;
+
+    /* velocity skew on display type, clamped and springing back at rest */
+    smVel = lerp(smVel, y - lastY, 0.12);
+    lastY = y;
+    var skew = clamp(smVel * 0.045, -2.4, 2.4);
+    if (Math.abs(skew) < 0.02) skew = 0;
+    if (skew !== lastSkew) {
+      docEl.style.setProperty("--vskew", skew.toFixed(3) + "deg");
+      lastSkew = skew;
+    }
+
+    if (stackActive) stackFrame(y);
+
+    if (galActive && !flow && gTravel > 0) {
+      var target = clamp(y - gTop, 0, gTravel);
+      gX = lerp(gX, target, 0.14);
+      if (Math.abs(gX - target) < 0.1) gX = target;
+      gTrack.style.transform = "translate3d(" + (-gX).toFixed(2) + "px,0,0)";
+    }
+
+    if (cursorLive) {
+      rx = lerp(rx, mx, 0.16);
+      ry = lerp(ry, my, 0.16);
+      cDot.style.transform = "translate3d(" + mx + "px," + my + "px,0)";
+      cRing.style.transform = "translate3d(" + rx.toFixed(2) + "px," + ry.toFixed(2) + "px,0)";
+    }
+
+    curMagX = lerp(curMagX, magX, 0.12);
+    curMagY = lerp(curMagY, magY, 0.12);
+    ctaInner.style.transform = "translate3d(" + curMagX.toFixed(2) + "px," + curMagY.toFixed(2) + "px,0)";
+
+    raf = requestAnimationFrame(loop);
+  }
+  raf = requestAnimationFrame(loop);
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      cancelAnimationFrame(raf);
+      running = false;
+    } else if (!running) {
+      running = true;
+      lastY = scrollY;
+      raf = requestAnimationFrame(loop);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

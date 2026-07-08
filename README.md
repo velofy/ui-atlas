@@ -18,6 +18,8 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`06-departures.html`](landing-pages/velofy-co/06-departures.html) | Departures | A split-flap Solari board flips to NOW BOARDING: THE AI NATIVE ERA. Summit.js listed as DEPARTED, gate GH-01. |
 | [`07-swiss.html`](landing-pages/velofy-co/07-swiss.html) | The Poster | Swiss International Style: 12-column grid, one red, baseline rhythm. Press G to reveal the proofing grid. |
 | [`08-literate.html`](landing-pages/velofy-co/08-literate.html) | View Source | The page is its own annotated source code. A render toggle flips the same DOM into a clean landing page and back. |
+| [`09-showreel.html`](landing-pages/velofy-co/09-showreel.html) | The Showreel | Site-of-the-day vocabulary in pure vanilla JS: preloader counter, kinetic wordmark, pinned scenes, a horizontal gallery, and a magnetic footer CTA. |
+| [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | The disciplined startup landing page. Its hero shows the Summit example as code on one pane, and the same code running live on the other. |
 
 ## Ground rules every reference follows
 
