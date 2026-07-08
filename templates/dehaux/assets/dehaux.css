@@ -50,6 +50,10 @@
   --ok-ink: #B4B383;
   --ok-bg: #1E1F14;
   --ok-line: #3C3E28;
+  --warn: #C97F3C;
+  --warn-ink: #DA9A5F;
+  --warn-bg: #251A0F;
+  --warn-line: #4A3418;
 }
 
 :root[data-palette="verdigris"] {
@@ -350,6 +354,11 @@ h1 em, h2 em, .display em { font-style: italic; color: var(--accent); }
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .field input::placeholder { color: var(--muted); }
+.field input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--panel) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+}
 .field .trail {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px;
@@ -505,6 +514,18 @@ table.dx .num { font-variant-numeric: tabular-nums; }
   .split { flex-direction: column; }
   .split .pane-hero { min-height: 38vh; }
   .split .pane-form { width: 100%; }
+}
+
+@media (max-width: 640px) {
+  .ship-row { flex-wrap: wrap; }
+  .ship-row .title { white-space: normal; }
+  .ship-row .desc { flex-basis: 100%; min-width: 0; }
+  .split .pane-form { padding-bottom: 96px; }
+  .ceremony { padding-bottom: 96px; }
+  .table-wrap {
+    -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, #000 92%, transparent);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

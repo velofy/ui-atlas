@@ -554,13 +554,22 @@
   --s-accent-contrast: #121212;
   --s-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
   --s-shadow-lg: 0 16px 44px rgba(0,0,0,.5);
-  --s-ring: 0 0 0 3px color-mix(in srgb, var(--s-accent) 35%, transparent);
+  --s-ring: color-mix(in srgb, var(--s-accent) 40%, transparent);
+  --s-info: #38bdf8; --s-info-soft: #0C2A3F;
+  --s-success: #34d399; --s-success-soft: #0B2F24;
+  --s-warning: #fbbf24; --s-warning-soft: #33270A;
+  --s-danger: #f87171; --s-danger-soft: #3A1414;
 }
 @media (prefers-color-scheme: light) {
   :root {
     --s-bg: #121212; --s-surface: #1B1B1B; --s-surface-2: #242424;
     --s-border: #343434; --s-text: #F5F5F2; --s-muted: #A3A3A0;
     --s-accent: #F5F5F2; --s-accent-strong: #FFFFFF; --s-accent-contrast: #121212;
+    --s-ring: color-mix(in srgb, #F5F5F2 40%, transparent);
+    --s-info: #38bdf8; --s-info-soft: #0C2A3F;
+    --s-success: #34d399; --s-success-soft: #0B2F24;
+    --s-warning: #fbbf24; --s-warning-soft: #33270A;
+    --s-danger: #f87171; --s-danger-soft: #3A1414;
   }
 }
 
@@ -633,6 +642,9 @@ pre.snip .tg { color: #FFFFFF; } pre.snip .at { color: #9FB6C9; } pre.snip .st {
   .feature-grid, .step-grid { grid-template-columns: 1fr; }
   .topnav nav .hide-sm { display: none; }
 }
+@keyframes s-draw { 0% { stroke-dashoffset: 66; } 42%, 58% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -66; } }
+.s-load-orbit::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--s-border); }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
@@ -744,7 +756,7 @@ pre.snip .tg { color: #FFFFFF; } pre.snip .at { color: #9FB6C9; } pre.snip .st {
         <div class="s-card-title">Skeleton screens</div>
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--s-muted)">
           Simulate loading
-          <button class="s-switch" role="switch" :aria-checked="loading" :class="{ 'is-on': loading }" @click="loading = !loading"><span></span></button>
+          <span class="s-switch"><input type="checkbox" checked aria-label="Simulate loading" @change="loading = !loading"><span class="s-track"></span></span>
         </label>
       </div>
       <div class="s-card-body">

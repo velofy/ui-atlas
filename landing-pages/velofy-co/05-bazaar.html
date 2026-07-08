@@ -409,10 +409,11 @@
     .stall-cols { grid-template-columns: 1fr; }
   }
 
-  .rate-card { list-style: none; margin: 0; padding: 0; }
+  .rate-card { list-style: none; margin: 0; padding: 0; min-width: 0; }
   .rate-card li {
     display: flex;
     flex-wrap: wrap;
+    min-width: 0;
     align-items: baseline;
     gap: 4px 10px;
     padding: 10px 0;
@@ -432,10 +433,11 @@
     border-bottom: 2px dotted rgba(246, 235, 212, 0.35);
     transform: translateY(-4px);
   }
-  .rate-card .v { color: var(--ink-soft); font-size: 0.95rem; }
+  .rate-card .v { color: var(--ink-soft); font-size: 0.95rem; min-width: 0; overflow-wrap: anywhere; }
 
   .codecard {
     margin: 0;
+    min-width: 0;
     background: var(--paper);
     color: var(--night);
     border: 3px solid var(--gold);

@@ -278,9 +278,10 @@
     100% { transform: translateY(102%); }
   }
 
-  /* ---------- sticky scene stack ---------- */
-  .stack { height: 330vh; height: 330svh; position: relative; }
-  .stack-vp {
+  /* ---------- scene stack: static beats in flow by default; JS (.sm-js) pins and reveals ---------- */
+  .stack { position: relative; }
+  .sm-js .stack { height: 330vh; height: 330svh; }
+  .sm-js .stack-vp {
     position: sticky;
     top: 0;
     height: 100vh;
@@ -288,15 +289,21 @@
     overflow: hidden;
   }
   .beat {
-    position: absolute;
-    inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 clamp(16px, 6vw, 96px);
+    min-height: 70vh;
+    padding: 12vh clamp(16px, 6vw, 96px);
+  }
+  .sm-js .beat {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     opacity: 0;
   }
-  .beat:first-child { opacity: 1; }
+  .sm-js .beat:first-child { opacity: 1; }
   .beat .label { margin-bottom: clamp(16px, 3vh, 32px); }
   .beat .label b { color: var(--accent); font-weight: 400; }
   .beat h2 {
@@ -329,7 +336,7 @@
     position: absolute;
     left: clamp(16px, 6vw, 96px);
     bottom: clamp(20px, 5vh, 48px);
-    display: flex;
+    display: none;
     align-items: center;
     gap: 14px;
     font-family: var(--mono);
@@ -337,6 +344,7 @@
     letter-spacing: 0.12em;
     color: var(--bone-dim);
   }
+  .sm-js .beat-meter { display: flex; }
   .beat-meter .num { color: var(--accent); }
   .meter-bar {
     width: 72px;
@@ -353,25 +361,36 @@
     transform-origin: left;
   }
 
-  /* ---------- pinned horizontal gallery ---------- */
+  /* ---------- horizontal gallery: swipeable strip by default; JS (.sm-js) pins it ---------- */
   .g-pin { position: relative; }
   .g-vp {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 90px 0 40px;
+  }
+  .g-card, .g-lead { scroll-snap-align: center; }
+  .sm-js .g-vp {
     position: sticky;
     top: 0;
     height: 100vh;
     height: 100svh;
     overflow: hidden;
-    display: flex;
-    align-items: center;
+    scroll-snap-type: none;
+    padding: 0;
   }
   .g-head {
     position: absolute;
-    top: clamp(18px, 4vh, 40px);
+    top: 24px;
     left: clamp(16px, 6vw, 96px);
     right: clamp(16px, 6vw, 96px);
     display: flex;
     justify-content: space-between;
   }
+  .sm-js .g-head { top: clamp(18px, 4vh, 40px); }
   .g-track {
     display: flex;
     align-items: stretch;
@@ -397,7 +416,6 @@
   .g-card {
     flex: 0 0 auto;
     width: min(82vw, 620px);
-    min-height: min(68vh, 560px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -407,6 +425,7 @@
     border: 1px solid rgba(236, 228, 214, 0.08);
     border-radius: 3px;
   }
+  .sm-js .g-card { min-height: min(68vh, 560px); }
   .g-card .label b { color: var(--accent); font-weight: 400; }
   .g-title {
     font-size: clamp(2rem, 6vw, 4.4rem);
@@ -460,7 +479,7 @@
   @supports (-webkit-text-stroke: 1px #000) {
     .g-card.dev .g-title {
       color: transparent;
-      -webkit-text-stroke: 1px rgba(236, 228, 214, 0.38);
+      -webkit-text-stroke: 1px rgba(236, 228, 214, 0.62);
     }
   }
   .g-card.tease {
@@ -614,9 +633,9 @@
     .cue-line i { animation: none; }
     .k { transform: none !important; }
     .cursor { display: none !important; }
-    .stack { height: auto; }
-    .stack-vp { position: static; height: auto; overflow: visible; }
-    .beat {
+    .sm-js .stack { height: auto; }
+    .sm-js .stack-vp { position: static; height: auto; overflow: visible; }
+    .sm-js .beat {
       position: static;
       opacity: 1 !important;
       transform: none !important;
@@ -624,22 +643,24 @@
       padding-top: 12vh;
       padding-bottom: 12vh;
     }
-    .beat-meter { display: none; }
-    .g-pin { height: auto !important; }
-    .g-vp {
+    .sm-js .beat-meter { display: none; }
+    .sm-js .g-pin { height: auto !important; }
+    .sm-js .g-vp {
       position: static;
       height: auto;
       overflow-x: auto;
       overflow-y: hidden;
       padding: 90px 0 40px;
     }
-    .g-track { transform: none !important; }
-    .g-card { min-height: 0; }
-    .g-head { top: 24px; }
+    .sm-js .g-track { transform: none !important; }
+    .sm-js .g-card { min-height: 0; }
+    .sm-js .g-head { top: 24px; }
     .m-track { animation: none; }
     .cta:hover .cta-big em { transform: none; }
   }
 </style>
+
+<script>document.documentElement.classList.add("sm-js");</script>
 
 <div id="preloader" aria-hidden="true">
   <div class="pl-word">velofy<b>.</b></div>

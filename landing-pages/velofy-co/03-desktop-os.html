@@ -28,6 +28,7 @@
   }
   #velofyos :focus{outline:none}
   #velofyos :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #velofyos .window:focus-visible{outline:none}
   #velofyos svg{display:block}
 
   /* ---------- menu bar ---------- */
@@ -157,6 +158,8 @@
   }
   .btn:active{background:var(--ink);color:var(--paper)}
   .btn.default{box-shadow:0 0 0 2px var(--paper),0 0 0 3px var(--ink)}
+  .wbody a.btn{color:var(--ink);text-decoration:none}
+  .wbody a.btn:active{color:var(--paper)}
 
   /* summit window */
   .app-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -180,6 +183,7 @@
   }
   .listhead{border-bottom:1px solid var(--ink);font-weight:bold;font-size:12px}
   .listrow{border-bottom:1px solid var(--gray-lt);font-size:12.5px}
+  .wbody a.listrow{color:inherit;text-decoration:none}
   .listrow:hover{background:var(--accent);color:var(--paper)}
   .listrow:hover .st-open,.listrow:hover .st-dev,.listrow:hover .kind{color:var(--paper)}
   .listrow:hover .rowart{color:var(--paper)}
@@ -433,7 +437,7 @@
       </div>
       <div class="wbody">
         <div class="listhead"><span>Name</span><span class="kind">Kind</span><span>Status</span></div>
-        <a class="listrow" href="https://github.com/velofy/summit" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+        <a class="listrow" href="https://github.com/velofy/summit" target="_blank" rel="noopener">
           <span class="rowname">
             <span class="rowart" aria-hidden="true"><svg viewBox="0 0 16 16"><path class="ln" d="M1 14 6 4l3 5 2-4 4 9z"/></svg></span>
             <span>summit.js</span>
