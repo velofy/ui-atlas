@@ -37,14 +37,14 @@ Point your agent at a file and ask it to adapt the direction to your product:
 2. Have the agent read the HTML: the design tokens live in `:root` custom properties, the layout is semantic, and the copy shows the intended voice.
 3. Ask for the adaptation in any stack. The reference is plain HTML, so nothing about it assumes a framework.
 
-Built in the spirit of [Summit.js](https://github.com/velofy/summit), our open source, AI Agent Native JavaScript framework: HTML that both readers can understand.
+Built in the spirit of [Summit.js](https://github.com/velofy/summitjs), our open source, AI Agent Native JavaScript framework: HTML that both readers can understand.
 
 ## About velofy
 
 We are AI Native builders out of Gurgaon, India. Open Source. by Nature.
 
 - Org: [github.com/velofy](https://github.com/velofy)
-- Summit.js: [repo](https://github.com/velofy/summit) and [docs](https://velofy.github.io/summit/)
+- Summit.js: [repo](https://github.com/velofy/summitjs) and [docs](https://velofy.github.io/summitjs/)
 - More collections and more repos are on the way.
 
 ## License
