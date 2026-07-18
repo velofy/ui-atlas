@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Style Patterns, a live gallery by velofy</title>
+<meta name="description" content="Eleven CSS aesthetics demonstrated live: glassmorphism, neumorphism, claymorphism, brutalism, aurora, grain, bento, Y2K, neon glow, gradient, and skeuomorphism. Each with the essential CSS.">
+<meta name="theme-color" content="#0c0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0d12'/%3E%3Ccircle cx='12' cy='13' r='6' fill='none' stroke='%237c86ff' stroke-width='2'/%3E%3Crect x='16' y='17' width='9' height='9' rx='3' fill='%23ff7ac6'/%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#0c0d12; --bg-2:#14151d; --panel:#171922; --ink:#eef0f6; --ink-2:#c2c6d4; --quiet:#8a8ea0;
+  --hair:rgba(238,240,246,.12); --hair-soft:rgba(238,240,246,.07); --accent:#8b93ff; --accent-2:#ff7ac6;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --wrap:1180px; --r:16px;
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(120% 70% at 50% -10%,rgba(139,147,255,.10),transparent 60%)}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:#aab0ff}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(18px,4.5vw,44px)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--quiet)}
+
+header.top{padding:clamp(38px,7vw,72px) 0 8px}
+h1{font-weight:800;letter-spacing:-.03em;line-height:1;margin:14px 0 0;font-size:clamp(34px,6.5vw,64px)}
+h1 .g{background:linear-gradient(100deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
+.lede{margin:16px 0 0;max-width:60ch;color:var(--ink-2);font-size:clamp(15px,2vw,17.5px)}
+.meta{margin-top:16px;font-family:var(--mono);font-size:12.5px;color:var(--quiet);display:flex;flex-wrap:wrap;gap:8px 18px}
+.meta a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+
+/* tab bar */
+.tabsbar{position:sticky;top:0;z-index:20;margin-top:26px;padding:12px 0;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--hair-soft)}
+.tablist{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.tablist::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;color:var(--ink-2);background:var(--bg-2);
+  border:1px solid var(--hair);padding:9px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .18s,color .18s,border-color .18s}
+.tab:hover{border-color:var(--accent)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.js .tablist{scroll-snap-type:x proximity}
+.js .tab{scroll-snap-align:start}
+
+/* panels */
+main{padding:clamp(24px,4vw,44px) 0 40px}
+.panel{display:grid;grid-template-columns:1fr;gap:22px;animation:fade .34s ease both}
+@media(min-width:860px){.panel{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:34px;align-items:start}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.js .panel[hidden]{display:none}
+/* when no JS: show all, add a rule label */
+.no-js-note{display:none}
+body:not(.js) .no-js-note{display:block;margin:0 0 18px;font-family:var(--mono);font-size:12px;color:var(--quiet)}
+body:not(.js) .panel{border-top:1px solid var(--hair-soft);padding-top:28px;margin-top:28px}
+
+.stage{position:relative;min-height:340px;border-radius:var(--r);overflow:hidden;display:grid;place-items:center;padding:28px;border:1px solid var(--hair-soft)}
+.doc h2{font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,3.4vw,30px);margin:2px 0 4px}
+.doc .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-2)}
+.doc .what{color:var(--ink-2);margin:10px 0 0}
+.doc .when{color:var(--quiet);margin:12px 0 0;font-size:14.5px}
+.doc .when b{color:var(--ink-2);font-weight:600}
+.code{margin:16px 0 0;background:#0a0b10;border:1px solid var(--hair);border-radius:12px;padding:14px 16px;overflow-x:auto;
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#c8ceea;white-space:pre;-webkit-overflow-scrolling:touch}
+.code .p{color:#8b93ff}.code .v{color:#7ee0b8}.code .c{color:var(--quiet)}
+
+/* demo helpers */
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+.d-title{font-weight:700}
+.d-sub{opacity:.8;font-size:13px}
+
+/* 1 glass */
+.s-glass{background:linear-gradient(135deg,#ff6ec4 0%,#7873f5 55%,#42e6c8 100%)}
+.s-glass::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.5);filter:blur(8px);top:22px;right:30px;opacity:.5}
+.glass-card{position:relative;z-index:1;width:min(300px,100%);background:rgba(255,255,255,.14);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.35);border-radius:20px;box-shadow:0 8px 32px rgba(20,20,60,.28);padding:20px;color:#fff}
+.glass-card .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.glass-card h3{margin:0;font-size:17px}.glass-card p{margin:6px 0 0;font-size:13px;color:rgba(255,255,255,.85)}
+.glass-card .pill{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:6px 12px;font-size:12px}
+
+/* 2 neumorphism */
+.s-neu{background:#e0e5ec}
+.neu-wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center}
+.neu{background:#e0e5ec;border-radius:22px;box-shadow:9px 9px 18px #a3b1c6,-9px -9px 18px #ffffff;padding:22px 26px;color:#4a5568;font-weight:700}
+.neu-btn{width:64px;height:64px;border-radius:50%;background:#e0e5ec;border:0;box-shadow:7px 7px 14px #a3b1c6,-7px -7px 14px #ffffff;cursor:pointer;color:#5b6b8c;display:grid;place-items:center}
+.neu-btn:active{box-shadow:inset 6px 6px 12px #a3b1c6,inset -6px -6px 12px #ffffff}
+.neu-btn svg{width:22px;height:22px}
+
+/* 3 clay */
+.s-clay{background:#dff1ff}
+.clay-wrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center}
+.clay{width:96px;height:96px;border-radius:30px;background:#ff6b9d;box-shadow:0 18px 34px rgba(255,107,157,.45),inset 0 -8px 14px rgba(155,30,80,.5),inset 0 10px 16px rgba(255,255,255,.55);display:grid;place-items:center}
+.clay.b{background:#5ec7ff;box-shadow:0 18px 34px rgba(94,199,255,.45),inset 0 -8px 14px rgba(20,110,160,.5),inset 0 10px 16px rgba(255,255,255,.6)}
+.clay.c{background:#ffd15e;box-shadow:0 18px 34px rgba(255,209,94,.45),inset 0 -8px 14px rgba(170,120,10,.5),inset 0 10px 16px rgba(255,255,255,.6)}
+.clay span{width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.9)}
+
+/* 4 brutalism */
+.s-bru{background:#fbe94f}
+.bru{background:#fff;border:3px solid #000;box-shadow:9px 9px 0 #000;border-radius:0;padding:22px;color:#000;max-width:320px;font-family:var(--mono)}
+.bru h3{margin:0;font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+.bru p{margin:8px 0 14px;font-size:13px}
+.bru-btn{background:#ff4b3e;color:#fff;border:3px solid #000;box-shadow:5px 5px 0 #000;border-radius:0;padding:10px 16px;font-family:var(--mono);font-weight:700;text-transform:uppercase;cursor:pointer;font-size:12px}
+.bru-btn:active{box-shadow:2px 2px 0 #000;transform:translate(3px,3px)}
+
+/* 5 aurora */
+.s-aurora{background:#0a0a14}
+.s-aurora .blob{position:absolute;border-radius:50%;filter:blur(48px);opacity:.6;mix-blend-mode:screen;animation:drift 26s ease-in-out infinite}
+.s-aurora .b1{width:230px;height:230px;background:#7b5cff;top:-30px;left:-20px}
+.s-aurora .b2{width:200px;height:200px;background:#1f9d9d;bottom:-40px;right:-10px;animation-duration:32s;animation-delay:-6s}
+.s-aurora .b3{width:180px;height:180px;background:#e0489a;top:40%;left:40%;animation-duration:38s;animation-delay:-12s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(16px,-14px) scale(1.12)}66%{transform:translate(-12px,12px) scale(.94)}}
+.aurora-txt{position:relative;z-index:1;font-weight:800;font-size:clamp(30px,7vw,52px);letter-spacing:-.03em;color:#fff;text-align:center}
+
+/* 6 grain */
+.s-grain{background:linear-gradient(135deg,#2b1055,#7597de)}
+.s-grain::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.grain-txt{position:relative;z-index:1;text-align:center;color:#fff}
+.grain-txt h3{margin:0;font-size:clamp(26px,6vw,44px);font-weight:800;letter-spacing:-.02em}
+.grain-txt p{margin:8px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+
+/* 7 bento */
+.s-bento{background:#eef0f5;padding:20px}
+.bento{width:100%;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:52px;gap:10px}
+.bento div{background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(16,20,40,.06),0 8px 20px rgba(16,20,40,.06);display:grid;place-items:center;color:#5b6472;font-family:var(--mono);font-size:11px}
+.bento .big{grid-column:span 2;grid-row:span 2;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;font-size:14px}
+.bento .wide{grid-column:span 2}
+.bento .tall{grid-row:span 2}
+
+/* 8 y2k */
+.s-y2k{background:linear-gradient(160deg,#bfe3ff,#e9caff 60%,#ffd7ef)}
+.chrome{position:relative;padding:16px 30px;border-radius:16px;border:2px solid #fff;color:#2b2450;font-weight:800;letter-spacing:.02em;font-size:22px;
+  background:linear-gradient(#ffffff,#cfd6e6 44%,#8b93ac 52%,#eef2fb);
+  box-shadow:0 10px 26px rgba(90,70,150,.35),inset 0 2px 2px rgba(255,255,255,.9),inset 0 -3px 4px rgba(60,60,100,.4);text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.spark{position:absolute;color:#fff;filter:drop-shadow(0 0 4px #ffd7ef)}
+.spark.a{top:-14px;right:-8px;font-size:26px}.spark.b{bottom:-10px;left:-6px;font-size:18px}
+
+/* 9 neon */
+.s-neon{background:#06060e}
+.neon-wrap{text-align:center}
+.neon{font-weight:800;font-size:clamp(30px,7vw,50px);letter-spacing:.02em;color:#fff;text-shadow:0 0 6px #fff,0 0 16px #ff2ec4,0 0 34px #ff2ec4,0 0 60px #ff2ec4}
+.neon-btn{margin-top:22px;background:transparent;color:#2ff6ff;border:1.5px solid #2ff6ff;border-radius:10px;padding:11px 22px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  box-shadow:0 0 12px rgba(47,246,255,.7),inset 0 0 12px rgba(47,246,255,.28);text-shadow:0 0 8px rgba(47,246,255,.8)}
+
+/* 10 gradient */
+.s-grad{background:#0f1020}
+.grad-wrap{text-align:center}
+.grad-txt{font-weight:800;font-size:clamp(30px,7vw,54px);letter-spacing:-.03em;line-height:1;background:linear-gradient(100deg,#f9c449,#ff5c8a 45%,#8b5cf6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#ff5c8a}
+.grad-bar{margin:20px auto 0;width:min(260px,80%);height:12px;border-radius:999px;background:linear-gradient(90deg,#f9c449,#ff5c8a,#8b5cf6,#2ff6ff)}
+
+/* 11 skeuomorphism */
+.s-skeu{background:radial-gradient(120% 120% at 30% 20%,#e9ebee,#c3c7cd)}
+.skeu-wrap{display:flex;flex-direction:column;gap:22px;align-items:center}
+.toggle{width:104px;height:54px;border-radius:999px;background:linear-gradient(#7fd07f,#3fae52);box-shadow:inset 0 3px 6px rgba(0,0,0,.35),inset 0 -2px 2px rgba(255,255,255,.4),0 1px 0 rgba(255,255,255,.7);position:relative;border:1px solid rgba(0,0,0,.25)}
+.toggle .knob{position:absolute;top:3px;right:3px;width:48px;height:48px;border-radius:50%;background:linear-gradient(#ffffff,#d2d6dc);box-shadow:0 3px 5px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.15)}
+.plate{padding:14px 22px;border-radius:10px;color:#3a3f47;font-weight:700;background:linear-gradient(#f4f6f8,#d9dde3);border:1px solid rgba(0,0,0,.14);box-shadow:0 2px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.9)}
+
+footer{border-top:1px solid var(--hair);padding:26px 0 56px;margin-top:20px;color:var(--quiet);font-family:var(--mono);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 18px}
+footer a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">velofy / ui-atlas &middot; reference</span>
+    <h1>Style <span class="g">Patterns</span></h1>
+    <p class="lede">Eleven CSS aesthetics, demonstrated live with the essential rules to reproduce them. Pick a tab. Each demo is real DOM, not an image, and the code beside it is what makes it look that way.</p>
+    <p class="meta"><span>Self-contained, system fonts</span><a href="../">Back to the atlas</a><a href="https://github.com/velofy/ui-atlas">github.com/velofy/ui-atlas</a></p>
+  </div>
+</header>
+
+<div class="tabsbar">
+  <div class="wrap">
+    <div class="tablist" role="tablist" aria-label="Style patterns">
+      <button class="tab" role="tab" id="t-glass" aria-controls="p-glass" aria-selected="true">Glassmorphism</button>
+      <button class="tab" role="tab" id="t-neu" aria-controls="p-neu" aria-selected="false">Neumorphism</button>
+      <button class="tab" role="tab" id="t-clay" aria-controls="p-clay" aria-selected="false">Claymorphism</button>
+      <button class="tab" role="tab" id="t-bru" aria-controls="p-bru" aria-selected="false">Brutalism</button>
+      <button class="tab" role="tab" id="t-aurora" aria-controls="p-aurora" aria-selected="false">Aurora</button>
+      <button class="tab" role="tab" id="t-grain" aria-controls="p-grain" aria-selected="false">Grain</button>
+      <button class="tab" role="tab" id="t-bento" aria-controls="p-bento" aria-selected="false">Bento</button>
+      <button class="tab" role="tab" id="t-y2k" aria-controls="p-y2k" aria-selected="false">Retro Y2K</button>
+      <button class="tab" role="tab" id="t-neon" aria-controls="p-neon" aria-selected="false">Neon glow</button>
+      <button class="tab" role="tab" id="t-grad" aria-controls="p-grad" aria-selected="false">Gradient</button>
+      <button class="tab" role="tab" id="t-skeu" aria-controls="p-skeu" aria-selected="false">Skeuomorphism</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <p class="no-js-note">JavaScript is off, so every pattern is shown stacked below. With it on, these become tabs.</p>
+
+    <section class="panel" id="p-glass" role="tabpanel" aria-labelledby="t-glass">
+      <div class="stage s-glass">
+        <div class="glass-card">
+          <div class="row"><h3>Now playing</h3><span class="pill chip">LIVE</span></div>
+          <p>Frosted panels let the color behind them bleed through a blur. Depth without a hard edge.</p>
+          <div class="row" style="margin-top:14px"><span class="d-sub">Aurora Sessions</span><span class="d-sub">3:12</span></div>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Depth, softly</span>
+        <h2>Glassmorphism</h2>
+        <p class="what">Translucent surfaces that blur and lift what sits behind them. It reads as physical glass floating over a vivid backdrop.</p>
+        <p class="when"><b>Use for</b> overlays, modals, and cards on colorful or photographic backgrounds. Needs contrast behind it to work.</p>
+        <pre class="code"><span class="p">background</span>: <span class="v">rgba(255,255,255,.14)</span>;
+<span class="p">backdrop-filter</span>: <span class="v">blur(16px) saturate(1.5)</span>;
+<span class="p">border</span>: <span class="v">1px solid rgba(255,255,255,.35)</span>;
+<span class="p">border-radius</span>: <span class="v">20px</span>;
+<span class="p">box-shadow</span>: <span class="v">0 8px 32px rgba(20,20,60,.28)</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-neu" role="tabpanel" aria-labelledby="t-neu" hidden>
+      <div class="stage s-neu">
+        <div class="neu-wrap">
+          <div class="neu">Soft UI</div>
+          <button class="neu-btn" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Extruded from the surface</span>
+        <h2>Neumorphism</h2>
+        <p class="what">One background color, two shadows: a light one up-left and a dark one down-right. Elements look pressed out of the same clay. Press the button to invert it.</p>
+        <p class="when"><b>Use sparingly.</b> It is beautiful but low-contrast, so it fails accessibility fast. Good for a single hero control, risky for whole forms.</p>
+        <pre class="code"><span class="p">background</span>: <span class="v">#e0e5ec</span>;
+<span class="p">box-shadow</span>: <span class="v">9px 9px 18px #a3b1c6</span>,
+            <span class="v">-9px -9px 18px #ffffff</span>;
+<span class="c">/* pressed: use inset on both */</span></pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-clay" role="tabpanel" aria-labelledby="t-clay" hidden>
+      <div class="stage s-clay">
+        <div class="clay-wrap">
+          <div class="clay"><span></span></div>
+          <div class="clay b"><span></span></div>
+          <div class="clay c"><span></span></div>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Puffy and friendly</span>
+        <h2>Claymorphism</h2>
+        <p class="what">Rounded, inflated shapes with a big soft drop shadow and two inset shadows, a dark one at the bottom and a light one at the top. Everything looks squeezable.</p>
+        <p class="when"><b>Use for</b> playful products, kids apps, and app icons. Pairs well with bright, saturated color.</p>
+        <pre class="code"><span class="p">border-radius</span>: <span class="v">30px</span>;
+<span class="p">box-shadow</span>:
+  <span class="v">0 18px 34px rgba(255,107,157,.45)</span>,
+  <span class="v">inset 0 -8px 14px rgba(155,30,80,.5)</span>,
+  <span class="v">inset 0 10px 16px rgba(255,255,255,.55)</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-bru" role="tabpanel" aria-labelledby="t-bru" hidden>
+      <div class="stage s-bru">
+        <div class="bru">
+          <h3>Ship it raw</h3>
+          <p>Hard borders. Zero radius. One offset shadow doing the whole job.</p>
+          <button class="bru-btn">Press me</button>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">No apologies</span>
+        <h2>Brutalism</h2>
+        <p class="what">Thick black borders, no rounding, and a solid offset shadow instead of a blurred one. Loud color, monospace, unmistakably made by hand.</p>
+        <p class="when"><b>Use for</b> portfolios, indie tools, and anything that wants to look confident and anti-corporate. Keep contrast high, it comes for free.</p>
+        <pre class="code"><span class="p">border</span>: <span class="v">3px solid #000</span>;
+<span class="p">border-radius</span>: <span class="v">0</span>;
+<span class="p">box-shadow</span>: <span class="v">9px 9px 0 #000</span>; <span class="c">/* hard, not blurred */</span></pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-aurora" role="tabpanel" aria-labelledby="t-aurora" hidden>
+      <div class="stage s-aurora">
+        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+        <span class="aurora-txt">aurora</span>
+      </div>
+      <div class="doc">
+        <span class="tag">Ambient light</span>
+        <h2>Aurora mesh</h2>
+        <p class="what">Several big, low-opacity color blobs on a near-black canvas, blurred heavily and drifting on a slow loop. Cinematic, calm, a little hypnotic.</p>
+        <p class="when"><b>Use for</b> AI and developer landing heroes. Keep it desaturated and slow, and freeze it under reduced-motion.</p>
+        <pre class="code"><span class="p">filter</span>: <span class="v">blur(48px)</span>; <span class="p">mix-blend-mode</span>: <span class="v">screen</span>;
+<span class="p">animation</span>: <span class="v">drift 26s ease-in-out infinite</span>;
+<span class="c">/* 3 blobs, different sizes and delays */</span></pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-grain" role="tabpanel" aria-labelledby="t-grain" hidden>
+      <div class="stage s-grain">
+        <div class="grain-txt"><h3>Texture</h3><p>feTurbulence, overlaid</p></div>
+      </div>
+      <div class="doc">
+        <span class="tag">Kills the flat vector look</span>
+        <h2>Grain and noise</h2>
+        <p class="what">An inline SVG turbulence filter laid over a gradient at low opacity with an overlay blend. It adds a film-grain tooth that makes flat color feel printed.</p>
+        <p class="when"><b>Use for</b> creative studios and editorial pages. Cheap to add, big payoff. Keep opacity under about 0.2.</p>
+        <pre class="code"><span class="c">/* inline SVG data URI */</span>
+<span class="p">background-image</span>: <span class="v">url("data:...feTurbulence...")</span>;
+<span class="p">opacity</span>: <span class="v">.16</span>; <span class="p">mix-blend-mode</span>: <span class="v">overlay</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-bento" role="tabpanel" aria-labelledby="t-bento" hidden>
+      <div class="stage s-bento">
+        <div class="bento">
+          <div class="big">Feature</div>
+          <div class="wide">Wide</div>
+          <div>16KB</div>
+          <div class="tall">Tall</div>
+          <div>Fast</div>
+          <div class="wide">Machine readable</div>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Modular, asymmetric</span>
+        <h2>Bento grid</h2>
+        <p class="what">A grid of rounded cards in mixed sizes, like a bento box. Each cell holds one idea: a stat, a demo, a quote. It replaced the boring three-column icon row.</p>
+        <p class="when"><b>Use for</b> feature sections and dashboards. Vary the spans so it does not read as a plain grid, and collapse to one column on mobile.</p>
+        <pre class="code"><span class="p">display</span>: <span class="v">grid</span>;
+<span class="p">grid-template-columns</span>: <span class="v">repeat(4, 1fr)</span>;
+<span class="c">/* cells: grid-column: span 2; grid-row: span 2 */</span></pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-y2k" role="tabpanel" aria-labelledby="t-y2k" hidden>
+      <div class="stage s-y2k">
+        <div class="chrome">velofy<span class="spark a">+</span><span class="spark b">+</span></div>
+      </div>
+      <div class="doc">
+        <span class="tag">Early 2000s energy</span>
+        <h2>Retro Y2K</h2>
+        <p class="what">Bevelled chrome made from a vertical gradient that flips from light to dark at the midpoint, soft candy backgrounds, and little sparkles. Peak turn-of-the-millennium.</p>
+        <p class="when"><b>Use for</b> music, fashion, and nostalgia-driven brands. A knowing wink, not a default.</p>
+        <pre class="code"><span class="p">background</span>: <span class="v">linear-gradient(#fff,#cfd6e6 44%,#8b93ac 52%,#eef2fb)</span>;
+<span class="p">box-shadow</span>: <span class="v">inset 0 2px 2px rgba(255,255,255,.9)</span>,
+            <span class="v">inset 0 -3px 4px rgba(60,60,100,.4)</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-neon" role="tabpanel" aria-labelledby="t-neon" hidden>
+      <div class="stage s-neon">
+        <div class="neon-wrap">
+          <div class="neon">open all night</div>
+          <button class="neon-btn">Enter</button>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Light in the dark</span>
+        <h2>Neon glow</h2>
+        <p class="what">Stacked text-shadows and box-shadows in a saturated hue on a near-black ground, tuned to look like gas tubing. The trick is layering several shadows at growing blur radii.</p>
+        <p class="when"><b>Use for</b> gaming, nightlife, and music. Keep it to one or two hues so it glows instead of smears.</p>
+        <pre class="code"><span class="p">text-shadow</span>:
+  <span class="v">0 0 6px #fff, 0 0 16px #ff2ec4</span>,
+  <span class="v">0 0 34px #ff2ec4, 0 0 60px #ff2ec4</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-grad" role="tabpanel" aria-labelledby="t-grad" hidden>
+      <div class="stage s-grad">
+        <div class="grad-wrap">
+          <div class="grad-txt">make it flow</div>
+          <div class="grad-bar"></div>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Color as the subject</span>
+        <h2>Gradient and duotone</h2>
+        <p class="what">A gradient clipped to the shape of the text, so the letters themselves carry the color. The same gradient can tint an image via a blend for a matched duotone.</p>
+        <p class="when"><b>Use for</b> a hero headline or a single accent. One clipped gradient reads as intentional, five reads as noise.</p>
+        <pre class="code"><span class="p">background</span>: <span class="v">linear-gradient(100deg,#f9c449,#ff5c8a,#8b5cf6)</span>;
+<span class="p">-webkit-background-clip</span>: <span class="v">text</span>;
+<span class="p">-webkit-text-fill-color</span>: <span class="v">transparent</span>;</pre>
+      </div>
+    </section>
+
+    <section class="panel" id="p-skeu" role="tabpanel" aria-labelledby="t-skeu" hidden>
+      <div class="stage s-skeu">
+        <div class="skeu-wrap">
+          <div class="toggle" role="img" aria-label="A realistic on switch"><span class="knob"></span></div>
+          <div class="plate">Brushed metal</div>
+        </div>
+      </div>
+      <div class="doc">
+        <span class="tag">Made of real things</span>
+        <h2>Skeuomorphism</h2>
+        <p class="what">Interfaces that imitate physical materials: stitched leather, brushed metal, a switch with a real bevel. Built from layered gradients plus inset and outset shadows.</p>
+        <p class="when"><b>Use for</b> a deliberate retro or tactile moment. It is heavy and dated at scale, but a single physical control can delight.</p>
+        <pre class="code"><span class="p">background</span>: <span class="v">linear-gradient(#7fd07f,#3fae52)</span>;
+<span class="p">box-shadow</span>: <span class="v">inset 0 3px 6px rgba(0,0,0,.35)</span>,
+            <span class="v">inset 0 -2px 2px rgba(255,255,255,.4)</span>;</pre>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex;flex-wrap:wrap;gap:8px 18px">
+    <span>Style Patterns &middot; velofy ui-atlas</span>
+    <span>Open Source. by Nature.</span>
+    <a href="../">All collections</a>
+    <a href="https://velofy.github.io/summitjs/">summit.js</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.body.classList.add("js");
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var panels = tabs.map(function(t){ return document.getElementById(t.getAttribute("aria-controls")); });
+  function activate(i, focus){
+    tabs.forEach(function(t, j){
+      var on = j === i;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      if (panels[j]) panels[j].hidden = !on;
+    });
+    if (focus && tabs[i]) tabs[i].focus();
+    if (tabs[i] && tabs[i].scrollIntoView) tabs[i].scrollIntoView({inline:"nearest", block:"nearest"});
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener("click", function(){ activate(i, false); });
+    t.addEventListener("keydown", function(e){
+      var n = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") n = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") n = 0;
+      else if (e.key === "End") n = tabs.length - 1;
+      if (n !== null){ e.preventDefault(); activate(n, true); }
+    });
+  });
+  activate(0, false);
+})();
+</script>
+</body>
+</html>
