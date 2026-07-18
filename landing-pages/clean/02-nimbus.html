@@ -420,28 +420,9 @@
               <title id="artTitle">A constellation of compute nodes</title>
               <desc id="artDesc">A glowing central orchestrator node linked by hairlines to a network of satellite GPU nodes, with data packets travelling along the connections.</desc>
               <defs>
-                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#7c5cff"/>
-                  <stop offset="1" stop-color="#22d3ee"/>
-                </linearGradient>
-                <radialGradient id="haloV" cx="50%" cy="50%" r="50%">
-                  <stop offset="0" stop-color="#7c5cff" stop-opacity=".75"/>
-                  <stop offset="1" stop-color="#7c5cff" stop-opacity="0"/>
-                </radialGradient>
-                <radialGradient id="haloC" cx="50%" cy="50%" r="50%">
-                  <stop offset="0" stop-color="#22d3ee" stop-opacity=".7"/>
-                  <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
-                </radialGradient>
-                <radialGradient id="coreHalo" cx="50%" cy="50%" r="50%">
-                  <stop offset="0" stop-color="#9a80ff" stop-opacity=".9"/>
-                  <stop offset=".5" stop-color="#7c5cff" stop-opacity=".4"/>
-                  <stop offset="1" stop-color="#7c5cff" stop-opacity="0"/>
-                </radialGradient>
-                <radialGradient id="coreFill" cx="42%" cy="38%" r="65%">
-                  <stop offset="0" stop-color="#ffffff"/>
-                  <stop offset=".55" stop-color="#c9bcff"/>
-                  <stop offset="1" stop-color="#7c5cff"/>
-                </radialGradient>
+
+                
+                
               </defs>
 
               <!-- faint orbital rings -->
@@ -452,7 +433,7 @@
               </g>
 
               <!-- edges -->
-              <g stroke="url(#lineGrad)" stroke-width="1.1" opacity=".4" fill="none" stroke-linecap="round">
+              <g stroke="#7c5cff" stroke-width="1.1" opacity=".4" fill="none" stroke-linecap="round">
                 <line x1="320" y1="320" x2="150" y2="140"/>
                 <line x1="320" y1="320" x2="470" y2="110"/>
                 <line x1="320" y1="320" x2="560" y2="300"/>
@@ -480,7 +461,7 @@
               </g>
 
               <!-- animated flow lines (highlighted routes) -->
-              <g fill="none" stroke="url(#lineGrad)" stroke-width="1.6" stroke-linecap="round">
+              <g fill="none" stroke="#7c5cff" stroke-width="1.6" stroke-linecap="round">
                 <line class="flowline" x1="320" y1="320" x2="470" y2="110"/>
                 <line class="flowline" x1="320" y1="320" x2="120" y2="420"/>
                 <line class="flowline" x1="320" y1="320" x2="560" y2="300"/>
@@ -488,17 +469,17 @@
 
               <!-- satellite node halos -->
               <g>
-                <circle class="halo d1" cx="150" cy="140" r="34" fill="url(#haloC)"/>
-                <circle class="halo d2" cx="470" cy="110" r="38" fill="url(#haloV)"/>
-                <circle class="halo d3" cx="560" cy="300" r="34" fill="url(#haloC)"/>
-                <circle class="halo d4" cx="500" cy="470" r="34" fill="url(#haloV)"/>
-                <circle class="halo d5" cx="330" cy="540" r="34" fill="url(#haloC)"/>
-                <circle class="halo d2" cx="120" cy="420" r="34" fill="url(#haloV)"/>
-                <circle class="halo d4" cx="90" cy="270" r="30" fill="url(#haloC)"/>
-                <circle class="halo d1" cx="250" cy="230" r="24" fill="url(#haloV)"/>
-                <circle class="halo d3" cx="410" cy="250" r="24" fill="url(#haloC)"/>
-                <circle class="halo d5" cx="400" cy="410" r="24" fill="url(#haloV)"/>
-                <circle class="halo d2" cx="230" cy="410" r="24" fill="url(#haloC)"/>
+                <circle class="halo d1" cx="150" cy="140" r="34" fill="#22d3ee"/>
+                <circle class="halo d2" cx="470" cy="110" r="38" fill="#7c5cff"/>
+                <circle class="halo d3" cx="560" cy="300" r="34" fill="#22d3ee"/>
+                <circle class="halo d4" cx="500" cy="470" r="34" fill="#7c5cff"/>
+                <circle class="halo d5" cx="330" cy="540" r="34" fill="#22d3ee"/>
+                <circle class="halo d2" cx="120" cy="420" r="34" fill="#7c5cff"/>
+                <circle class="halo d4" cx="90" cy="270" r="30" fill="#22d3ee"/>
+                <circle class="halo d1" cx="250" cy="230" r="24" fill="#7c5cff"/>
+                <circle class="halo d3" cx="410" cy="250" r="24" fill="#22d3ee"/>
+                <circle class="halo d5" cx="400" cy="410" r="24" fill="#7c5cff"/>
+                <circle class="halo d2" cx="230" cy="410" r="24" fill="#22d3ee"/>
               </g>
 
               <!-- satellite node cores -->
@@ -525,10 +506,10 @@
 
               <!-- core orchestrator node -->
               <g>
-                <circle class="core-glow" cx="320" cy="320" r="70" fill="url(#coreHalo)"/>
+                <circle class="core-glow" cx="320" cy="320" r="70" fill="#9a80ff"/>
                 <circle class="core-ring" cx="320" cy="320" r="26" fill="none" stroke="#9a80ff" stroke-width="1.4"/>
                 <circle class="core-ring r2" cx="320" cy="320" r="26" fill="none" stroke="#67e8f9" stroke-width="1.4"/>
-                <circle cx="320" cy="320" r="19" fill="url(#coreFill)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/>
+                <circle cx="320" cy="320" r="19" fill="#ffffff" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/>
                 <circle cx="313" cy="313" r="5" fill="#ffffff" opacity=".9"/>
               </g>
             </svg>

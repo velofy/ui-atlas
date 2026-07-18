@@ -91,8 +91,7 @@
   /* ---------- header / nav ---------- */
   .site-head{
     position:sticky;top:0;z-index:20;
-    background:rgba(14,14,14,.82);
-    backdrop-filter:saturate(140%) blur(10px);
+    background:#0e0e0e;
     border-bottom:1px solid var(--line);
   }
   .head-inner{
@@ -152,11 +151,10 @@
      ============================================================ */
   .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden;}
   .hero::before{
-    /* soft glow behind the lens: flat solid accent, softened by a blur filter (not a gradient) */
-    content:"";position:absolute;right:-8%;top:8%;
-    width:min(60vw,620px);aspect-ratio:1;border-radius:50%;
-    background:rgba(234,184,115,.1);
-    filter:blur(64px);
+    /* flat solid accent disc behind the lens, no blur, no gradient */
+    content:"";position:absolute;right:-6%;top:10%;
+    width:min(52vw,540px);aspect-ratio:1;border-radius:50%;
+    background:rgba(234,184,115,.07);
     pointer-events:none;z-index:0;
   }
   .hero-grid{
@@ -424,20 +422,6 @@
       <svg viewBox="0 0 260 260" role="img">
         <title>An open camera lens aperture</title>
         <defs>
-          <radialGradient id="lensPhoto" cx="38%" cy="32%" r="80%">
-            <stop offset="0%" stop-color="var(--lens-hi)"/>
-            <stop offset="42%" stop-color="#b07a3e"/>
-            <stop offset="100%" stop-color="var(--lens-lo)"/>
-          </radialGradient>
-          <linearGradient id="bladeFace" x1="0" y1="0" x2="0.85" y2="1">
-            <stop offset="0%" stop-color="#2c2c2c"/>
-            <stop offset="52%" stop-color="#1a1a1a"/>
-            <stop offset="100%" stop-color="#0c0c0c"/>
-          </linearGradient>
-          <radialGradient id="glassGloss" cx="34%" cy="26%" r="55%">
-            <stop offset="0%" stop-color="rgba(255,255,255,.5)"/>
-            <stop offset="60%" stop-color="rgba(255,255,255,0)"/>
-          </radialGradient>
           <clipPath id="rimClip"><circle cx="130" cy="130" r="108"/></clipPath>
         </defs>
 
@@ -449,13 +433,13 @@
           <circle cx="130" cy="130" r="114" fill="none" stroke="var(--line)" stroke-width="1"/>
         </g>
 
-        <!-- the photograph in the glass -->
-        <circle cx="130" cy="130" r="108" fill="url(#lensPhoto)"/>
-        <circle cx="130" cy="130" r="108" fill="url(#glassGloss)"/>
+        <!-- the photograph in the glass: flat warm amber -->
+        <circle cx="130" cy="130" r="108" fill="#b07a3e"/>
+        <circle cx="130" cy="130" r="108" fill="rgba(255,255,255,.05)"/>
 
         <!-- iris blades: one blade, rotated eight times -->
         <g class="iris" clip-path="url(#rimClip)">
-          <g fill="url(#bladeFace)" stroke="#050505" stroke-width="1.1" stroke-linejoin="round">
+          <g fill="#1a1a1a" stroke="#050505" stroke-width="1.1" stroke-linejoin="round">
             <path d="M147.4,172 L35,172 L35,252 L147.4,252 Z" transform="rotate(0 130 130)"/>
             <path d="M147.4,172 L35,172 L35,252 L147.4,252 Z" transform="rotate(45 130 130)"/>
             <path d="M147.4,172 L35,172 L35,252 L147.4,252 Z" transform="rotate(90 130 130)"/>
@@ -470,9 +454,9 @@
         <!-- crisp octagon opening edge -->
         <polygon points="147.4,172 172,147.4 172,112.6 147.4,88 112.6,88 88,112.6 88,147.4 112.6,172"
                  fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.1" stroke-linejoin="round"/>
-        <!-- inner catchlight on the opening -->
+        <!-- inner catchlight on the opening: flat solid wash -->
         <polygon points="147.4,172 172,147.4 172,112.6 147.4,88 112.6,88 88,112.6 88,147.4 112.6,172"
-                 fill="url(#glassGloss)" opacity=".7"/>
+                 fill="rgba(255,255,255,.08)"/>
         <!-- outer rim highlight -->
         <circle cx="130" cy="130" r="108" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
       </svg>
@@ -496,16 +480,8 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone seascape at low tide, sun low over the water">
-            <defs>
-              <linearGradient id="p1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3a5566"/><stop offset="46%" stop-color="#16323c"/><stop offset="100%" stop-color="#0a1a20"/>
-              </linearGradient>
-              <radialGradient id="p1s" cx="76%" cy="52%" r="30%">
-                <stop offset="0%" stop-color="#f3c988"/><stop offset="100%" stop-color="rgba(243,201,136,0)"/>
-              </radialGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p1)"/>
-            <rect width="400" height="300" fill="url(#p1s)"/>
+            <rect width="400" height="300" fill="#16323c"/>
+            <circle cx="304" cy="156" r="58" fill="#f3c988" opacity=".12"/>
             <circle cx="304" cy="156" r="26" fill="#f6d59a"/>
             <rect y="176" width="400" height="124" fill="#0c2028" opacity=".82"/>
             <rect x="290" y="176" width="28" height="124" fill="#f3c988" opacity=".2"/>
@@ -522,12 +498,7 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone city of rooftops at dusk with lit windows">
-            <defs>
-              <linearGradient id="p2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#4a5f74"/><stop offset="55%" stop-color="#1a2836"/><stop offset="100%" stop-color="#0b1420"/>
-              </linearGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p2)"/>
+            <rect width="400" height="300" fill="#1a2836"/>
             <g fill="#0a141f">
               <rect x="0" y="150" width="70" height="150"/>
               <rect x="74" y="196" width="58" height="104"/>
@@ -554,12 +525,7 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone studio portrait, rim light on one side of the face">
-            <defs>
-              <radialGradient id="p3" cx="40%" cy="34%" r="80%">
-                <stop offset="0%" stop-color="#5a3236"/><stop offset="55%" stop-color="#2a1519"/><stop offset="100%" stop-color="#140a0d"/>
-              </radialGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p3)"/>
+            <rect width="400" height="300" fill="#2a1519"/>
             <path d="M210,300 C210,214 176,196 176,150 C176,110 200,78 236,78 C272,78 296,110 296,150 C296,196 262,214 262,300 Z" fill="#1a0f12"/>
             <path d="M236,78 C272,78 296,110 296,150 C296,178 282,196 268,210 C286,196 300,168 296,140 C290,104 268,86 236,80 Z" fill="#e39aa0" opacity=".72"/>
             <ellipse cx="284" cy="150" rx="6" ry="18" fill="#f0b6ba" opacity=".55"/>
@@ -575,12 +541,7 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone desert of layered dunes under a pale sun">
-            <defs>
-              <linearGradient id="p4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#d8bd82"/><stop offset="50%" stop-color="#7d6636"/><stop offset="100%" stop-color="#241b0f"/>
-              </linearGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p4)"/>
+            <rect width="400" height="300" fill="#7d6636"/>
             <circle cx="118" cy="88" r="30" fill="#f4e6b8" opacity=".7"/>
             <path d="M0,190 Q140,140 260,196 T400,188 L400,300 L0,300 Z" fill="#3a2c17" opacity=".85"/>
             <path d="M0,236 Q180,196 300,246 T400,240 L400,300 L0,300 Z" fill="#241a0d"/>
@@ -597,12 +558,7 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone forest of pines in low fog">
-            <defs>
-              <linearGradient id="p5" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#8fb2a0"/><stop offset="52%" stop-color="#2f4a3e"/><stop offset="100%" stop-color="#0d1a15"/>
-              </linearGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p5)"/>
+            <rect width="400" height="300" fill="#2f4a3e"/>
             <g fill="#0f231b">
               <path d="M40,300 L58,120 L76,300 Z"/>
               <path d="M96,300 L112,150 L128,300 Z"/>
@@ -625,12 +581,7 @@
       <figure class="frame reveal">
         <div class="photo">
           <svg viewBox="0 0 400 300" role="img" aria-label="A duotone underpass at night with an arch and street lamps">
-            <defs>
-              <radialGradient id="p6" cx="50%" cy="38%" r="70%">
-                <stop offset="0%" stop-color="#6a5487"/><stop offset="55%" stop-color="#241a35"/><stop offset="100%" stop-color="#100a19"/>
-              </radialGradient>
-            </defs>
-            <rect width="400" height="300" fill="url(#p6)"/>
+            <rect width="400" height="300" fill="#241a35"/>
             <path d="M40,300 L40,150 Q200,40 360,150 L360,300 L316,300 L316,168 Q200,96 84,168 L84,300 Z" fill="#0f0a18"/>
             <g fill="#b79ae0">
               <circle cx="120" cy="150" r="4"/><circle cx="200" cy="120" r="4.5"/><circle cx="280" cy="150" r="4"/>
