@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Terra - Carbon accounting from the ground up</title>
+<meta name="description" content="Terra turns invoices, shipping manifests, and meter readings into a living emissions map. Activity-based carbon accounting you can prove in an audit.">
+<style>
+  :root{
+    /* surfaces */
+    --soft:#f3f5ee;
+    --soft-2:#eaeee0;
+    --paper:#fbfcf8;
+    --paper-2:#ffffff;
+    /* ink / text */
+    --ink:#1e2a1e;
+    --ink-2:#3c4a38;
+    --ink-3:#4a5747;
+    /* accents */
+    --sage:#4a7c3f;
+    --sage-deep:#356030;
+    --sage-soft:#dfe8d6;
+    --earth:#8a6d4b;
+    --earth-deep:#5a4630;
+    --clay:#b4744a;
+    --clay-soft:#f0e0d3;
+    /* lines */
+    --line:#d8ddcb;
+    --line-strong:#c3cbb2;
+    /* geometry */
+    --radius:16px;
+    --radius-sm:10px;
+    --radius-lg:24px;
+    --maxw:1120px;
+    --pad:clamp(1.15rem, 4vw, 2.5rem);
+    /* shadow */
+    --shadow:0 1px 2px rgba(30,42,30,.05), 0 14px 34px rgba(30,42,30,.07);
+    --shadow-lg:0 2px 6px rgba(30,42,30,.06), 0 30px 60px rgba(30,42,30,.12);
+    /* type */
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-serif:Georgia,'Times New Roman',serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --fs-hero:clamp(2.2rem, 6vw, 4rem);
+    --fs-h2:clamp(1.7rem, 4.2vw, 2.7rem);
+    --fs-h3:1.22rem;
+    --fs-lead:clamp(1.05rem, 2.3vw, 1.28rem);
+    --fs-body:1.02rem;
+    --fs-small:0.9rem;
+    --fs-eyebrow:0.76rem;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{max-width:100%;overflow-x:hidden}
+  body{
+    margin:0;
+    background:var(--soft);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:var(--fs-body);
+    line-height:1.6;
+    overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased;
+  }
+  svg{max-width:100%}
+  h1,h2,h3{margin:0;line-height:1.08;font-weight:600}
+  p{margin:0}
+  a{color:var(--ink)}
+
+  /* ---- utilities ---- */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:var(--fs-eyebrow);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--sage-deep);
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    font-weight:600;
+  }
+  .eyebrow::before{content:"";width:20px;height:2px;background:var(--sage);border-radius:2px;flex:none}
+  .lead{font-size:var(--fs-lead);color:var(--ink-2);line-height:1.55}
+  .serif{font-family:var(--font-serif)}
+
+  /* ---- skip link ---- */
+  .skip{
+    position:absolute;left:12px;top:-64px;z-index:50;
+    background:var(--sage-deep);color:#fff;
+    padding:.7rem 1.1rem;border-radius:var(--radius-sm);
+    text-decoration:none;font-weight:600;font-size:var(--fs-small);
+    transition:top .18s ease;
+  }
+  .skip:focus{top:12px}
+
+  /* ---- buttons ---- */
+  .btn{
+    display:inline-flex;align-items:center;gap:.55rem;
+    font:600 1rem/1 var(--font-sans);
+    border-radius:999px;
+    padding:.9rem 1.5rem;
+    text-decoration:none;
+    border:1.5px solid transparent;
+    cursor:pointer;
+    transition:transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .btn svg{flex:none}
+  .btn-primary{background:var(--ink);color:#ffffff;box-shadow:0 10px 22px rgba(30,42,30,.20)}
+  .btn-primary:hover{background:var(--sage-deep);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{border-color:var(--sage-deep);color:var(--sage-deep);background:var(--sage-soft);transform:translateY(-2px)}
+  .btn-sm{padding:.62rem 1.05rem;font-size:.92rem}
+
+  .textlink{
+    color:var(--sage-deep);
+    font-weight:600;
+    text-decoration:none;
+    border-bottom:2px solid var(--sage-soft);
+    padding-bottom:1px;
+    transition:border-color .18s ease;
+  }
+  .textlink:hover{border-bottom-color:var(--sage-deep)}
+
+  /* ---- focus ---- */
+  a:focus-visible,button:focus-visible,.btn:focus-visible{
+    outline:3px solid var(--sage-deep);
+    outline-offset:3px;
+  }
+  .skip:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+  /* ---- header / nav ---- */
+  .site-header{
+    position:sticky;top:0;z-index:40;
+    background:rgba(243,245,238,.86);
+    backdrop-filter:saturate(1.4) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:1rem;flex-wrap:wrap;
+    padding-top:.85rem;padding-bottom:.85rem;
+  }
+  .nav>*{min-width:0}
+  .brand{display:inline-flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink);font-weight:700}
+  .brand-word{font-family:var(--font-serif);font-size:1.4rem;letter-spacing:.01em}
+  .brand-word b{color:var(--sage-deep);font-weight:700}
+  .nav-right{display:flex;align-items:center;gap:clamp(.5rem,2.2vw,1.5rem);flex-wrap:wrap;min-width:0}
+  .nav-links{display:flex;align-items:center;gap:clamp(.5rem,2.2vw,1.4rem);flex-wrap:wrap;min-width:0}
+  .nav-links a{
+    color:var(--ink);text-decoration:none;font-weight:500;font-size:.96rem;
+    padding:.3rem 0;border-bottom:2px solid transparent;
+    transition:border-color .18s ease,color .18s ease;
+  }
+  .nav-links a:hover{color:var(--sage-deep);border-bottom-color:var(--sage)}
+
+  /* ---- hero ---- */
+  .hero{padding-top:clamp(2.4rem,6vw,4.6rem);padding-bottom:clamp(2.6rem,6vw,4.6rem)}
+  .hero-grid{
+    display:grid;grid-template-columns:1.02fr .98fr;
+    gap:clamp(2rem,5vw,4rem);align-items:center;
+  }
+  .hero-grid>*{min-width:0}
+  .hero h1{
+    font-family:var(--font-serif);
+    font-size:var(--fs-hero);
+    letter-spacing:-0.015em;
+    margin:1.05rem 0 1.1rem;
+    color:var(--ink);
+  }
+  .hero h1 .accent{color:var(--sage-deep);font-style:italic}
+  .hero .lead{max-width:34ch}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.7rem;align-items:center}
+  .trust{
+    margin-top:1.3rem;font-size:var(--fs-small);color:var(--ink-3);
+    display:flex;align-items:flex-start;gap:.55rem;max-width:40ch;
+  }
+  .trust svg{color:var(--sage);margin-top:.15rem;flex:none}
+
+  .art{width:100%;height:auto;display:block}
+  .art-frame{position:relative}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .chip-float{animation:floaty 6s ease-in-out infinite;transform-origin:center}
+  .draw{stroke-dasharray:var(--len);stroke-dashoffset:0;animation:draw 1.9s ease .2s both}
+  @keyframes draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+
+  /* ---- generic section ---- */
+  section{position:relative}
+  .band-line{border-top:1px solid var(--line)}
+
+  /* ---- method / point of view ---- */
+  .method{padding-top:clamp(2.8rem,6vw,4.8rem);padding-bottom:clamp(2.8rem,6vw,4.8rem)}
+  .method-head{max-width:52ch}
+  .method h2{font-family:var(--font-serif);font-size:var(--fs-h2);margin:.9rem 0 1rem;letter-spacing:-0.01em}
+  .method h2 em{color:var(--sage-deep);font-style:italic}
+  .method .lead{max-width:58ch}
+  .compare{
+    display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-top:2rem;
+  }
+  .compare>*{min-width:0}
+  .cmp{
+    border-radius:var(--radius);padding:1.4rem;border:1px solid var(--line);
+    background:var(--paper);
+  }
+  .cmp.old{background:var(--soft-2)}
+  .cmp .tag{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    font-weight:700;display:inline-block;margin-bottom:.7rem;
+  }
+  .cmp.old .tag{color:var(--earth-deep)}
+  .cmp.now .tag{color:var(--sage-deep)}
+  .cmp h3{font-size:1.05rem;margin-bottom:.5rem;color:var(--ink)}
+  .cmp p{font-size:.95rem;color:var(--ink-2)}
+  .record{
+    margin-top:1rem;
+    font-family:var(--font-mono);font-size:.82rem;line-height:1.7;
+    background:var(--ink);color:#e2ead9;
+    padding:.85rem 1rem;border-radius:var(--radius-sm);
+    overflow-x:auto;white-space:pre;
+  }
+  .record .k{color:#9dc98a}
+  .record.est{background:var(--soft);color:var(--earth-deep);border:1px dashed var(--line-strong);white-space:normal;word-break:break-word}
+
+  /* ---- features ---- */
+  .features{padding-top:clamp(2.6rem,6vw,4.4rem);padding-bottom:clamp(2.6rem,6vw,4.4rem);background:var(--paper)}
+  .features .head-row{max-width:50ch;margin-bottom:2.2rem}
+  .features h2{font-family:var(--font-serif);font-size:var(--fs-h2);margin-top:.9rem;letter-spacing:-0.01em}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+  .features-grid>*{min-width:0}
+  .feature{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.6rem 1.5rem;background:var(--soft);
+    display:flex;flex-direction:column;gap:.7rem;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .feature:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--line-strong)}
+  .ic-wrap{
+    width:52px;height:52px;border-radius:14px;
+    background:var(--sage-soft);color:var(--sage-deep);
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+  }
+  .feature h3{font-size:var(--fs-h3);color:var(--ink)}
+  .feature p{color:var(--ink-2);font-size:.98rem}
+  .feature .fnote{
+    margin-top:auto;font-family:var(--font-mono);font-size:.76rem;
+    letter-spacing:.06em;color:var(--sage-deep);text-transform:uppercase;font-weight:600;
+    display:inline-flex;align-items:center;gap:.4rem;
+  }
+
+  /* ---- proof / stats ---- */
+  .proof{padding-top:clamp(2.8rem,6vw,4.8rem);padding-bottom:clamp(2.8rem,6vw,4.8rem)}
+  .proof-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(1.8rem,4vw,3.5rem);align-items:center}
+  .proof-grid>*{min-width:0}
+  .proof h2{font-family:var(--font-serif);font-size:var(--fs-h2);margin:.9rem 0 1rem;letter-spacing:-0.01em}
+  .proof .lead{max-width:44ch}
+  .stats{display:flex;flex-wrap:wrap;gap:1.6rem 2rem;margin-top:1.7rem}
+  .stat{min-width:120px}
+  .stat .n{font-family:var(--font-serif);font-size:2.1rem;color:var(--sage-deep);line-height:1}
+  .stat .l{font-size:.86rem;color:var(--ink-3);margin-top:.35rem;max-width:20ch}
+  .chart-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+    padding:1.4rem;box-shadow:var(--shadow);
+  }
+  .chart-card .cap{
+    display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;flex-wrap:wrap;
+    margin-bottom:.4rem;
+  }
+  .chart-card .cap b{font-size:.98rem;color:var(--ink)}
+  .chart-card .cap span{font-family:var(--font-mono);font-size:.74rem;color:var(--clay);letter-spacing:.05em;font-weight:600}
+
+  /* ---- cta band ---- */
+  .cta-band{
+    padding-top:clamp(2.8rem,6vw,4.4rem);padding-bottom:clamp(2.8rem,6vw,4.4rem);
+    background:
+      radial-gradient(120% 120% at 85% 10%, rgba(74,124,63,.10), transparent 55%),
+      linear-gradient(180deg, var(--sage-soft), #e7efdd);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .cta-inner{position:relative;overflow:hidden;border-radius:var(--radius-lg)}
+  .cta-band h2{font-family:var(--font-serif);font-size:var(--fs-h2);margin:.85rem 0 .9rem;max-width:20ch;letter-spacing:-0.01em}
+  .cta-band p{color:var(--ink-2);max-width:48ch;font-size:var(--fs-lead)}
+  .cta-band .hero-cta{margin-top:1.6rem}
+  .cta-deco{position:absolute;right:-40px;bottom:-60px;width:280px;opacity:.5;pointer-events:none}
+  @media(max-width:620px){.cta-deco{display:none}}
+
+  /* ---- footer ---- */
+  .site-footer{background:var(--ink);color:var(--soft);padding-top:clamp(2.6rem,5vw,3.6rem);padding-bottom:2rem}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:1.6rem}
+  .foot-top>*{min-width:0}
+  .foot-brand .brand-word{color:#fff}
+  .foot-brand .brand-word b{color:#9dc98a}
+  .foot-brand p{margin-top:.8rem;color:#b9c4b2;font-size:.92rem;max-width:32ch}
+  .foot-col h4{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:#8ea587;margin:0 0 .9rem;font-weight:700;
+  }
+  .foot-col a{
+    display:block;color:#cdddbf;text-decoration:none;font-size:.94rem;margin-bottom:.55rem;
+    border-bottom:1px solid transparent;width:max-content;max-width:100%;
+    transition:color .18s ease;
+  }
+  .foot-col a:hover{color:#fff;border-bottom-color:#9dc98a}
+  .foot-bottom{
+    margin-top:2.4rem;padding-top:1.3rem;border-top:1px solid #33452f;
+    display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    font-size:.84rem;color:#94a58d;
+  }
+  .foot-bottom a{color:#cdddbf;text-decoration:none}
+  .foot-bottom a:hover{color:#fff}
+
+  /* ---- reveal (JS-only, motion-safe) ---- */
+  .js .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease, transform .7s ease}
+  .js .reveal.in{opacity:1;transform:none}
+
+  /* ---- responsive ---- */
+  @media(max-width:900px){
+    .proof-grid{grid-template-columns:1fr}
+    .features-grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr}
+    .art-frame{max-width:460px;margin:0 auto}
+  }
+  @media(max-width:760px){
+    .compare{grid-template-columns:1fr}
+    .foot-top{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:560px){
+    .features-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:440px){
+    .foot-top{grid-template-columns:1fr}
+    .stat .n{font-size:1.85rem}
+  }
+
+  /* ---- reduced motion ---- */
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+    .draw{stroke-dashoffset:0 !important}
+    .js .reveal{opacity:1 !important;transform:none !important}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Terra home">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true" focusable="false">
+        <path d="M15 4 C21 8 24 14 24 20 C24 20 20 26 15 26 C10 26 6 20 6 20 C6 14 9 8 15 4 Z" fill="none" stroke="#4a7c3f" stroke-width="1.6"/>
+        <path d="M15 8 C19 11 21 15 21 19 C21 19 18.5 23 15 23 C11.5 23 9 19 9 19 C9 15 11 11 15 8 Z" fill="none" stroke="#356030" stroke-width="1.4" opacity=".7"/>
+        <path d="M15 23 L15 9" stroke="#8a6d4b" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-word">Terra<b>.</b></span>
+    </a>
+    <div class="nav-right">
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#method">Method</a>
+        <a href="#platform">Platform</a>
+        <a href="#proof">Proof</a>
+      </nav>
+      <a class="btn btn-primary btn-sm" href="#get-started">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <a id="top"></a>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">Activity-based carbon accounting</span>
+        <h1>Map your carbon to the <span class="accent">ground it came from.</span></h1>
+        <p class="lead">Terra turns invoices, shipping manifests, and meter readings into a living emissions map. Every ton you report traces back to a real source, so your numbers hold up in an audit instead of an estimate.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#get-started">
+            Map your first quarter
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 9h11M10 5l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#method">See the method</a>
+        </div>
+        <p class="trust">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>No spreadsheet migration. Import a CSV and see your baseline in an afternoon.</span>
+        </p>
+      </div>
+
+      <div class="art-frame reveal" aria-hidden="true">
+        <!-- SIGNATURE: topographic leaf-hill with a live growth curve -->
+        <svg class="art" viewBox="0 0 560 540" role="img" focusable="false">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fbfcf8"/>
+              <stop offset="1" stop-color="#eef2e6"/>
+            </linearGradient>
+            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#4a7c3f" stop-opacity=".16"/>
+              <stop offset="1" stop-color="#4a7c3f" stop-opacity="0"/>
+            </linearGradient>
+            <path id="leaf" d="M280,58 C345,110 402,190 400,288 C398,368 348,424 280,452 C212,424 162,368 160,288 C158,190 215,110 280,58 Z"/>
+          </defs>
+
+          <!-- backdrop -->
+          <rect x="18" y="18" width="524" height="504" rx="26" fill="url(#bg)" stroke="#d8ddcb"/>
+
+          <!-- ground shadow -->
+          <ellipse cx="280" cy="472" rx="150" ry="20" fill="#1e2a1e" opacity=".05"/>
+
+          <!-- contour bands (light outer -> deep summit), nudged up for a real summit -->
+          <use href="#leaf" transform="translate(0 0) translate(280 270) scale(1.00) translate(-280 -270)" fill="#e4ecdb" stroke="#33502a" stroke-opacity=".22" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+          <use href="#leaf" transform="translate(0 -7.4) translate(280 270) scale(0.84) translate(-280 -270)" fill="#cddebe" stroke="#33502a" stroke-opacity=".24" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+          <use href="#leaf" transform="translate(0 -14.7) translate(280 270) scale(0.68) translate(-280 -270)" fill="#aecc97" stroke="#33502a" stroke-opacity=".26" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+          <use href="#leaf" transform="translate(0 -21.6) translate(280 270) scale(0.53) translate(-280 -270)" fill="#84b26b" stroke="#2c4a24" stroke-opacity=".28" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+          <use href="#leaf" transform="translate(0 -28.1) translate(280 270) scale(0.39) translate(-280 -270)" fill="#5c9a4a" stroke="#24401d" stroke-opacity=".30" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+          <use href="#leaf" transform="translate(0 -34) translate(280 270) scale(0.26) translate(-280 -270)" fill="#43762f" stroke="#24401d" stroke-opacity=".30" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+
+          <!-- leaf central vein + subtle side veins -->
+          <path d="M280,100 L280,440" stroke="#5a4630" stroke-width="1.6" stroke-linecap="round" opacity=".30"/>
+          <path d="M280,196 L344,168 M280,196 L216,168" stroke="#5a4630" stroke-width="1.3" stroke-linecap="round" opacity=".22"/>
+          <path d="M280,272 L360,256 M280,272 L200,256" stroke="#5a4630" stroke-width="1.3" stroke-linecap="round" opacity=".22"/>
+          <path d="M280,348 L336,344 M280,348 L224,344" stroke="#5a4630" stroke-width="1.3" stroke-linecap="round" opacity=".2"/>
+
+          <!-- stem -->
+          <path d="M280,452 C280,468 279,478 278,490" stroke="#5a4630" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+          <!-- chart baseline + ticks -->
+          <path d="M132,470 L462,470" stroke="#1e2a1e" stroke-width="1.4" opacity=".22"/>
+          <g stroke="#1e2a1e" stroke-width="1.2" opacity=".2">
+            <path d="M150,470 L150,478"/><path d="M215,470 L215,478"/><path d="M280,470 L280,478"/>
+            <path d="M345,470 L345,478"/><path d="M410,470 L410,478"/><path d="M455,470 L455,478"/>
+          </g>
+
+          <!-- growth curve area -->
+          <path d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182 L455,470 L150,470 Z" fill="url(#area)"/>
+          <!-- growth curve halo + line -->
+          <path d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182" fill="none" stroke="#fbfcf8" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+          <path class="draw" style="--len:560" d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182" fill="none" stroke="#1e2a1e" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- data nodes -->
+          <g>
+            <circle cx="150" cy="410" r="5.5" fill="#b4744a" stroke="#fbfcf8" stroke-width="2"/>
+            <circle cx="280" cy="326" r="5.5" fill="#b4744a" stroke="#fbfcf8" stroke-width="2"/>
+            <circle cx="345" cy="300" r="5.5" fill="#b4744a" stroke="#fbfcf8" stroke-width="2"/>
+            <circle cx="455" cy="182" r="9" fill="#b4744a" stroke="#fbfcf8" stroke-width="3"/>
+            <circle cx="455" cy="182" r="16" fill="none" stroke="#b4744a" stroke-width="1.5" opacity=".45"/>
+          </g>
+
+          <!-- product data chip -->
+          <g class="chip-float">
+            <rect x="86" y="250" width="168" height="52" rx="13" fill="#fbfcf8" stroke="#d8ddcb"/>
+            <circle cx="106" cy="270" r="5" fill="#b4744a"/>
+            <text x="120" y="272" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11.5" fill="#1e2a1e">1,240 km freight</text>
+            <text x="120" y="290" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11.5" font-weight="700" fill="#356030">18.2 t CO2e traced</text>
+          </g>
+
+          <!-- summit reading label -->
+          <g class="chip-float" style="animation-delay:1.4s">
+            <rect x="356" y="120" width="128" height="34" rx="10" fill="#1e2a1e"/>
+            <text x="372" y="142" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11.5" fill="#e2ead9">coverage <tspan fill="#9dc98a" font-weight="700">92%</tspan></text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD / POINT OF VIEW -->
+  <section class="method band-line" id="method">
+    <div class="wrap">
+      <div class="method-head reveal">
+        <span class="eyebrow">A point of view</span>
+        <h2 class="serif">Averages are not <em>evidence.</em></h2>
+        <p class="lead">Most carbon tools multiply what you spent by an industry average and hand you a number. It looks precise. It cannot survive a single hard question. Terra takes the other road: we measure from the activity itself, so the footprint you publish is the footprint you can prove.</p>
+      </div>
+
+      <div class="compare reveal">
+        <div class="cmp old">
+          <span class="tag">The old way: spend-based</span>
+          <h3>A guess dressed up as a figure</h3>
+          <p>Forty thousand dollars of freight, multiplied by a national average factor. Change carriers, change routes, cut mileage in half, and the number does not move.</p>
+          <div class="record est">$40,000 freight spend  x  0.52 kg/$ average  =  ~20.8 t CO2e (unverifiable)</div>
+        </div>
+        <div class="cmp now">
+          <span class="tag">The Terra way: activity-based</span>
+          <h3>A measurement you can defend</h3>
+          <p>The actual shipment: distance, weight, fuel, and vehicle class, matched to a cited emission factor. When the route improves, the footprint improves with it.</p>
+          <div class="record"><span class="k">route</span>  1,240 km  reefer diesel
+<span class="k">load</span>   18 t  refrigerated
+<span class="k">factor</span> 0.0816 kgCO2e/t-km  (GLEC)
+<span class="k">total</span>  18.2 t CO2e  traced</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES / PLATFORM -->
+  <section class="features" id="platform">
+    <div class="wrap">
+      <div class="head-row reveal">
+        <span class="eyebrow">The platform</span>
+        <h2 class="serif">From raw records to a report you can sign.</h2>
+      </div>
+      <div class="features-grid">
+        <article class="feature reveal">
+          <span class="ic-wrap">
+            <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+              <circle cx="13" cy="11" r="8.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="13" cy="11" r="4.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="13" cy="11" r="1.4" fill="currentColor"/>
+              <path d="M13 19.2 L13 24 M10.6 22 L13 24 L15.4 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <h3>Source-level tracing</h3>
+          <p>Every gram of CO2e links to a line item, a route, or a meter. Drill from your headline total all the way down to the exact row it came from.</p>
+          <span class="fnote">Total to line item</span>
+        </article>
+
+        <article class="feature reveal">
+          <span class="ic-wrap">
+            <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+              <path d="M6 3.5h9l5 5V22a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5A1 1 0 0 1 6 3.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M15 3.5V8.5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8.5 15.5l2.2 2.2L17 11.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <h3>Audit-ready by default</h3>
+          <p>Export a complete evidence trail mapped to the GHG Protocol, CSRD, and CDP. Your disclosure and your proof live in the same place, versioned and cited.</p>
+          <span class="fnote">GHG Protocol, CSRD, CDP</span>
+        </article>
+
+        <article class="feature reveal">
+          <span class="ic-wrap">
+            <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+              <path d="M4 6.5C4 14 8 18 15.5 18C20 18 22 15.5 22 15.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M22 10.5V15.5H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.5 22C8.5 19 10.5 16.5 13.5 16.5C13.5 19.5 11.5 22 8.5 22Z" fill="currentColor" opacity=".9"/>
+            </svg>
+          </span>
+          <h3>Reductions you can watch</h3>
+          <p>Set a target, then follow the curve month to month as real changes land. No annual surprise, no fourth-quarter scramble to explain the gap.</p>
+          <span class="fnote">Target to trend</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF / STATS -->
+  <section class="proof band-line" id="proof">
+    <div class="wrap proof-grid">
+      <div class="reveal">
+        <span class="eyebrow">What teams see</span>
+        <h2 class="serif">A baseline in an afternoon, a trend by the end of the month.</h2>
+        <p class="lead">Terra covers all three scopes from a single import and keeps every factor versioned, so the report you defend next year still points at the data you used this year.</p>
+        <div class="stats">
+          <div class="stat">
+            <div class="n">3 scopes</div>
+            <div class="l">covered from one import, Scope 1 through 3</div>
+          </div>
+          <div class="stat">
+            <div class="n">1,200+</div>
+            <div class="l">emission factors, each versioned and cited</div>
+          </div>
+          <div class="stat">
+            <div class="n">14 days</div>
+            <div class="l">median time to a first audited report</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card reveal">
+        <div class="cap">
+          <b>Scope 3 freight, tons CO2e</b>
+          <span>-38% vs target</span>
+        </div>
+        <svg viewBox="0 0 360 190" role="img" aria-label="Line chart of monthly freight emissions declining from January to June, below the target line." focusable="false">
+          <!-- grid -->
+          <g stroke="#e4e8dc" stroke-width="1">
+            <line x1="34" y1="30" x2="344" y2="30"/>
+            <line x1="34" y1="70" x2="344" y2="70"/>
+            <line x1="34" y1="110" x2="344" y2="110"/>
+            <line x1="34" y1="150" x2="344" y2="150"/>
+          </g>
+          <!-- target line -->
+          <line x1="34" y1="86" x2="344" y2="86" stroke="#b4744a" stroke-width="1.5" stroke-dasharray="4 5"/>
+          <text x="344" y="80" text-anchor="end" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#b4744a" font-weight="700">target</text>
+          <!-- area -->
+          <path d="M40,52 C80,60 100,62 110,66 C150,80 175,96 190,102 C240,120 260,132 320,138 L320,150 L40,150 Z" fill="#4a7c3f" opacity=".10"/>
+          <!-- reduction line -->
+          <path class="draw" style="--len:360" d="M40,52 C80,60 100,62 110,66 C150,80 175,96 190,102 C240,120 260,132 320,138" fill="none" stroke="#356030" stroke-width="2.6" stroke-linecap="round"/>
+          <!-- nodes -->
+          <g fill="#356030" stroke="#fbfcf8" stroke-width="2">
+            <circle cx="40" cy="52" r="4.5"/>
+            <circle cx="110" cy="66" r="4.5"/>
+            <circle cx="190" cy="102" r="4.5"/>
+            <circle cx="260" cy="132" r="4.5"/>
+            <circle cx="320" cy="138" r="4.5"/>
+          </g>
+          <!-- x labels -->
+          <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#4a5747">
+            <text x="40" y="172" text-anchor="middle">Jan</text>
+            <text x="110" y="172" text-anchor="middle">Feb</text>
+            <text x="190" y="172" text-anchor="middle">Mar</text>
+            <text x="260" y="172" text-anchor="middle">Apr</text>
+            <text x="320" y="172" text-anchor="middle">May</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band" id="get-started">
+    <div class="wrap">
+      <div class="cta-inner reveal">
+        <span class="eyebrow">Start with one quarter</span>
+        <h2 class="serif">Stop reporting estimates you cannot defend.</h2>
+        <p>Bring a single quarter of data. We will map it, source it, and show you exactly where your footprint comes from, line by line.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#get-started">
+            Map your first quarter
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 9h11M10 5l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="textlink" href="#get-started">Talk to our team</a>
+        </div>
+
+        <svg class="cta-deco" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="#356030" stroke-width="1.4" opacity=".55">
+            <path d="M120 24 C160 56 178 96 176 132 C174 168 150 196 120 208 C90 196 66 168 64 132 C62 96 80 56 120 24 Z"/>
+            <path d="M120 52 C150 78 164 108 162 136 C160 164 142 186 120 196 C98 186 80 164 78 136 C76 108 90 78 120 52 Z"/>
+            <path d="M120 82 C140 100 150 122 149 142 C148 162 136 178 120 186 C104 178 92 162 91 142 C90 122 100 100 120 82 Z"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span class="brand-word">Terra<b>.</b></span>
+        <p>Carbon accounting from the ground up. Measured, sourced, and ready for the auditor.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Platform</h4>
+        <a href="#method">Method</a>
+        <a href="#platform">Tracing</a>
+        <a href="#proof">Reporting</a>
+        <a href="#get-started">Pricing</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#top">About</a>
+        <a href="#top">Careers</a>
+        <a href="#top">Field notes</a>
+        <a href="#get-started">Contact</a>
+      </div>
+      <div class="foot-col">
+        <h4>Standards</h4>
+        <a href="#platform">GHG Protocol</a>
+        <a href="#platform">CSRD</a>
+        <a href="#platform">CDP</a>
+        <a href="#platform">GLEC</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; <span id="yr">2026</span> Terra Systems. A fictional demo for the velofy / ui-atlas library.</span>
+      <span><a href="#top">Privacy</a> &nbsp; <a href="#top">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    document.documentElement.classList.add('js');
+    var y=document.getElementById('yr'); if(y){y.textContent=new Date().getFullYear();}
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var items = document.querySelectorAll('.reveal');
+    if(reduce || !('IntersectionObserver' in window)){
+      items.forEach(function(el){el.classList.add('in');});
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    items.forEach(function(el){io.observe(el);});
+  })();
+</script>
+</body>
+</html>

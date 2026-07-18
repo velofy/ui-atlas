@@ -1,0 +1,702 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Orbit - An AI scheduling assistant that protects your focus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<meta name="description" content="Orbit is an AI scheduling assistant that guards your deep-work blocks first, fits meetings into the space that is left, and reschedules conflicts before they reach your calendar.">
+<meta name="color-scheme" content="dark">
+
+<style>
+  :root{
+    /* palette */
+    --bg:#08090d;
+    --bg-2:#0a0c12;
+    --panel:#0e1017;
+    --panel-2:#12141d;
+    --ink:#eef1f8;
+    --muted:#aab3c6;      /* body text, ~9:1 on --bg */
+    --dim:#818b9f;        /* secondary labels, ~5.5:1 on --bg */
+    --accent:#3b82f6;     /* electric blue */
+    --accent-2:#60a5fa;
+    --accent-3:#93c5fd;
+    --link:#7fb0ff;
+    --focus:#9cc2ff;
+    --hair:rgba(255,255,255,.09);
+    --hair-2:rgba(255,255,255,.055);
+    --glow:rgba(59,130,246,.45);
+    /* geometry */
+    --maxw:1140px;
+    --pad:clamp(20px,5vw,64px);
+    --r-sm:10px;
+    --r-md:16px;
+    --r-lg:24px;
+    --r-pill:999px;
+    /* type */
+    --f-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --f-serif:Georgia,'Times New Roman',serif;
+    --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--f-sans);
+    font-size:16px;
+    line-height:1.6;
+    letter-spacing:.005em;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ambient backdrop */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(1000px 720px at 82% 8%, rgba(59,130,246,.16), transparent 58%),
+      radial-gradient(760px 620px at 6% 96%, rgba(59,130,246,.09), transparent 60%),
+      var(--bg);
+  }
+
+  a{color:var(--link);text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  ::selection{background:rgba(59,130,246,.32);color:var(--ink)}
+
+  :focus-visible{
+    outline:2px solid var(--focus);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:var(--maxw);
+    margin-inline:auto;
+    padding-inline:var(--pad);
+  }
+
+  .eyebrow{
+    font-family:var(--f-mono);
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-2);
+    margin:0;
+  }
+
+  /* ---------- header ---------- */
+  .site{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:rgba(8,9,13,.72);
+    -webkit-backdrop-filter:saturate(140%) blur(12px);
+    backdrop-filter:saturate(140%) blur(12px);
+    border-bottom:1px solid var(--hair);
+  }
+  .site .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px 24px;
+    flex-wrap:wrap;
+    min-height:64px;
+    padding-block:12px;
+  }
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    color:var(--ink);
+    font-weight:700;
+    letter-spacing:-.01em;
+    font-size:1.08rem;
+    min-width:0;
+  }
+  .brand svg{flex:none}
+  nav.main{
+    display:flex;
+    align-items:center;
+    gap:6px 8px;
+    flex-wrap:wrap;
+    min-width:0;
+  }
+  nav.main a{
+    color:var(--muted);
+    padding:8px 12px;
+    border-radius:var(--r-sm);
+    font-size:.94rem;
+    font-weight:500;
+    white-space:nowrap;
+  }
+  nav.main a:hover{color:var(--ink)}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family:var(--f-sans);
+    font-weight:600;
+    font-size:.95rem;
+    line-height:1;
+    border-radius:var(--r-pill);
+    padding:11px 18px;
+    border:1px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--bg);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 12px 34px -14px var(--glow);
+  }
+  .btn-primary:hover{
+    transform:translateY(-1px);
+    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 18px 40px -14px var(--glow);
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border-color:var(--hair);
+  }
+  .btn-ghost:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.03)}
+  nav.main .btn-primary{color:var(--bg)}
+
+  /* ---------- hero ---------- */
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.04fr .96fr;
+    gap:clamp(28px,5vw,64px);
+    align-items:center;
+    padding-block:clamp(48px,8vw,104px);
+  }
+  .hero-copy{min-width:0}
+  .hero h1{
+    font-family:var(--f-serif);
+    font-weight:700;
+    font-size:clamp(2.35rem,6.4vw,4.15rem);
+    line-height:1.02;
+    letter-spacing:-.012em;
+    margin:.5rem 0 0;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--accent-2);
+  }
+  .lede{
+    color:var(--muted);
+    font-size:clamp(1.02rem,1.4vw,1.16rem);
+    line-height:1.62;
+    margin:1.15rem 0 0;
+    max-width:34em;
+    word-break:break-word;
+  }
+  .cta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 14px;
+    margin-top:1.8rem;
+  }
+  .cta-row .btn{min-width:0}
+  .link-arrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    color:var(--link);
+    font-weight:600;
+    font-size:.95rem;
+    padding:11px 4px;
+  }
+  .link-arrow svg{transition:transform .16s ease}
+  .link-arrow:hover svg{transform:translateX(3px)}
+
+  .stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 26px;
+    margin-top:2.2rem;
+    padding-top:1.4rem;
+    border-top:1px solid var(--hair);
+  }
+  .stat{min-width:0}
+  .stat b{
+    display:block;
+    font-family:var(--f-mono);
+    font-size:1.02rem;
+    color:var(--ink);
+    letter-spacing:.01em;
+  }
+  .stat span{
+    display:block;
+    font-family:var(--f-mono);
+    font-size:.66rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--dim);
+    margin-top:3px;
+  }
+
+  /* ---------- orbit illustration ---------- */
+  .scene{min-width:0}
+  .scene figure{margin:0}
+  .orbit-svg{
+    width:100%;
+    height:auto;
+    max-width:560px;
+    margin-inline:auto;
+    overflow:visible;
+  }
+  .caption{
+    font-family:var(--f-mono);
+    font-size:.72rem;
+    line-height:1.7;
+    letter-spacing:.02em;
+    color:var(--dim);
+    text-align:center;
+    margin:1.1rem auto 0;
+    max-width:38ch;
+    word-break:break-word;
+  }
+  .caption b{color:var(--accent-3);font-weight:600}
+
+  /* svg element styling */
+  .ring{fill:none;stroke:var(--hair);stroke-width:1.1}
+  .ring.r-in{stroke:rgba(96,165,250,.30)}
+  .ring.r-mid{stroke:rgba(147,197,253,.16)}
+  .arc-guard{
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:5;
+    stroke-linecap:round;
+  }
+  .arc-guard.halo{stroke:rgba(59,130,246,.35);stroke-width:11}
+  .star{fill:var(--ink)}
+  .planet-steel{fill:#c6d0e2}
+  .planet-blue{fill:var(--accent-2)}
+  .planet-dim{fill:#8b96ad}
+  .moon{fill:#dfe6f2}
+  .p-ring{fill:none;stroke:var(--accent-3);stroke-width:1.4;opacity:.75}
+
+  /* orbital motion */
+  .orbiter{
+    transform-box:view-box;
+    transform-origin:320px 320px;
+  }
+  .o1{animation:spin 20s linear infinite}
+  .o2{animation:spin 31s linear infinite}
+  .o3{animation:spin 45s linear infinite}
+  .o4{animation:spin 67s linear infinite}
+  .o5{animation:spin 92s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .sun-breathe{
+    transform-box:view-box;
+    transform-origin:320px 320px;
+    animation:breathe 7.5s ease-in-out infinite;
+  }
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.06);opacity:1}}
+
+  .tw{animation:tw 4.5s ease-in-out infinite}
+  .tw2{animation:tw 6.2s ease-in-out infinite;animation-delay:-2s}
+  .tw3{animation:tw 5.4s ease-in-out infinite;animation-delay:-3.4s}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:.9}}
+
+  /* ---------- features ---------- */
+  section.features{border-top:1px solid var(--hair)}
+  .features .wrap{padding-block:clamp(56px,9vw,104px)}
+  .sec-head{max-width:40ch}
+  .sec-head h2{
+    font-family:var(--f-serif);
+    font-weight:700;
+    font-size:clamp(1.7rem,3.6vw,2.5rem);
+    line-height:1.1;
+    letter-spacing:-.01em;
+    margin:.7rem 0 0;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(16px,2.4vw,24px);
+    margin-top:clamp(32px,5vw,52px);
+  }
+  .card{
+    min-width:0;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--hair);
+    border-radius:var(--r-md);
+    padding:clamp(22px,2.6vw,28px);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card-ico{
+    width:44px;height:44px;flex:none;
+    border-radius:12px;
+    display:grid;place-items:center;
+    background:rgba(59,130,246,.12);
+    border:1px solid rgba(96,165,250,.28);
+  }
+  .card .k{
+    font-family:var(--f-mono);
+    font-size:.66rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--accent-2);
+    margin:0;
+  }
+  .card h3{
+    font-size:1.2rem;
+    font-weight:650;
+    line-height:1.25;
+    letter-spacing:-.006em;
+    margin:0;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .card p{
+    margin:0;
+    color:var(--muted);
+    font-size:.98rem;
+    line-height:1.62;
+    word-break:break-word;
+  }
+
+  /* ---------- closing ---------- */
+  section.closing{border-top:1px solid var(--hair)}
+  .closing .wrap{
+    padding-block:clamp(64px,10vw,120px);
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .closing h2{
+    font-family:var(--f-serif);
+    font-weight:700;
+    font-size:clamp(2rem,5vw,3.2rem);
+    line-height:1.05;
+    letter-spacing:-.012em;
+    margin:.5rem 0 0;
+    color:var(--ink);
+    max-width:16ch;
+    word-break:break-word;
+  }
+  .closing p{
+    color:var(--muted);
+    max-width:46ch;
+    margin:.2rem 0 0;
+    word-break:break-word;
+  }
+  .closing .cta-row{justify-content:center;margin-top:1.4rem}
+
+  /* ---------- footer ---------- */
+  footer.site-foot{border-top:1px solid var(--hair);background:var(--bg-2)}
+  .site-foot .wrap{
+    padding-block:clamp(34px,5vw,48px);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:22px 32px;
+  }
+  .foot-brand{min-width:0;max-width:34ch}
+  .foot-brand .tag{color:var(--dim);font-size:.92rem;margin:.5rem 0 0}
+  .foot-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 22px;
+    min-width:0;
+  }
+  .foot-links a{color:var(--muted);font-size:.92rem}
+  .foot-links a:hover{color:var(--ink)}
+  .foot-bottom{
+    border-top:1px solid var(--hair-2);
+  }
+  .foot-bottom .wrap{
+    padding-block:16px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 18px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .foot-bottom small{color:var(--dim);font-size:.82rem;word-break:break-word}
+  .telemetry{
+    font-family:var(--f-mono);
+    font-size:.72rem;
+    letter-spacing:.06em;
+    color:var(--dim);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  .telemetry .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent-2);
+    box-shadow:0 0 0 3px rgba(59,130,246,.2);
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:880px){
+    .hero .wrap{grid-template-columns:1fr;padding-block:clamp(36px,8vw,64px)}
+    .scene{order:-1}
+    .orbit-svg{max-width:420px}
+    .grid3{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    nav.main{width:100%;justify-content:flex-start}
+    .orbit-svg{max-width:340px}
+    .stats{gap:12px 20px}
+  }
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+</style>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Orbit home">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+        <circle cx="13" cy="13" r="11" fill="none" stroke="rgba(147,197,253,.35)" stroke-width="1.1"/>
+        <circle cx="13" cy="13" r="6.4" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
+        <circle cx="13" cy="13" r="2.4" fill="#eef1f8"/>
+        <circle cx="24" cy="13" r="1.9" fill="#3b82f6"/>
+      </svg>
+      <span>Orbit</span>
+    </a>
+    <nav class="main" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#signin">Sign in</a>
+      <a class="btn btn-primary" href="#start">Start free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">AI scheduling assistant</p>
+        <h1>Meetings <em>orbit</em> you. Not the other way around.</h1>
+        <p class="lede">Orbit guards your deep-work blocks first, fits meetings into the space that is left, and quietly reschedules conflicts before they ever reach your calendar.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#start">Start free</a>
+          <a class="link-arrow" href="#features">
+            See how a day settles
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>11h / week</b><span>focus protected</span></div>
+          <div class="stat"><b>0</b><span>double-bookings</span></div>
+          <div class="stat"><b>42</b><span>timezones handled</span></div>
+        </div>
+      </div>
+
+      <div class="scene">
+        <figure>
+          <svg class="orbit-svg" viewBox="0 0 640 640" role="img" aria-label="A calm system of concentric orbit rings with small planets circling a glowing center, representing a day organized around your focus.">
+            <!-- stars -->
+            <g>
+              <circle class="star tw"  cx="72"  cy="96"  r="1.4"/>
+              <circle class="star tw2" cx="150" cy="52"  r="1"/>
+              <circle class="star tw3" cx="560" cy="120" r="1.5"/>
+              <circle class="star tw"  cx="600" cy="300" r="1.1"/>
+              <circle class="star tw2" cx="512" cy="540" r="1.3"/>
+              <circle class="star tw3" cx="120" cy="520" r="1.2"/>
+              <circle class="star tw"  cx="44"  cy="360" r="1"/>
+              <circle class="star tw2" cx="300" cy="34"  r="1.2"/>
+              <circle class="star tw3" cx="360" cy="604" r="1"/>
+              <circle class="star tw"  cx="596" cy="440" r="1"/>
+              <circle class="star tw2" cx="30"  cy="220" r="1.1"/>
+              <circle class="star tw3" cx="470" cy="60"  r="1"/>
+            </g>
+
+            <!-- rings -->
+            <circle class="ring r-in"  cx="320" cy="320" r="64"/>
+            <circle class="ring"       cx="320" cy="320" r="118"/>
+            <circle class="ring r-mid" cx="320" cy="320" r="176"/>
+            <circle class="ring"       cx="320" cy="320" r="238"/>
+            <circle class="ring r-mid" cx="320" cy="320" r="296"/>
+
+            <!-- protected focus arc on inner ring -->
+            <path class="arc-guard halo" d="M271 279 A64 64 0 0 1 375 288"/>
+            <path class="arc-guard"      d="M271 279 A64 64 0 0 1 375 288"/>
+
+            <!-- sun glow + core -->
+            <g class="sun-breathe">
+              <circle cx="320" cy="320" r="128" fill="url(#sunGlow)"/>
+              <circle cx="320" cy="320" r="62"  fill="url(#sunGlow2)"/>
+            </g>
+            <circle cx="320" cy="320" r="25" fill="url(#sunCore)"/>
+            <circle cx="313" cy="313" r="8" fill="#ffffff" opacity=".55"/>
+
+            <!-- orbiter 1 : inner focus marker -->
+            <g class="orbiter o1">
+              <circle class="planet-blue" cx="352" cy="265" r="6"/>
+              <circle cx="352" cy="265" r="12" fill="none" stroke="rgba(96,165,250,.4)" stroke-width="1"/>
+            </g>
+
+            <!-- orbiter 2 : ringed planet -->
+            <g class="orbiter o2">
+              <ellipse class="p-ring" cx="209" cy="280" rx="24" ry="7.5" transform="rotate(-20 209 280)"/>
+              <circle class="planet-steel" cx="209" cy="280" r="10"/>
+              <circle cx="205" cy="276" r="3.4" fill="#ffffff" opacity=".5"/>
+            </g>
+
+            <!-- orbiter 3 : planet with moon -->
+            <g class="orbiter o3">
+              <circle class="planet-blue" cx="408" cy="472" r="8.5"/>
+              <circle cx="404" cy="468" r="3" fill="#ffffff" opacity=".45"/>
+              <circle class="moon" cx="408" cy="452" r="3"/>
+            </g>
+
+            <!-- orbiter 4 -->
+            <g class="orbiter o4">
+              <circle class="planet-dim" cx="167" cy="502" r="6.5"/>
+            </g>
+
+            <!-- orbiter 5 : faint outer -->
+            <g class="orbiter o5">
+              <circle class="planet-dim" cx="598" cy="219" r="4.5" opacity=".8"/>
+            </g>
+
+            <defs>
+              <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="rgba(59,130,246,.5)"/>
+                <stop offset="45%" stop-color="rgba(59,130,246,.16)"/>
+                <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+              </radialGradient>
+              <radialGradient id="sunGlow2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="rgba(147,197,253,.6)"/>
+                <stop offset="100%" stop-color="rgba(147,197,253,0)"/>
+              </radialGradient>
+              <radialGradient id="sunCore" cx="42%" cy="40%" r="65%">
+                <stop offset="0%"  stop-color="#f4f8ff"/>
+                <stop offset="42%" stop-color="#9cc2ff"/>
+                <stop offset="100%" stop-color="#2f6fe0"/>
+              </radialGradient>
+            </defs>
+          </svg>
+          <figcaption class="caption">
+            Core: <b>your focus</b> &middot; inner ring: <b>deep work</b> &middot; outer rings: meetings, async, everything else.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">// how orbit holds a day together</p>
+        <h2>A day is a system. Orbit keeps it stable.</h2>
+      </div>
+      <div class="grid3">
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(147,197,253,.4)" stroke-width="1.4"/>
+              <path d="M4.9 8.2 A9 9 0 0 1 19.1 8.2" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="2.4" fill="#60a5fa"/>
+            </svg>
+          </span>
+          <p class="k">Focus orbit</p>
+          <h3>Deep work has right of way</h3>
+          <p>Orbit reserves your focus blocks before anything else can land. Incoming invites bend around them, so the work that needs a clear head keeps a clear runway.</p>
+        </article>
+
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <circle cx="9" cy="12" r="6.4" fill="none" stroke="rgba(147,197,253,.4)" stroke-width="1.4"/>
+              <circle cx="15" cy="12" r="6.4" fill="none" stroke="#3b82f6" stroke-width="1.6"/>
+              <path d="M12 9.6 12.9 11.4 14.7 12 12.9 12.6 12 14.4 11.1 12.6 9.3 12 11.1 11.4Z" fill="#93c5fd"/>
+            </svg>
+          </span>
+          <p class="k">Collision control</p>
+          <h3>Conflicts reschedule themselves</h3>
+          <p>When two commitments cross paths, Orbit moves the lower-priority one to the next slot that works for everyone, then tells you exactly what changed and why.</p>
+        </article>
+
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(147,197,253,.4)" stroke-width="1.4"/>
+              <ellipse cx="12" cy="12" rx="3.8" ry="9" fill="none" stroke="#3b82f6" stroke-width="1.4"/>
+              <path d="M3 12h18" stroke="#60a5fa" stroke-width="1.4"/>
+              <circle cx="12" cy="12" r="1.7" fill="#93c5fd"/>
+            </svg>
+          </span>
+          <p class="k">Shared windows</p>
+          <h3>One link, everyone's hours</h3>
+          <p>Share a single booking link. Orbit reads each guest's timezone and working hours, and only offers times that feel humane on both ends of the call.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" id="start">
+    <div class="wrap">
+      <p class="eyebrow">Ready when you are</p>
+      <h2>Give your focus a little gravity.</h2>
+      <p>Connect a calendar and Orbit maps your first week in under a minute. No credit card, cancel anytime.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#start">Start free</a>
+        <a class="btn btn-ghost" href="#demo">Book a walkthrough</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-brand">
+      <a class="brand" href="#top" aria-label="Orbit home">
+        <svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true">
+          <circle cx="13" cy="13" r="11" fill="none" stroke="rgba(147,197,253,.35)" stroke-width="1.1"/>
+          <circle cx="13" cy="13" r="6.4" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
+          <circle cx="13" cy="13" r="2.4" fill="#eef1f8"/>
+          <circle cx="24" cy="13" r="1.9" fill="#3b82f6"/>
+        </svg>
+        <span>Orbit</span>
+      </a>
+      <p class="tag">Scheduling with gravity. Protect the work that matters, and let the rest find its place.</p>
+    </div>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#privacy">Privacy</a>
+      <a href="#security">Security</a>
+      <a href="#status">Status</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+  <div class="foot-bottom">
+    <div class="wrap">
+      <small>&copy; 2026 Orbit Labs. A fictional product, built as a design reference.</small>
+      <span class="telemetry"><span class="dot" aria-hidden="true"></span>orbit.systems &middot; v2.4 &middot; all systems nominal</span>
+    </div>
+  </div>
+</footer>

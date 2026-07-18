@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Sprout, gentle early learning for ages 2 to 6</title>
+<meta name="description" content="Sprout is the screen-light early-learning companion for little ones aged 2 to 6. Ten playful minutes a day, guided by you, grown at their pace.">
+<style>
+  :root{
+    /* palette */
+    --bg:#f0f7f0;
+    --ink:#22331f;
+    --ink-soft:#42533d;
+    --green:#7bc47f;
+    --green-deep:#2c6e49;
+    --green-tint:#dcefdc;
+    --leaf-light:#a8dcab;
+    --sun:#ffd166;
+    --sun-deep:#a86e00;
+    --sun-tint:#fff3d6;
+    --cheek:#f6b0a6;
+    --clay:#f2c8a8;
+    --white:#ffffff;
+    --card:#ffffff;
+    --line:#d4e6d4;
+    --shadow:0 18px 44px -22px rgba(34,51,31,.32);
+    --shadow-sm:0 8px 20px -12px rgba(34,51,31,.30);
+
+    /* type */
+    --font-display:Georgia,'Times New Roman',serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+    /* space + shape */
+    --radius:20px;
+    --radius-sm:12px;
+    --radius-pill:999px;
+    --maxw:1120px;
+    --gutter:clamp(18px,5vw,40px);
+    --sway:6s;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:clamp(16px,1vw + 14px,18px);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{max-width:100%;height:auto}
+
+  a{color:var(--green-deep);text-underline-offset:3px}
+  a:hover{color:var(--ink)}
+
+  :focus-visible{
+    outline:3px solid var(--green-deep);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--green-deep);
+    margin:0;
+  }
+
+  /* buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:.5em;
+    font:inherit;font-weight:650;
+    border-radius:var(--radius-pill);
+    padding:.82em 1.4em;
+    border:2px solid transparent;
+    cursor:pointer;
+    text-decoration:none;
+    min-width:0;
+    transition:transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:#f4faf3;
+    box-shadow:var(--shadow-sm);
+  }
+  .btn-primary:hover{background:#16210f;color:#fff;transform:translateY(-2px)}
+  .btn-primary .seed{background:var(--sun)}
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border-color:var(--ink);
+  }
+  .btn-ghost:hover{background:var(--ink);color:#f4faf3;transform:translateY(-2px)}
+  .btn .seed{
+    width:.6em;height:.6em;border-radius:50%;
+    background:var(--green);display:inline-block;flex:0 0 auto;
+  }
+
+  /* header */
+  .site-head{
+    position:sticky;top:0;z-index:50;
+    background:color-mix(in srgb, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .head-row{display:flex;align-items:center;gap:1rem;min-height:66px}
+  .brand{
+    display:inline-flex;align-items:center;gap:.55rem;
+    font-family:var(--font-display);font-weight:700;font-size:1.24rem;
+    color:var(--ink);text-decoration:none;letter-spacing:.01em;min-width:0;
+  }
+  .brand:hover{color:var(--ink)}
+  .brand-mark{width:34px;height:34px;flex:0 0 auto}
+  .nav{margin-left:auto;display:flex;align-items:center;gap:clamp(.5rem,2.4vw,1.7rem);flex-wrap:wrap;min-width:0}
+  .nav a:not(.btn){
+    color:var(--ink);text-decoration:none;font-weight:550;font-size:.95rem;
+    padding:.35em 0;white-space:nowrap;
+  }
+  .nav a:not(.btn):hover{color:var(--green-deep)}
+  .nav .btn{margin-left:.3rem}
+  .nav-cta-text{white-space:nowrap}
+
+  /* hero */
+  .hero{position:relative;padding-block:clamp(30px,6vw,68px) clamp(40px,7vw,84px)}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:clamp(28px,5vw,60px);
+    align-items:center;
+  }
+  .hero-copy{min-width:0}
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2.5rem,6.2vw,4.15rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+    margin:.5rem 0 .1rem;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .hero h1 .grow{color:var(--green-deep);position:relative;white-space:nowrap}
+  .hero h1 .grow::after{
+    content:"";position:absolute;left:0;right:0;bottom:.06em;height:.14em;
+    background:var(--sun);border-radius:var(--radius-pill);z-index:-1;
+  }
+  .lede{
+    font-size:clamp(1.05rem,1.4vw,1.24rem);
+    color:var(--ink-soft);
+    max-width:34ch;
+    margin:1.1rem 0 1.7rem;
+  }
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+  .hero-note{
+    display:flex;align-items:center;gap:.5rem;
+    margin-top:1.1rem;font-size:.9rem;color:var(--ink-soft);
+  }
+  .hero-note .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--green);flex:0 0 auto}
+
+  /* hero art */
+  .hero-art{min-width:0;position:relative}
+  .hero-art svg{display:block;width:100%;height:auto;filter:drop-shadow(var(--shadow))}
+
+  /* animation */
+  @keyframes sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes drift{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+  .a-sway{transform-box:fill-box;transform-origin:50% 92%;animation:sway var(--sway) ease-in-out infinite}
+  .a-bob{transform-box:fill-box;transform-origin:50% 50%;animation:bob 4.5s ease-in-out infinite}
+  .a-drift{transform-box:fill-box;animation:drift 7s ease-in-out infinite}
+  .a-drift2{transform-box:fill-box;animation:drift 9s ease-in-out infinite}
+  .a-spin{transform-box:fill-box;transform-origin:50% 50%;animation:spin 26s linear infinite}
+  .a-blink{transform-box:fill-box;transform-origin:center;animation:blink 6s ease-in-out infinite}
+
+  /* trust strip */
+  .strip{border-block:1px solid var(--line);background:var(--white)}
+  .strip-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:clamp(1rem,4vw,2.6rem);
+    padding-block:18px;
+  }
+  .strip-label{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0}
+  .stat{display:flex;flex-direction:column;min-width:0}
+  .stat b{font-family:var(--font-display);font-size:1.5rem;line-height:1;color:var(--green-deep)}
+  .stat span{font-size:.82rem;color:var(--ink-soft)}
+
+  /* sections */
+  section{scroll-margin-top:80px}
+  .band{padding-block:clamp(52px,8vw,96px)}
+  .band-head{max-width:56ch}
+  .band-head h2{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(1.9rem,3.6vw,2.75rem);line-height:1.08;
+    letter-spacing:-.01em;margin:.6rem 0 .4rem;color:var(--ink);
+  }
+  .band-head p{color:var(--ink-soft);margin:0;font-size:1.05rem}
+
+  /* features */
+  .features{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(16px,2.4vw,24px);margin-top:clamp(28px,4vw,44px);
+  }
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px 24px 28px;
+    min-width:0;display:flex;flex-direction:column;
+    box-shadow:var(--shadow-sm);
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--green)}
+  .card .spot{width:72px;height:72px;flex:0 0 auto;margin-bottom:16px}
+  .card h3{
+    font-family:var(--font-display);font-weight:700;font-size:1.28rem;
+    margin:0 0 .45rem;color:var(--ink);line-height:1.15;
+  }
+  .card p{margin:0;color:var(--ink-soft);font-size:.98rem}
+  .card .tag{
+    margin-top:auto;padding-top:16px;font-family:var(--font-mono);
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep);
+  }
+
+  /* day panel */
+  .day{
+    background:var(--ink);color:#eaf3e6;border-radius:calc(var(--radius) + 8px);
+    padding:clamp(28px,4.5vw,52px);position:relative;overflow:hidden;
+  }
+  .day::before{
+    content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;
+    border-radius:50%;background:radial-gradient(circle at 30% 30%, var(--sun), transparent 62%);
+    opacity:.55;pointer-events:none;
+  }
+  .day-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(26px,4vw,52px);align-items:center;position:relative;z-index:1}
+  .day h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,3.4vw,2.5rem);line-height:1.1;margin:.4rem 0 .7rem;color:#fff}
+  .day .eyebrow{color:var(--sun)}
+  .day p{color:#c9d9c2;margin:0 0 1.4rem;max-width:40ch}
+  .steps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+  .steps li{display:flex;gap:14px;align-items:flex-start;min-width:0}
+  .steps .num{
+    font-family:var(--font-mono);font-size:.82rem;font-weight:600;
+    width:30px;height:30px;flex:0 0 auto;border-radius:50%;
+    display:grid;place-items:center;background:rgba(123,196,127,.22);color:var(--leaf-light);
+    border:1px solid rgba(168,220,171,.4);
+  }
+  .steps .num.sun{background:rgba(255,209,102,.2);color:var(--sun);border-color:rgba(255,209,102,.45)}
+  .steps b{color:#fff;display:block;font-size:1rem}
+  .steps span{color:#bccdb6;font-size:.92rem}
+
+  /* quote */
+  .quote{text-align:center;max-width:40ch;margin-inline:auto}
+  .quote blockquote{
+    font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2.05rem);
+    line-height:1.3;margin:.6rem 0 1.1rem;color:var(--ink);letter-spacing:-.005em;
+  }
+  .quote .by{font-size:.95rem;color:var(--ink-soft)}
+  .quote .by b{color:var(--ink)}
+
+  /* final cta */
+  .final{
+    background:
+      radial-gradient(1000px 340px at 50% -40%, var(--green-tint), transparent 70%),
+      var(--bg);
+    text-align:center;
+  }
+  .final-inner{
+    background:var(--white);border:1px solid var(--line);border-radius:calc(var(--radius) + 8px);
+    padding:clamp(34px,5vw,60px) clamp(24px,5vw,56px);box-shadow:var(--shadow);
+    max-width:760px;margin-inline:auto;position:relative;
+  }
+  .final .mini-mascot{width:96px;height:96px;margin:-64px auto 8px;display:block}
+  .final h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.9rem,4vw,2.8rem);line-height:1.06;margin:.4rem 0 .5rem;color:var(--ink)}
+  .final p{color:var(--ink-soft);margin:0 auto 1.5rem;max-width:42ch}
+  .final .hero-cta{justify-content:center}
+  .final .fine{margin-top:1rem;font-size:.85rem;color:var(--ink-soft)}
+
+  /* footer */
+  .site-foot{border-top:1px solid var(--line);padding-block:44px 40px;background:var(--white)}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:28px 48px;justify-content:space-between}
+  .foot-brand{max-width:30ch;min-width:0}
+  .foot-brand .brand{margin-bottom:.5rem}
+  .foot-brand p{color:var(--ink-soft);font-size:.92rem;margin:0}
+  .foot-cols{display:flex;flex-wrap:wrap;gap:28px 48px}
+  .foot-col h4{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 .8rem}
+  .foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+  .foot-col a{color:var(--ink);text-decoration:none;font-size:.93rem}
+  .foot-col a:hover{color:var(--green-deep);text-decoration:underline}
+  .foot-base{
+    display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center;
+    margin-top:34px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:.85rem;color:var(--ink-soft);
+  }
+  .foot-base a{color:var(--ink-soft)}
+  .foot-base a:hover{color:var(--ink)}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:24px}
+    .hero-art{order:-1;max-width:440px;margin-inline:auto}
+    .lede{max-width:46ch}
+    .features{grid-template-columns:1fr}
+    .day-grid{grid-template-columns:1fr}
+    .day-art{max-width:320px;margin-inline:auto}
+  }
+  @media (max-width:560px){
+    .head-row{flex-wrap:wrap;min-height:0;padding-block:10px;gap:.3rem 1rem}
+    .nav{margin-left:0;width:100%;justify-content:flex-start;gap:.5rem 1.15rem}
+    .nav a:not(.btn){font-size:.92rem}
+    .nav .btn{margin-left:auto}
+    .strip-row{gap:1.1rem 1.6rem}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" aria-label="Sprout home">
+      <svg class="brand-mark" viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+        <circle cx="20" cy="20" r="20" fill="#dcefdc"/>
+        <path d="M20 30V18" stroke="#2c6e49" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M20 20c-6 .4-9-3-9-7 4-.2 8 1.6 9 5.4C21 14.6 25 12.8 29 13c0 4-3 7.4-9 7Z" fill="#7bc47f"/>
+        <circle cx="16.4" cy="18.4" r="1.05" fill="#22331f"/>
+        <circle cx="23.6" cy="18.4" r="1.05" fill="#22331f"/>
+        <path d="M17.6 21.2c1 .9 3.8.9 4.8 0" stroke="#22331f" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <circle cx="20" cy="9" r="2.4" fill="#ffd166"/>
+      </svg>
+      <span>Sprout</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#approach">Approach</a>
+      <a href="#day">A day</a>
+      <a href="#educators">Educators</a>
+      <a href="#pricing">Pricing</a>
+      <a class="btn btn-primary" href="#pricing"><span class="seed" aria-hidden="true"></span><span class="nav-cta-text">Start free</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Early learning, ages 2 to 6</p>
+        <h1>Big ideas start <span class="grow">small</span>.</h1>
+        <p class="lede">Sprout is the screen-light learning companion for little ones. Ten playful minutes a day, guided by you, grown at their pace.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#pricing"><span class="seed" aria-hidden="true"></span>Start free for 14 days</a>
+          <a class="btn btn-ghost" href="#day">See a day with Sprout</a>
+        </div>
+        <p class="hero-note"><span class="dot" aria-hidden="true"></span>No ads, ever. Cancel any day, keep the crayons.</p>
+      </div>
+
+      <!-- SIGNATURE: hand-authored seedling mascot scene -->
+      <div class="hero-art">
+        <svg id="scene" viewBox="0 0 460 440" role="img"
+             aria-label="Fern, a friendly smiling seedling character with two leaf arms, standing in a plant pot under a warm sun.">
+          <defs>
+            <radialGradient id="sky" cx="52%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#eaf6ea"/>
+              <stop offset="100%" stop-color="#dcefdc"/>
+            </radialGradient>
+            <linearGradient id="pot" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f6d3b4"/>
+              <stop offset="100%" stop-color="#eab98d"/>
+            </linearGradient>
+            <linearGradient id="head" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a8dcab"/>
+              <stop offset="100%" stop-color="#7bc47f"/>
+            </linearGradient>
+            <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#8fd193"/>
+              <stop offset="100%" stop-color="#6bb972"/>
+            </linearGradient>
+          </defs>
+
+          <!-- backdrop -->
+          <rect x="10" y="10" width="440" height="420" rx="30" fill="url(#sky)"/>
+
+          <!-- sun -->
+          <g class="a-spin">
+            <g transform="translate(372,92)">
+              <g stroke="#ffd166" stroke-width="7" stroke-linecap="round">
+                <line x1="0" y1="-46" x2="0" y2="-62"/>
+                <line x1="33" y1="-33" x2="44" y2="-44"/>
+                <line x1="46" y1="0" x2="62" y2="0"/>
+                <line x1="33" y1="33" x2="44" y2="44"/>
+                <line x1="0" y1="46" x2="0" y2="62"/>
+                <line x1="-33" y1="33" x2="-44" y2="44"/>
+                <line x1="-46" y1="0" x2="-62" y2="0"/>
+                <line x1="-33" y1="-33" x2="-44" y2="-44"/>
+              </g>
+            </g>
+          </g>
+          <circle cx="372" cy="92" r="34" fill="#ffd166"/>
+          <circle cx="372" cy="92" r="34" fill="none" stroke="#ffca4d" stroke-width="2"/>
+
+          <!-- floating seeds / dots -->
+          <g class="a-drift"><circle cx="70" cy="120" r="7" fill="#7bc47f" opacity=".55"/></g>
+          <g class="a-drift2"><circle cx="120" cy="70" r="5" fill="#ffd166" opacity=".85"/></g>
+          <g class="a-drift2"><circle cx="410" cy="210" r="6" fill="#7bc47f" opacity=".45"/></g>
+          <g class="a-drift"><rect x="60" y="230" width="16" height="16" rx="4" fill="#ffd166" opacity=".85" transform="rotate(-12 68 238)"/></g>
+
+          <!-- soft ground -->
+          <path d="M10 360c90-26 350-26 440 0v40a30 30 0 0 1-30 30H40a30 30 0 0 1-30-30Z" fill="#cbe8cb"/>
+          <ellipse cx="230" cy="392" rx="120" ry="18" fill="#22331f" opacity=".06"/>
+
+          <!-- ABC blocks -->
+          <g class="a-bob">
+            <g transform="translate(96,300)">
+              <rect x="0" y="0" width="46" height="46" rx="9" fill="#ffffff" stroke="#e3d3ad" stroke-width="2"/>
+              <rect x="0" y="0" width="46" height="46" rx="9" fill="#ffd166" opacity=".18"/>
+              <text x="23" y="32" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#a86e00">A</text>
+            </g>
+          </g>
+          <g transform="translate(330,312)">
+            <rect x="0" y="0" width="42" height="42" rx="9" fill="#ffffff" stroke="#bfe0bf" stroke-width="2"/>
+            <rect x="0" y="0" width="42" height="42" rx="9" fill="#7bc47f" opacity=".18"/>
+            <text x="21" y="30" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="24" font-weight="700" fill="#2c6e49">B</text>
+          </g>
+
+          <!-- ===== the mascot (Fern) ===== -->
+          <g class="a-sway">
+            <!-- pot -->
+            <path d="M168 300h124l-14 74a20 20 0 0 1-19.8 17H201.8A20 20 0 0 1 182 374Z" fill="url(#pot)"/>
+            <rect x="160" y="286" width="140" height="26" rx="13" fill="#f0c39a"/>
+            <rect x="160" y="286" width="140" height="26" rx="13" fill="#ffffff" opacity=".14"/>
+            <ellipse cx="230" cy="299" rx="66" ry="10" fill="#4a2f1c" opacity=".18"/>
+
+            <!-- stem -->
+            <path d="M230 300V196" stroke="#4f9d63" stroke-width="14" stroke-linecap="round"/>
+
+            <!-- leaf arms -->
+            <g class="a-bob">
+              <path d="M212 250c-40 4-64-16-66-42 30-6 60 6 66 30" fill="url(#leaf)"/>
+              <path d="M150 210c22 0 44 8 58 26" stroke="#3f8a56" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".5"/>
+            </g>
+            <g class="a-bob" style="animation-delay:-2.2s">
+              <path d="M248 244c40 8 66-8 72-34-30-9-61-1-70 22" fill="url(#leaf)"/>
+              <path d="M312 208c-22 2-43 12-55 32" stroke="#3f8a56" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".5"/>
+            </g>
+
+            <!-- head sprout -->
+            <g>
+              <!-- top sprout curl -->
+              <path d="M230 150c-2-20-16-30-32-30 2 16 14 28 32 30Z" fill="#8fd193"/>
+              <circle cx="196" cy="122" r="5" fill="#ffd166"/>
+
+              <!-- face bulb -->
+              <path d="M230 118c46 0 74 30 74 66s-33 62-74 62-74-26-74-62 28-66 74-66Z" fill="url(#head)"/>
+              <path d="M230 118c46 0 74 30 74 66s-33 62-74 62-74-26-74-62 28-66 74-66Z" fill="none" stroke="#5fae6a" stroke-width="2" opacity=".6"/>
+
+              <!-- cheeks -->
+              <circle cx="192" cy="196" r="12" fill="#f6b0a6" opacity=".8"/>
+              <circle cx="268" cy="196" r="12" fill="#f6b0a6" opacity=".8"/>
+
+              <!-- eyes: whites + pupils (pupils tracked by JS, safe centered default) -->
+              <g class="a-blink">
+                <ellipse cx="208" cy="178" rx="13" ry="15" fill="#ffffff"/>
+                <ellipse cx="252" cy="178" rx="13" ry="15" fill="#ffffff"/>
+                <circle id="pupilL" cx="208" cy="180" r="6.4" fill="#22331f"/>
+                <circle id="pupilR" cx="252" cy="180" r="6.4" fill="#22331f"/>
+                <circle cx="210.4" cy="177" r="2" fill="#ffffff"/>
+                <circle cx="254.4" cy="177" r="2" fill="#ffffff"/>
+              </g>
+
+              <!-- smile -->
+              <path d="M212 206c8 10 26 10 36 0" stroke="#22331f" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <path d="M220 214c4 3 12 3 16 0" stroke="#f6b0a6" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"/>
+
+              <!-- little leaf veins on head -->
+              <path d="M230 130v40" stroke="#5fae6a" stroke-width="2" opacity=".35" fill="none"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST STRIP ============ -->
+  <div class="strip">
+    <div class="wrap strip-row">
+      <p class="strip-label">Trusted by growing families</p>
+      <div class="stat"><b>10 min</b><span>a gentle daily rhythm</span></div>
+      <div class="stat"><b>240+</b><span>off-screen activities</span></div>
+      <div class="stat"><b>0 ads</b><span>no tracking, no upsells</span></div>
+      <div class="stat"><b>2 to 6</b><span>grows with your child</span></div>
+    </div>
+  </div>
+
+  <!-- ============ APPROACH / FEATURES ============ -->
+  <section id="approach" class="band">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow">Our approach</p>
+        <h2>Learning that leaves the screen.</h2>
+        <p>We think the best early learning happens with real hands, real objects, and a grown-up nearby. Sprout starts the spark, then hands it back to you.</p>
+      </div>
+
+      <div class="features">
+        <article class="card">
+          <svg class="spot" viewBox="0 0 72 72" role="img" aria-label="A phone with a leaf, pointing to blocks on a table.">
+            <rect x="6" y="8" width="34" height="52" rx="9" fill="#dcefdc" stroke="#7bc47f" stroke-width="2"/>
+            <path d="M23 22c-6 .4-9-3-9-7 4-.2 8 1.6 9 5.4C24 16.6 28 14.8 32 15c0 4-3 7.4-9 7Z" fill="#7bc47f"/>
+            <path d="M40 40h16" stroke="#a86e00" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/>
+            <rect x="48" y="44" width="18" height="18" rx="4" fill="#ffd166"/>
+            <text x="57" y="57" text-anchor="middle" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#a86e00">C</text>
+          </svg>
+          <h3>Play first, screens second</h3>
+          <p>Every lesson ends off-screen with a hands-on activity you can do at the kitchen table. The tablet lights the spark, then steps back.</p>
+          <span class="tag">Screen-light by design</span>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 72 72" role="img" aria-label="Three sprouts growing taller, from small to large.">
+            <line x1="14" y1="60" x2="58" y2="60" stroke="#d4e6d4" stroke-width="3" stroke-linecap="round"/>
+            <path d="M22 60V48" stroke="#7bc47f" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="22" cy="45" r="6" fill="#a8dcab"/>
+            <path d="M36 60V38" stroke="#7bc47f" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="36" cy="34" r="7.5" fill="#7bc47f"/>
+            <path d="M50 60V26" stroke="#2c6e49" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="22" r="9" fill="#2c6e49"/>
+            <circle cx="50" cy="14" r="3.5" fill="#ffd166"/>
+          </svg>
+          <h3>Grows with your child</h3>
+          <p>Sprout notices what clicks and quietly shifts the difficulty, so activities never feel too easy or too far out of reach.</p>
+          <span class="tag">Adapts at their pace</span>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 72 72" role="img" aria-label="A heart made of two leaves, held in the palm of a hand.">
+            <path d="M10 52c14 8 38 8 52 0" stroke="#eab98d" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M36 44c-10-8-16-14-16-22 0-6 8-9 12-3 4-6 12-3 12 3 0 8-6 14-16 22H36Z" fill="#7bc47f" transform="translate(0 -4)"/>
+            <path d="M36 20v18" stroke="#ffffff" stroke-width="2" opacity=".6"/>
+          </svg>
+          <h3>Built with educators</h3>
+          <p>Every activity is shaped with early-childhood teachers and grounded in how little minds actually build language, number, and confidence.</p>
+          <span class="tag">Rooted in real research</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ A DAY WITH SPROUT ============ -->
+  <section id="day" class="band" style="padding-top:0">
+    <div class="wrap">
+      <div class="day">
+        <div class="day-grid">
+          <div>
+            <p class="eyebrow">A day with Sprout</p>
+            <h2>Ten calm minutes, then back to the world.</h2>
+            <p>No endless feed, no cliffhangers. Just one small idea a day, wrapped up with something to make, find, or talk about together.</p>
+            <ol class="steps">
+              <li>
+                <span class="num sun" aria-hidden="true">1</span>
+                <span><b>A tiny story</b><span>Fern introduces one idea through a two-minute animated tale.</span></span>
+              </li>
+              <li>
+                <span class="num" aria-hidden="true">2</span>
+                <span><b>A playful task</b><span>Your child taps, sorts, or traces to try the idea out.</span></span>
+              </li>
+              <li>
+                <span class="num" aria-hidden="true">3</span>
+                <span><b>Off you go</b><span>A printable or kitchen-table activity takes it into real life.</span></span>
+              </li>
+            </ol>
+          </div>
+          <div class="day-art">
+            <svg viewBox="0 0 300 300" role="img" aria-label="A round clock face made of leaves showing a short ten-minute slice of the day.">
+              <circle cx="150" cy="150" r="120" fill="#1a2817"/>
+              <circle cx="150" cy="150" r="120" fill="none" stroke="#7bc47f" stroke-width="2" opacity=".4"/>
+              <!-- the 10-minute slice -->
+              <path d="M150 150 L150 40 A110 110 0 0 1 218 74 Z" fill="#ffd166" opacity=".9"/>
+              <!-- tick leaves -->
+              <g stroke="#a8dcab" stroke-width="4" stroke-linecap="round">
+                <line x1="150" y1="46" x2="150" y2="60"/>
+                <line x1="254" y1="150" x2="240" y2="150"/>
+                <line x1="150" y1="254" x2="150" y2="240"/>
+                <line x1="46" y1="150" x2="60" y2="150"/>
+              </g>
+              <circle cx="150" cy="150" r="10" fill="#7bc47f"/>
+              <line x1="150" y1="150" x2="150" y2="80" stroke="#ffd166" stroke-width="6" stroke-linecap="round"/>
+              <line x1="150" y1="150" x2="196" y2="150" stroke="#a8dcab" stroke-width="5" stroke-linecap="round"/>
+              <text x="150" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#ffffff">10 min</text>
+              <text x="150" y="228" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="10" letter-spacing="2" fill="#9fb79a">A DAY, NO MORE</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EDUCATORS / QUOTE ============ -->
+  <section id="educators" class="band" style="padding-top:0">
+    <div class="wrap quote">
+      <p class="eyebrow">From the classroom</p>
+      <blockquote>"Sprout respects that a four-year-old learns most with their hands. It hands the lesson back to the family instead of holding onto their attention."</blockquote>
+      <p class="by"><b>Dr. Maya Oduya</b>, early-childhood educator and Sprout advisor</p>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section id="pricing" class="final band">
+    <div class="wrap">
+      <div class="final-inner">
+        <svg class="mini-mascot" viewBox="0 0 96 96" role="img" aria-label="Fern the seedling, waving hello.">
+          <circle cx="48" cy="48" r="46" fill="#dcefdc"/>
+          <path d="M48 82V54" stroke="#4f9d63" stroke-width="7" stroke-linecap="round"/>
+          <path d="M40 60c-16 2-25-6-26-18 12-2 24 3 26 12" fill="#7bc47f"/>
+          <path d="M56 58c16 3 26-4 27-16-12-3-24 1-27 11" fill="#7bc47f"/>
+          <path d="M48 24c22 0 35 14 35 31S67 84 48 84 13 72 13 55s13-31 35-31Z" fill="#8fd193"/>
+          <circle cx="38" cy="52" r="6.5" fill="#ffffff"/><circle cx="58" cy="52" r="6.5" fill="#ffffff"/>
+          <circle cx="38.5" cy="53" r="3.2" fill="#22331f"/><circle cx="58.5" cy="53" r="3.2" fill="#22331f"/>
+          <circle cx="30" cy="60" r="5" fill="#f6b0a6" opacity=".8"/><circle cx="66" cy="60" r="5" fill="#f6b0a6" opacity=".8"/>
+          <path d="M40 63c4 5 12 5 16 0" stroke="#22331f" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="30" cy="22" r="4" fill="#ffd166"/>
+        </svg>
+        <p class="eyebrow" style="text-align:center">Plant the first seed</p>
+        <h2>Start free for 14 days.</h2>
+        <p>Try every activity with your little one. No card up front, no ads, and you keep any craft you make along the way.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#top"><span class="seed" aria-hidden="true"></span>Start free for 14 days</a>
+          <a class="btn btn-ghost" href="#approach">See how it works</a>
+        </div>
+        <p class="fine">Then 6 dollars a month for the whole family. Cancel any day.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Sprout home">
+          <svg class="brand-mark" viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+            <circle cx="20" cy="20" r="20" fill="#dcefdc"/>
+            <path d="M20 30V18" stroke="#2c6e49" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M20 20c-6 .4-9-3-9-7 4-.2 8 1.6 9 5.4C21 14.6 25 12.8 29 13c0 4-3 7.4-9 7Z" fill="#7bc47f"/>
+            <circle cx="16.4" cy="18.4" r="1.05" fill="#22331f"/>
+            <circle cx="23.6" cy="18.4" r="1.05" fill="#22331f"/>
+            <circle cx="20" cy="9" r="2.4" fill="#ffd166"/>
+          </svg>
+          <span>Sprout</span>
+        </a>
+        <p>Gentle early learning for ages 2 to 6. Made with families and educators, not for the algorithm.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#approach">Approach</a></li>
+            <li><a href="#day">A day with Sprout</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Family</h4>
+          <ul>
+            <li><a href="#educators">For educators</a></li>
+            <li><a href="#top">Parent guide</a></li>
+            <li><a href="#top">Ages and stages</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#top">Our promise</a></li>
+            <li><a href="#top">Privacy for kids</a></li>
+            <li><a href="#top">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>Copyright 2026 Sprout Learning. A fictional demo for velofy / ui-atlas.</span>
+      <span><a href="#top">Privacy</a> &nbsp; <a href="#top">Terms</a> &nbsp; <a href="#top">Kids safety</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* Progressive enhancement only: pupils gently follow the pointer.
+     Page is fully functional and legible with JS disabled or motion reduced. */
+  (function () {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    var scene = document.getElementById('scene');
+    var pL = document.getElementById('pupilL');
+    var pR = document.getElementById('pupilR');
+    if (!scene || !pL || !pR) return;
+
+    var baseL = { x: 208, y: 180 };
+    var baseR = { x: 252, y: 180 };
+    var maxShift = 3.4;
+
+    function move(clientX, clientY) {
+      var r = scene.getBoundingClientRect();
+      if (!r.width) return;
+      // pointer position relative to the eyes' rough center, normalized
+      var nx = (clientX - (r.left + r.width * 0.5)) / (r.width * 0.5);
+      var ny = (clientY - (r.top + r.height * 0.42)) / (r.height * 0.5);
+      nx = Math.max(-1, Math.min(1, nx));
+      ny = Math.max(-1, Math.min(1, ny));
+      pL.setAttribute('cx', (baseL.x + nx * maxShift).toFixed(1));
+      pL.setAttribute('cy', (baseL.y + ny * maxShift).toFixed(1));
+      pR.setAttribute('cx', (baseR.x + nx * maxShift).toFixed(1));
+      pR.setAttribute('cy', (baseR.y + ny * maxShift).toFixed(1));
+    }
+
+    window.addEventListener('pointermove', function (e) {
+      move(e.clientX, e.clientY);
+    }, { passive: true });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Pulse - Notice the drift before it becomes a diagnosis</title>
+<meta name="description" content="Pulse reads the quiet signals your body sends every day, resting heart rate, sleep depth, and recovery, and tells you when something is shifting. Early, in plain language, without the panic.">
+<style>
+  :root{
+    /* surfaces */
+    --paper:#ffffff;
+    --paper-2:#fbfeff;
+    --mist:#eef6f8;
+    --mist-2:#e2eef2;
+    --wash:#f4fafb;
+    /* ink / text */
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    /* teal accents */
+    --teal:#06b6d4;
+    --teal-bright:#22d3ee;
+    --teal-deep:#0e7490;
+    --teal-ink:#155e75;
+    --teal-soft:#cbeef4;
+    --teal-tint:#d9f3f8;
+    /* status */
+    --steady:#0e7490;
+    --amber:#b45309;
+    /* lines */
+    --line:#dde7ec;
+    --line-strong:#c3d3da;
+    /* geometry */
+    --radius:16px;
+    --radius-sm:10px;
+    --radius-lg:26px;
+    --radius-pill:999px;
+    --maxw:1140px;
+    --pad:clamp(1.15rem, 4vw, 2.6rem);
+    /* shadow */
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 14px 34px rgba(13,110,140,.09);
+    --shadow-lg:0 2px 6px rgba(15,23,42,.06), 0 30px 66px rgba(13,110,140,.16);
+    --shadow-teal:0 12px 26px rgba(6,182,212,.28);
+    /* type */
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-serif:Georgia,'Times New Roman',serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --fs-hero:clamp(2.3rem, 6.3vw, 4.15rem);
+    --fs-h2:clamp(1.75rem, 4.2vw, 2.75rem);
+    --fs-h3:1.2rem;
+    --fs-lead:clamp(1.06rem, 2.3vw, 1.3rem);
+    --fs-body:1.02rem;
+    --fs-small:0.9rem;
+    --fs-eyebrow:0.74rem;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{max-width:100%;overflow-x:hidden}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:var(--fs-body);
+    line-height:1.62;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    -webkit-font-smoothing:antialiased;
+  }
+  svg{max-width:100%;display:block}
+  h1,h2,h3{margin:0;line-height:1.07;font-weight:700;letter-spacing:-.02em}
+  p{margin:0}
+  a{color:var(--teal-deep)}
+  img{max-width:100%}
+
+  /* ---- utilities ---- */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:var(--fs-eyebrow);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    display:inline-flex;
+    align-items:center;
+    gap:.55rem;
+    font-weight:600;
+  }
+  .eyebrow::before{content:"";width:22px;height:2px;background:var(--teal);border-radius:2px;flex:none}
+  .lead{font-size:var(--fs-lead);color:var(--ink-2);line-height:1.5}
+  .serif{font-family:var(--font-serif)}
+  .section{padding-block:clamp(3.4rem, 8vw, 6rem)}
+
+  /* ---- skip link ---- */
+  .skip{
+    position:absolute;left:12px;top:-64px;z-index:60;
+    background:var(--ink);color:#fff;
+    padding:.7rem 1.1rem;border-radius:var(--radius-sm);
+    text-decoration:none;font-weight:600;font-size:var(--fs-small);
+    transition:top .18s ease;
+  }
+  .skip:focus{top:12px}
+
+  /* ---- focus ---- */
+  a:focus-visible,button:focus-visible{
+    outline:3px solid var(--teal);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  /* ---- buttons ---- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+    font:600 1rem/1 var(--font-sans);
+    border-radius:var(--radius-pill);
+    padding:.92rem 1.55rem;
+    text-decoration:none;
+    border:1.6px solid transparent;
+    cursor:pointer;
+    min-width:0;
+    transition:transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .btn svg{flex:none}
+  .btn-primary{background:var(--ink);color:#ffffff;box-shadow:0 10px 24px rgba(15,23,42,.22)}
+  .btn-primary:hover{background:#1c2b45;transform:translateY(-2px);box-shadow:0 16px 30px rgba(15,23,42,.26)}
+  .btn-ghost{background:var(--paper);color:var(--teal-ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{border-color:var(--teal-deep);color:var(--teal-ink);background:var(--wash);transform:translateY(-2px)}
+  .btn-sm{padding:.6rem 1.1rem;font-size:.92rem}
+
+  .textlink{
+    color:var(--teal-deep);
+    font-weight:600;
+    text-decoration:none;
+    border-bottom:2px solid var(--teal-soft);
+    padding-bottom:1px;
+    transition:border-color .18s ease, color .18s ease;
+  }
+  .textlink:hover{border-bottom-color:var(--teal-deep);color:var(--teal-ink)}
+
+  /* ---- header ---- */
+  .site-head{
+    position:sticky;top:0;z-index:40;
+    background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(140%) blur(10px);
+    -webkit-backdrop-filter:saturate(140%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .head-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:1rem 1.4rem;flex-wrap:wrap;
+    padding-block:.85rem;
+  }
+  .brand{display:inline-flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink);font-weight:700;font-size:1.16rem;letter-spacing:-.01em;flex:none}
+  .brand:hover{color:var(--teal-ink)}
+  .brand-mark{width:34px;height:34px;flex:none}
+  .nav{display:flex;align-items:center;gap:.35rem 1.35rem;flex-wrap:wrap;min-width:0}
+  .nav a{
+    color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.94rem;
+    padding:.3rem 0;border-bottom:2px solid transparent;
+    transition:color .16s ease, border-color .16s ease;
+  }
+  .nav a:hover{color:var(--teal-ink);border-bottom-color:var(--teal)}
+  .head-cta{display:flex;align-items:center;gap:.6rem;flex:none}
+
+  /* ---- hero ---- */
+  .hero{background:linear-gradient(180deg,var(--paper) 0%, var(--wash) 100%);border-bottom:1px solid var(--line)}
+  .hero-grid{
+    display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(2rem,5vw,4rem);
+    align-items:center;padding-block:clamp(2.8rem,7vw,5rem);
+  }
+  .hero-copy{min-width:0}
+  .hero h1{font-size:var(--fs-hero);margin-top:1.05rem;color:var(--ink)}
+  .hero h1 .accent{color:var(--teal-ink);white-space:nowrap}
+  .hero .lead{margin-top:1.2rem;max-width:34ch}
+  .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}
+  .trust{display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;margin-top:1.5rem;color:var(--muted);font-size:var(--fs-small)}
+  .trust span{display:inline-flex;align-items:center;gap:.45rem}
+  .trust svg{flex:none;color:var(--teal-deep)}
+
+  /* ---- hero illustration panel ---- */
+  .panel{
+    position:relative;min-width:0;
+    background:linear-gradient(165deg,#ffffff 0%, var(--mist) 62%, var(--mist-2) 100%);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg);
+    padding:clamp(1rem,3vw,1.4rem);
+    overflow:hidden;
+  }
+  .panel-label{
+    display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--teal-ink);margin-bottom:.4rem;flex-wrap:wrap;
+  }
+  .live{display:inline-flex;align-items:center;gap:.4rem}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(6,182,212,.5)}
+  .panel-art{width:100%;height:auto}
+  .chip{
+    position:absolute;left:clamp(1rem,3vw,1.5rem);bottom:clamp(1rem,3vw,1.5rem);
+    display:flex;align-items:center;gap:.7rem;
+    background:rgba(255,255,255,.92);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    padding:.6rem .8rem;
+    box-shadow:0 8px 20px rgba(13,110,140,.14);
+    max-width:calc(100% - 2rem);
+  }
+  .chip-icon{width:34px;height:34px;flex:none}
+  .chip-txt{min-width:0}
+  .chip-txt b{display:block;font-size:.86rem;color:var(--ink);letter-spacing:-.01em}
+  .chip-txt small{color:var(--muted);font-size:.76rem}
+  .chip-status{margin-left:auto;display:inline-flex;align-items:center;gap:.35rem;font-size:.74rem;font-weight:700;color:var(--steady);flex:none}
+  .chip-status i{width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none}
+
+  /* ---- signals ---- */
+  .sec-head{max-width:52ch}
+  .sec-head h2{font-size:var(--fs-h2);margin-top:1rem;color:var(--ink)}
+  .sec-head .lead{margin-top:1rem}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:clamp(2rem,4vw,2.8rem)}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.5rem 1.4rem 1.55rem;
+    min-width:0;
+    box-shadow:var(--shadow);
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--teal-soft)}
+  .card-spot{width:56px;height:56px;margin-bottom:1rem}
+  .card h3{font-size:var(--fs-h3);color:var(--ink)}
+  .card p{margin-top:.6rem;color:var(--ink-2);font-size:.98rem}
+  .card-read{
+    margin-top:1.05rem;padding-top:.9rem;border-top:1px dashed var(--line-strong);
+    display:flex;align-items:center;gap:.5rem;
+    font-family:var(--font-mono);font-size:.78rem;color:var(--teal-ink);letter-spacing:.02em;
+  }
+  .card-read svg{flex:none;color:var(--teal-deep)}
+
+  /* ---- why band ---- */
+  .why{position:relative;overflow:hidden;background:linear-gradient(175deg,var(--wash) 0%, var(--mist) 100%);border-block:1px solid var(--line)}
+  .why-waves{position:absolute;inset:auto 0 0 0;width:100%;height:auto;pointer-events:none;z-index:0}
+  .why-inner{position:relative;z-index:1;max-width:24ch;margin:0 auto;text-align:center}
+  .why-inner .eyebrow{justify-content:center}
+  .why-quote{
+    font-family:var(--font-serif);
+    font-size:clamp(1.5rem,4.2vw,2.5rem);
+    line-height:1.24;font-weight:400;color:var(--ink);
+    margin-top:1.2rem;max-width:20ch;margin-inline:auto;letter-spacing:-.01em;
+  }
+  .why-quote em{font-style:italic;color:var(--teal-ink)}
+  .why-attr{margin-top:1.4rem;font-family:var(--font-mono);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---- how it works ---- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:clamp(2rem,4vw,2.8rem)}
+  .step{position:relative;min-width:0;padding-top:1.4rem;border-top:2px solid var(--line-strong)}
+  .step-num{font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--teal-deep);letter-spacing:.06em}
+  .step h3{font-size:1.12rem;margin-top:.7rem;color:var(--ink)}
+  .step p{margin-top:.55rem;color:var(--ink-2);font-size:.97rem}
+
+  /* ---- final cta ---- */
+  .cta-band{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+  .cta-line{position:absolute;inset:0;width:100%;height:100%;opacity:.6;pointer-events:none}
+  .cta-inner{position:relative;z-index:1;text-align:center;max-width:40ch;margin:0 auto}
+  .cta-inner .eyebrow{color:var(--teal-bright);justify-content:center}
+  .cta-inner .eyebrow::before{background:var(--teal-bright)}
+  .cta-inner h2{font-size:var(--fs-h2);margin-top:1rem;color:#fff}
+  .cta-inner p{margin-top:1rem;color:#c8d6e0;font-size:var(--fs-lead)}
+  .cta-band .actions{justify-content:center}
+  .cta-band .btn-primary{background:var(--teal);color:#04222b;box-shadow:var(--shadow-teal)}
+  .cta-band .btn-primary:hover{background:var(--teal-bright);transform:translateY(-2px)}
+  .cta-band .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+  .cta-band .btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08);color:#fff}
+  .cta-reassure{margin-top:1.3rem;color:#93a6b4;font-size:var(--fs-small)}
+
+  /* ---- footer ---- */
+  .foot{background:var(--paper);border-top:1px solid var(--line);padding-block:2.6rem}
+  .foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1.4rem;align-items:flex-start}
+  .foot-nav{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem}
+  .foot-nav a{color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.92rem}
+  .foot-nav a:hover{color:var(--teal-ink)}
+  .disclaimer{margin-top:1.8rem;padding-top:1.4rem;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem;max-width:62ch}
+  .foot-legal{margin-top:1rem;color:var(--muted);font-size:.82rem;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;align-items:center}
+
+  /* ---- animation ---- */
+  .ecg-line{stroke-dasharray:1000;stroke-dashoffset:1000;animation:ecg-draw 2.6s cubic-bezier(.65,0,.35,1) .35s forwards}
+  @keyframes ecg-draw{to{stroke-dashoffset:0}}
+  .read-ring{transform-box:fill-box;transform-origin:center;animation:read-pulse 2.4s ease-out infinite}
+  @keyframes read-pulse{
+    0%{transform:scale(.55);opacity:.65}
+    70%{opacity:0}
+    100%{transform:scale(2.2);opacity:0}
+  }
+  .live-dot{animation:live-blink 2.4s ease-in-out infinite}
+  @keyframes live-blink{
+    0%,100%{box-shadow:0 0 0 0 rgba(6,182,212,.5)}
+    50%{box-shadow:0 0 0 6px rgba(6,182,212,0)}
+  }
+
+  /* ---- responsive ---- */
+  @media (max-width:880px){
+    .hero-grid{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr}
+    .nav{order:3;width:100%}
+  }
+  @media (max-width:560px){
+    .head-cta .btn span.long{display:none}
+    .card-spot{width:50px;height:50px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+    .ecg-line{stroke-dashoffset:0 !important}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" id="top" aria-label="Pulse home">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="#ffffff" stroke="#dde7ec"/>
+        <path d="M6 21 H13 l2.4 -8 l3.4 15 l2.6 -11 l2 5 H34" fill="none" stroke="#0e7490" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="34" cy="20" r="2.4" fill="#06b6d4"/>
+      </svg>
+      Pulse
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#signals">Signals</a>
+      <a href="#why">Why Pulse</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="head-cta">
+      <a class="btn btn-primary btn-sm" href="#pricing">Start <span class="long">your&nbsp;</span>baseline</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Preventive health, made calm</span>
+        <h1>Notice the drift before it becomes a <span class="accent">diagnosis.</span></h1>
+        <p class="lead">Pulse reads the quiet signals your body sends every day, resting heart rate, sleep depth, and recovery, and tells you when something is shifting. Early, in plain language, without the panic.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#pricing">Start your baseline</a>
+          <a class="btn btn-ghost" href="#how">See a sample week</a>
+        </div>
+        <div class="trust">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5 L6 12 L13.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Free 14 day baseline
+          </span>
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5 L6 12 L13.5 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            No wearable required to start
+          </span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">
+          <span>Your morning read</span>
+          <span class="live"><span class="live-dot" aria-hidden="true"></span> Steady</span>
+        </div>
+        <svg class="panel-art" viewBox="0 0 560 360" role="img" aria-labelledby="artTitle artDesc">
+          <title id="artTitle">A heartbeat line settling into calm waves</title>
+          <desc id="artDesc">An ECG trace spikes twice on the left, then relaxes into smooth rolling waves that flow into soft teal wave bands below.</desc>
+          <defs>
+            <linearGradient id="wA" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d9f3f8"/>
+              <stop offset="1" stop-color="#cbeef4"/>
+            </linearGradient>
+            <linearGradient id="wB" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#8fdcea"/>
+              <stop offset="1" stop-color="#5bcbe0"/>
+            </linearGradient>
+            <linearGradient id="wC" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#06b6d4"/>
+              <stop offset="1" stop-color="#22d3ee"/>
+            </linearGradient>
+            <linearGradient id="ecgStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#155e75"/>
+              <stop offset=".62" stop-color="#0e7490"/>
+              <stop offset="1" stop-color="#06b6d4"/>
+            </linearGradient>
+            <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#eef6f8" stop-opacity=".55"/>
+            </linearGradient>
+          </defs>
+
+          <!-- faint baseline grid -->
+          <g stroke="#cfe4ea" stroke-width="1" opacity=".55">
+            <line x1="0" y1="60" x2="560" y2="60"/>
+            <line x1="0" y1="110" x2="560" y2="110"/>
+            <line x1="0" y1="160" x2="560" y2="160"/>
+            <line x1="0" y1="210" x2="560" y2="210"/>
+          </g>
+
+          <!-- soft wash behind the calm zone -->
+          <rect x="0" y="150" width="560" height="210" fill="url(#fade)"/>
+
+          <!-- the ECG signature: two spikes settling into calm rolling waves -->
+          <path class="ecg-line" pathLength="1000"
+            d="M16 150 H62 q9 -13 18 0 H108 l7 10 l6 -80 l6 94 l7 -24 H172 q13 -20 26 0 H244 q9 -13 18 0 H292 l7 10 l6 -80 l6 94 l7 -24 H356 q13 -20 26 0 C404 150 410 118 438 128 C468 138 476 182 506 176 C526 172 534 156 552 162"
+            fill="none" stroke="url(#ecgStroke)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- live read head on the calm tail -->
+          <circle class="read-ring" cx="552" cy="162" r="9" fill="#06b6d4" opacity=".5"/>
+          <circle cx="552" cy="162" r="5" fill="#06b6d4"/>
+          <circle cx="552" cy="162" r="2" fill="#ffffff"/>
+
+          <!-- the calm the app produces: layered organic wave bands -->
+          <path fill="url(#wA)" d="M0 258 C 96 226 168 292 268 262 C 360 236 460 232 560 264 L560 360 L0 360 Z"/>
+          <path fill="url(#wB)" d="M0 292 C 120 266 210 322 330 292 C 438 266 486 300 560 296 L560 360 L0 360 Z" opacity=".9"/>
+          <path fill="url(#wC)" d="M0 320 C 140 306 246 346 366 322 C 470 302 508 322 560 318 L560 360 L0 360 Z"/>
+        </svg>
+
+        <div class="chip">
+          <svg class="chip-icon" viewBox="0 0 34 34" aria-hidden="true">
+            <rect x="1" y="1" width="32" height="32" rx="9" fill="#f4fafb" stroke="#cbeef4"/>
+            <path d="M5 18 H11 l2 -6 l3 12 l2 -8 l1.5 3 H29" fill="none" stroke="#0e7490" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="chip-txt">
+            <b>Resting HR 58 bpm</b>
+            <small>7 day range 55 to 62</small>
+          </div>
+          <span class="chip-status"><i></i>Steady</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNALS -->
+  <section class="section" id="signals">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Three signals</span>
+        <h2>Pulse watches what shifts first.</h2>
+        <p class="lead">Trouble rarely announces itself. It leaks into the numbers you already make every day. These are the three Pulse learns first, and reads for you each morning.</p>
+      </div>
+      <div class="cards">
+
+        <article class="card">
+          <svg class="card-spot" viewBox="0 0 56 56" aria-hidden="true">
+            <rect x="1" y="1" width="54" height="54" rx="15" fill="#f4fafb" stroke="#cbeef4"/>
+            <path d="M9 32 H18 l3 -13 l4.5 22 l3.5 -16 l2.5 7 H47" fill="none" stroke="#0e7490" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="47" cy="32" r="2.8" fill="#06b6d4"/>
+          </svg>
+          <h3>Resting rhythm</h3>
+          <p>Your resting heart rate creeps up days before you feel run down. Pulse flags the trend, not a single restless night.</p>
+          <div class="card-read">
+            <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8 h5 l2-5 3 10 2-6 1 3 h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reads: bpm trend over 7 days
+          </div>
+        </article>
+
+        <article class="card">
+          <svg class="card-spot" viewBox="0 0 56 56" aria-hidden="true">
+            <rect x="1" y="1" width="54" height="54" rx="15" fill="#f4fafb" stroke="#cbeef4"/>
+            <path d="M8 22 Q17 14 26 22 T44 22" fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M8 32 Q17 24 26 32 T44 32" fill="none" stroke="#0e7490" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M8 42 Q17 35 26 42 T44 42" fill="none" stroke="#155e75" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>
+          </svg>
+          <h3>Sleep depth</h3>
+          <p>Deep sleep is where your body repairs. Pulse tracks how much you actually reach, and what quietly steals it from you.</p>
+          <div class="card-read">
+            <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6 Q5 3 8 6 T14 6 M2 11 Q5 8 8 11 T14 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Reads: minutes of deep sleep
+          </div>
+        </article>
+
+        <article class="card">
+          <svg class="card-spot" viewBox="0 0 56 56" aria-hidden="true">
+            <rect x="1" y="1" width="54" height="54" rx="15" fill="#f4fafb" stroke="#cbeef4"/>
+            <path d="M9 44 C22 44 24 16 33 16 C41 16 42 22 47 18" fill="none" stroke="#0e7490" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="33" cy="16" r="3" fill="#06b6d4"/>
+            <path d="M9 44 H47" stroke="#cbeef4" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3>Recovery load</h3>
+          <p>Push, then recover. Pulse balances the two so you train and rest on the days your body can genuinely take it.</p>
+          <div class="card-read">
+            <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13 C7 13 8 4 11 4 14 4 14 6 15 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Reads: strain vs readiness
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY BAND -->
+  <section class="section why" id="why">
+    <svg class="why-waves" viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="#cbeef4" opacity=".7" d="M0 120 C 220 80 420 160 720 120 C 1000 84 1200 150 1440 118 L1440 220 L0 220 Z"/>
+      <path fill="#8fdcea" opacity=".55" d="M0 160 C 260 128 460 188 760 158 C 1040 130 1240 176 1440 156 L1440 220 L0 220 Z"/>
+      <path fill="#06b6d4" opacity=".22" d="M0 190 C 300 172 520 208 820 190 C 1100 174 1260 198 1440 188 L1440 220 L0 220 Z"/>
+    </svg>
+    <div class="wrap why-inner">
+      <span class="eyebrow">The Pulse principle</span>
+      <p class="why-quote">Health rarely fails all at once. It <em>drifts</em>, one quiet reading at a time.</p>
+      <p class="why-attr">So the earliest moment to act is also the easiest.</p>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Set it once, then just read the morning.</h2>
+        <p class="lead">No scores to chase and no red screens. Three steps, in order, and the app does the watching so you do not have to.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01 / Connect</span>
+          <h3>Learn your normal</h3>
+          <p>Link a wearable or use just your phone. Over about a week, Pulse learns the numbers that are ordinary for you, not an average stranger.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02 / Notice</span>
+          <h3>One calm read a day</h3>
+          <p>Each morning Pulse gives a single word: steady, watch, or act. That is the whole check in. It takes about five seconds.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03 / Nudge</span>
+          <h3>One small change, with a reason</h3>
+          <p>When a signal drifts, Pulse suggests one specific adjustment and tells you plainly why it matters this week.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="section cta-band" id="pricing">
+    <svg class="cta-line" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 200 H360 q20 -30 40 0 H520 l16 24 l14 -150 l14 176 l16 -50 H720 q26 -40 52 0 C900 200 940 150 1040 168 C1160 190 1220 240 1440 214" fill="none" stroke="#155e75" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>
+    </svg>
+    <div class="wrap cta-inner">
+      <span class="eyebrow">Start noticing sooner</span>
+      <h2>Your baseline is 14 days away.</h2>
+      <p>Begin free today. Watch your own signals settle into a rhythm you can actually read.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#top">Start your baseline</a>
+        <a class="btn btn-ghost" href="#signals">Explore the signals</a>
+      </div>
+      <p class="cta-reassure">14 days free, then plans from 7 dollars a month. Cancel in one tap. Your data stays yours, and is never sold.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="brand" href="#top" aria-label="Pulse home">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+          <rect x="1.5" y="1.5" width="37" height="37" rx="11" fill="#ffffff" stroke="#dde7ec"/>
+          <path d="M6 21 H13 l2.4 -8 l3.4 15 l2.6 -11 l2 5 H34" fill="none" stroke="#0e7490" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="34" cy="20" r="2.4" fill="#06b6d4"/>
+        </svg>
+        Pulse
+      </a>
+      <nav class="foot-nav" aria-label="Footer">
+        <a href="#signals">Signals</a>
+        <a href="#why">Why Pulse</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+    </div>
+    <p class="disclaimer">Pulse is a wellness tool, not a medical device. It does not diagnose, treat, or cure any condition, and it never replaces a clinician. If a signal worries you, or if you feel unwell, contact a healthcare professional.</p>
+    <div class="foot-legal">
+      <span>Copyright 2026 Pulse Health, Inc.</span>
+      <a class="textlink" href="#top">Privacy</a>
+      <a class="textlink" href="#top">Terms</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

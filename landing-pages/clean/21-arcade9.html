@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0612">
+<title>Arcade9 - The curated indie arcade</title>
+<meta name="description" content="Arcade9 is a hand-picked storefront for indie games. Nine cabinets light up the floor each week, every one played by a human before it earns a spot. Developers keep 92 percent. No pay-to-rank, ever.">
+
+<style>
+  :root{
+    /* palette */
+    --bg:#0a0612;
+    --bg-panel:#140b22;
+    --bg-panel-2:#0f0819;
+    --bg-elev:#1a1030;
+    --ink:#f5f0ff;
+    --ink-soft:#d7ccf0;
+    --muted:#a99bcf;
+    --magenta:#ff2e97;
+    --magenta-2:#c31f72;
+    --cyan:#17f0d0;
+    --cyan-2:#0f9e8a;
+    --cta:#17f0d0;
+    --cta-ink:#06040d;
+    /* tints */
+    --mag-soft:rgba(255,46,151,.10);
+    --mag-softer:rgba(255,46,151,.05);
+    --cyan-soft:rgba(23,240,208,.09);
+    --hair:rgba(255,46,151,.18);
+    --hair-strong:rgba(255,46,151,.34);
+    --hair-cyan:rgba(23,240,208,.22);
+    --scan:rgba(0,0,0,.34);
+    /* illustration planes */
+    --plane-1:#160c28;
+    --plane-2:#0e0720;
+    --plane-3:#20143c;
+    --screen:#07030f;
+    /* geometry */
+    --radius:8px;
+    --radius-sm:6px;
+    --maxw:1160px;
+    /* type */
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    /* motion + depth */
+    --ease:cubic-bezier(.2,.7,.2,1);
+    --shadow:0 34px 80px -38px rgba(0,0,0,.9);
+    --glow-mag:0 0 40px -6px rgba(255,46,151,.55);
+    --glow-cyan:0 0 40px -6px rgba(23,240,208,.5);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink-soft);
+    font-family:var(--font-sans);
+    font-size:16px;
+    line-height:1.62;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  svg{max-width:100%}
+  img,svg{display:block}
+  h1,h2,h3,h4{color:var(--ink);margin:0;line-height:1.06;letter-spacing:-.02em}
+  p{margin:0}
+  a,button{font-family:inherit}
+
+  /* global CRT scanline texture (static) */
+  .crt-lines{
+    position:fixed;inset:0;z-index:9998;pointer-events:none;
+    background:repeating-linear-gradient(to bottom,
+      transparent 0,transparent 2px,rgba(0,0,0,.16) 3px,transparent 4px);
+    mix-blend-mode:multiply;opacity:.5;
+  }
+
+  /* focus */
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:5px}
+
+  .skip-link{
+    position:absolute;left:14px;top:-64px;z-index:200;
+    background:var(--cta);color:var(--cta-ink);
+    padding:10px 16px;border-radius:var(--radius);font-weight:700;
+    font-size:.9rem;text-decoration:none;transition:top .18s var(--ease);
+  }
+  .skip-link:focus-visible{top:14px}
+
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;min-width:0}
+
+  /* ---------- header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:60;
+    background:rgba(10,6,18,.76);
+    -webkit-backdrop-filter:blur(12px) saturate(1.4);
+    backdrop-filter:blur(12px) saturate(1.4);
+    border-bottom:1px solid var(--hair);
+  }
+  .bar{display:flex;align-items:center;gap:14px;height:66px;min-width:0}
+  .brand{
+    display:inline-flex;align-items:center;gap:10px;
+    text-decoration:none;color:var(--ink-soft);
+    font-weight:800;letter-spacing:-.01em;font-size:1.1rem;
+    margin-right:auto;min-width:0;flex-shrink:0;
+  }
+  .brand .mark{width:30px;height:32px;flex:0 0 auto}
+  .brand .nine{color:var(--magenta)}
+  nav.primary{display:flex;align-items:center;gap:24px;min-width:0}
+  nav.primary a.nlink{
+    color:var(--ink-soft);text-decoration:none;font-size:.94rem;
+    letter-spacing:.01em;white-space:nowrap;transition:color .16s var(--ease);
+  }
+  nav.primary a.nlink:hover{color:var(--cyan)}
+
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--cta);color:var(--cta-ink);
+    text-decoration:none;font-weight:750;font-size:.9rem;
+    padding:10px 17px;border-radius:var(--radius);white-space:nowrap;
+    border:1px solid var(--cta);
+    transition:box-shadow .2s var(--ease),transform .2s var(--ease);
+  }
+  .nav-cta:hover{box-shadow:var(--glow-cyan);transform:translateY(-1px)}
+  .cta-short{display:none}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    text-decoration:none;font-weight:750;font-size:1rem;
+    padding:15px 24px;border-radius:var(--radius);cursor:pointer;
+    transition:box-shadow .2s var(--ease),transform .2s var(--ease),background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+    min-width:0;white-space:nowrap;
+  }
+  .btn-primary{background:var(--cta);color:var(--cta-ink);border:1px solid var(--cta)}
+  .btn-primary:hover{box-shadow:var(--glow-cyan);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--hair-strong)}
+  .btn-ghost:hover{border-color:var(--magenta);color:var(--cyan);background:var(--mag-soft)}
+  .btn .arw{transition:transform .2s var(--ease)}
+  .btn:hover .arw{transform:translateX(3px)}
+
+  /* ---------- eyebrow ---------- */
+  .eyebrow{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--cyan);
+    display:inline-flex;align-items:center;gap:10px;margin:0 0 22px;
+  }
+  .eyebrow::before{content:"";width:28px;height:1px;background:var(--cyan);opacity:.8}
+
+  /* ---------- hero ---------- */
+  .s-hero{position:relative;padding:clamp(44px,7vw,88px) 0 clamp(52px,8vw,104px);overflow:hidden}
+  .s-hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(52% 44% at 82% 8%,var(--mag-soft),transparent 70%),
+      radial-gradient(46% 42% at 4% 92%,var(--cyan-soft),transparent 72%);
+  }
+  .hero-grid{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:1fr;gap:clamp(34px,6vw,56px);align-items:center;
+  }
+  @media(min-width:920px){.hero-grid{grid-template-columns:1.05fr .95fr}}
+  .hero-copy{min-width:0;max-width:620px}
+  .hero-copy h1{
+    font-size:clamp(2.35rem,7vw,4.35rem);font-weight:850;
+    letter-spacing:-.038em;line-height:1.02;margin:0 0 22px;
+    overflow-wrap:break-word;word-break:break-word;
+  }
+  .hero-copy h1 .hl{
+    color:var(--magenta);
+    text-shadow:0 0 26px rgba(255,46,151,.45);
+  }
+  .lede{
+    font-size:clamp(1.02rem,2.1vw,1.2rem);color:var(--ink-soft);
+    margin:0 0 30px;max-width:56ch;
+  }
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 30px}
+  .trust{
+    display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;
+    font-family:var(--font-mono);font-size:.74rem;color:var(--muted);
+    letter-spacing:.02em;
+  }
+  .trust .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--hair);border-radius:999px;padding:6px 12px;min-width:0;
+  }
+  .trust .dot{width:7px;height:7px;border-radius:2px;background:var(--cyan);flex:0 0 auto}
+  .trust .chip:nth-child(2) .dot{background:var(--magenta)}
+
+  .hero-art{min-width:0;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .hero-art .canvas{width:100%;max-width:440px}
+  .cab-svg{width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+  .art-caption{
+    font-family:var(--font-mono);font-size:.72rem;color:var(--muted);
+    letter-spacing:.05em;text-align:center;max-width:100%;
+    overflow-wrap:anywhere;word-break:break-word;
+  }
+  .art-caption b{color:var(--cyan);font-weight:600}
+
+  /* ---------- section shell ---------- */
+  .band{padding:clamp(58px,8.5vw,112px) 0}
+  .band-alt{background:var(--bg-panel-2);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+  .band-head{max-width:660px;margin:0 0 clamp(38px,5vw,56px)}
+  .band-head h2{font-size:clamp(1.8rem,4.4vw,2.75rem);font-weight:800;letter-spacing:-.03em}
+  .band-head p{margin:16px 0 0;color:var(--muted);font-size:clamp(1rem,2vw,1.1rem);max-width:54ch}
+
+  /* ---------- features ---------- */
+  .feat-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:780px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
+  .card{
+    position:relative;min-width:0;
+    background:var(--bg-panel);border:1px solid var(--hair);
+    border-radius:var(--radius);padding:26px 24px 28px;
+    transition:border-color .22s var(--ease),transform .22s var(--ease),box-shadow .22s var(--ease);
+  }
+  .card:hover{border-color:var(--hair-strong);transform:translateY(-3px);box-shadow:var(--shadow)}
+  .card .tag{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.12em;
+    color:var(--magenta);display:block;margin:0 0 18px;
+  }
+  .card .ficon{width:46px;height:46px;margin:0 0 18px}
+  .card h3{font-size:1.18rem;font-weight:800;letter-spacing:-.01em;margin:0 0 10px}
+  .card p{margin:0;color:var(--ink-soft);font-size:.98rem}
+  .card p .em{color:var(--muted)}
+
+  /* ---------- floor steps ---------- */
+  .steps{display:grid;grid-template-columns:1fr;gap:16px;counter-reset:step}
+  @media(min-width:840px){.steps{grid-template-columns:repeat(3,1fr);gap:0}}
+  .step{position:relative;min-width:0;padding:26px 22px}
+  @media(min-width:840px){
+    .step{padding:8px 30px}
+    .step + .step{border-left:1px solid var(--hair)}
+  }
+  .step .node{width:48px;height:48px;margin:0 0 18px}
+  .step .snum{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.16em;
+    color:var(--cyan);display:block;margin:0 0 8px;
+  }
+  .step h3{font-size:1.14rem;font-weight:800;margin:0 0 9px}
+  .step p{margin:0;color:var(--ink-soft);font-size:.97rem}
+
+  /* ---------- pov statement ---------- */
+  .pov{max-width:920px;margin:0 auto;text-align:center}
+  .pov .mono-lbl{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.14em;
+    color:var(--muted);display:block;margin:0 0 22px;
+  }
+  .pov blockquote{
+    margin:0;font-size:clamp(1.4rem,3.7vw,2.35rem);
+    font-weight:750;letter-spacing:-.025em;line-height:1.22;color:var(--ink);
+    overflow-wrap:break-word;word-break:break-word;
+  }
+  .pov blockquote .hl{color:var(--magenta);text-shadow:0 0 24px rgba(255,46,151,.4)}
+
+  /* ---------- final cta ---------- */
+  .cta-final{
+    position:relative;overflow:hidden;
+    background:var(--bg-panel);border:1px solid var(--hair-strong);
+    border-radius:calc(var(--radius) + 4px);
+    padding:clamp(40px,6vw,68px) clamp(24px,5vw,60px);
+    text-align:center;
+  }
+  .cta-final::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(58% 90% at 50% -18%,var(--mag-soft),transparent 68%),
+      radial-gradient(50% 80% at 100% 120%,var(--cyan-soft),transparent 70%);
+  }
+  .cta-final .inner{position:relative;z-index:1;max-width:660px;margin:0 auto}
+  .cta-final h2{font-size:clamp(1.9rem,5vw,2.95rem);font-weight:850;letter-spacing:-.035em}
+  .cta-final p{margin:18px auto 30px;color:var(--ink-soft);max-width:50ch;font-size:clamp(1rem,2vw,1.12rem)}
+  .cta-final .cta-row{justify-content:center;margin-bottom:0}
+
+  /* ---------- footer ---------- */
+  footer.site{border-top:1px solid var(--hair);background:var(--bg);padding:clamp(48px,7vw,74px) 0 40px}
+  .foot-top{display:grid;grid-template-columns:1fr;gap:34px 26px;margin:0 0 40px}
+  @media(min-width:680px){.foot-top{grid-template-columns:1.6fr 1fr 1fr 1fr}}
+  .foot-brand{min-width:0;max-width:330px}
+  .foot-brand .brand{margin:0 0 14px}
+  .foot-brand p{color:var(--muted);font-size:.94rem}
+  .foot-col{min-width:0}
+  .foot-col h4{
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 15px;font-weight:600;
+  }
+  .foot-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+  .foot-col a{color:var(--ink-soft);text-decoration:none;font-size:.92rem;transition:color .16s var(--ease)}
+  .foot-col a:hover{color:var(--cyan)}
+  .foot-bottom{
+    border-top:1px solid var(--hair);padding-top:26px;
+    display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-start;justify-content:space-between;
+  }
+  .foot-note{color:var(--muted);font-size:.84rem;max-width:64ch;min-width:0;overflow-wrap:anywhere}
+  .foot-meta{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);letter-spacing:.03em;text-align:right;min-width:0}
+  .foot-meta .cw{display:block;color:var(--ink-soft)}
+
+  /* ---------- illustration paint ---------- */
+  .cab-body{fill:var(--plane-1);stroke:var(--magenta);stroke-width:2}
+  .cab-side{fill:var(--plane-2)}
+  .cab-panel{fill:var(--plane-3)}
+  .lcd{font-family:var(--font-mono);font-weight:700}
+  .f-mag{fill:var(--magenta)}
+  .f-cyan{fill:var(--cyan)}
+  .s-mag{fill:none;stroke:var(--magenta);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .s-cyan{fill:none;stroke:var(--cyan);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .grid-line{fill:none;stroke:var(--cyan);stroke-width:1.4;opacity:.7}
+  .ficon-body{fill:none;stroke:var(--magenta);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .ficon-accent{fill:none;stroke:var(--cyan);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+
+  /* ---------- animation ---------- */
+  .crt-flicker{animation:flicker 5.5s steps(1) infinite}
+  .scan-sweep{animation:sweep 4.4s linear infinite}
+  .ship-bob{transform-box:view-box;animation:bob 3s ease-in-out infinite}
+  .inv{transform-box:view-box;animation:march 1.4s steps(1) infinite}
+  .coin-blink{animation:blink 1.15s steps(1) infinite}
+  .marquee-glow{animation:mpulse 3.6s ease-in-out infinite}
+  @keyframes flicker{0%,97%,100%{opacity:1}98%{opacity:.82}99%{opacity:.94}}
+  @keyframes sweep{0%{transform:translateY(-30px)}100%{transform:translateY(150px)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes march{0%{transform:translateX(0)}50%{transform:translateX(7px)}100%{transform:translateX(0)}}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+  @keyframes mpulse{0%,100%{opacity:.85}50%{opacity:1}}
+
+  /* ---------- reveal ---------- */
+  .js .reveal{opacity:0;transform:translateY(16px);transition:opacity .62s var(--ease),transform .62s var(--ease)}
+  .js .reveal.is-in{opacity:1;transform:none}
+
+  /* ---------- responsive nav trims ---------- */
+  @media(max-width:540px){.nav-link-hide{display:none}}
+  @media(max-width:430px){
+    nav.primary{gap:16px}
+    .cta-full{display:none}
+    .cta-short{display:inline}
+    .brand .txt{display:none}
+  }
+
+  /* ---------- reduced motion ---------- */
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .js .reveal{opacity:1!important;transform:none!important}
+    .scan-sweep{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="crt-lines" aria-hidden="true"></div>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="#top" aria-label="Arcade9 home">
+      <svg class="mark" viewBox="0 0 30 32" aria-hidden="true" fill="none">
+        <rect x="4" y="2" width="22" height="18" rx="3" fill="var(--plane-3)" stroke="var(--magenta)" stroke-width="1.6"/>
+        <path d="M7 6 H23 M7 10 H23 M7 14 H19" stroke="var(--cyan)" stroke-width="1.4" opacity=".8" stroke-linecap="round"/>
+        <path d="M15 20 V25" stroke="var(--magenta)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="15" cy="26.5" r="4" fill="var(--magenta)"/>
+        <path d="M8 30 H22" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="txt">Arcade<span class="nine">9</span></span>
+    </a>
+    <nav class="primary" aria-label="Primary">
+      <a class="nlink" href="#floor">The floor</a>
+      <a class="nlink nav-link-hide" href="#curation">Curation</a>
+      <a class="nlink" href="#developers">Developers</a>
+    </nav>
+    <a class="nav-cta" href="#enter">
+      <span class="cta-full">Enter the arcade</span>
+      <span class="cta-short">Enter</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- ================= HERO ================= -->
+  <section class="s-hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">A curated indie arcade</p>
+        <h1>Push start on games <span class="hl">the algorithm buried.</span></h1>
+        <p class="lede">Arcade9 is a hand-picked storefront for indie games. Nine cabinets light up the floor each week, every one played from title screen to credits by a human before it earns a spot. Developers keep 92 percent of every sale. No pay-to-rank, no infinite scroll, no sponsored slots. Just games worth a coin.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#enter">Enter the arcade
+            <svg class="arw" width="17" height="14" viewBox="0 0 17 14" fill="none" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#curation">See how curation works</a>
+        </div>
+        <div class="trust">
+          <span class="chip"><span class="dot"></span>Nine cabinets, refreshed weekly</span>
+          <span class="chip"><span class="dot"></span>92% to developers</span>
+          <span class="chip"><span class="dot"></span>Playable browser demos</span>
+        </div>
+      </div>
+
+      <div class="hero-art reveal">
+        <div class="canvas">
+          <svg class="cab-svg" viewBox="0 0 440 560" role="img" aria-label="A neon indie-game arcade cabinet glowing in the dark: a lit marquee reading Arcade9, a CRT screen showing a synthwave grid horizon with a small player ship and two invader sprites over scanlines, a control panel with a magenta joystick and cyan buttons, and a coin slot blinking insert coin.">
+            <defs>
+              <radialGradient id="a9sun" cx="50%" cy="30%" r="70%">
+                <stop offset="0" stop-color="#ff2e97" stop-opacity=".95"/>
+                <stop offset="100%" stop-color="#ff2e97" stop-opacity=".2"/>
+              </radialGradient>
+              <linearGradient id="a9sweep" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#17f0d0" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#17f0d0" stop-opacity=".22"/>
+                <stop offset="100%" stop-color="#17f0d0" stop-opacity="0"/>
+              </linearGradient>
+              <radialGradient id="a9glow" cx="50%" cy="42%" r="60%">
+                <stop offset="0" stop-color="#17f0d0" stop-opacity=".16"/>
+                <stop offset="100%" stop-color="#17f0d0" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="a9neon" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="3.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <pattern id="a9scan" width="6" height="4" patternUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="6" height="4" fill="none"/>
+                <rect x="0" y="3" width="6" height="1" fill="#000" opacity=".45"/>
+              </pattern>
+              <clipPath id="a9screen"><rect x="96" y="118" width="248" height="150" rx="8"/></clipPath>
+            </defs>
+
+            <!-- ambient neon halo -->
+            <ellipse cx="220" cy="300" rx="230" ry="270" fill="url(#a9glow)"/>
+
+            <!-- cabinet side (depth) -->
+            <path class="cab-side" d="M348 88 L372 104 L372 508 L348 520 Z"/>
+            <path class="cab-side" d="M92 88 L68 104 L68 508 L92 520 Z"/>
+
+            <!-- cabinet body -->
+            <path class="cab-body" d="M92 88
+              C92 78 100 70 110 70 L330 70 C340 70 348 78 348 88
+              L348 300 L360 320 L360 500
+              C360 512 352 520 340 520 L100 520
+              C88 520 80 512 80 500 L80 320 L92 300 Z"/>
+
+            <!-- marquee -->
+            <rect x="104" y="82" width="232" height="40" rx="6" fill="var(--plane-2)" stroke="var(--magenta)" stroke-width="1.6"/>
+            <g class="marquee-glow">
+              <text x="220" y="109" text-anchor="middle" class="lcd f-mag" font-size="24" letter-spacing="4" filter="url(#a9neon)" style="font-family:var(--font-sans);font-weight:800">ARCADE9</text>
+            </g>
+            <circle class="f-cyan" cx="118" cy="102" r="2.4"/>
+            <circle class="f-cyan" cx="322" cy="102" r="2.4"/>
+
+            <!-- screen bezel -->
+            <rect x="88" y="110" width="264" height="166" rx="12" fill="#0b0518" stroke="var(--magenta)" stroke-width="1.4" opacity=".9"/>
+
+            <!-- screen glass -->
+            <g class="crt-flicker">
+              <rect x="96" y="118" width="248" height="150" rx="8" fill="var(--screen)"/>
+              <g clip-path="url(#a9screen)">
+                <!-- neon sun -->
+                <circle cx="220" cy="196" r="40" fill="url(#a9sun)"/>
+                <rect x="180" y="188" width="80" height="3" fill="var(--screen)"/>
+                <rect x="180" y="196" width="80" height="4" fill="var(--screen)"/>
+                <rect x="180" y="206" width="80" height="5" fill="var(--screen)"/>
+                <!-- horizon -->
+                <line x1="96" y1="214" x2="344" y2="214" class="s-cyan" opacity=".8"/>
+                <!-- grid floor: horizontals -->
+                <line x1="96" y1="222" x2="344" y2="222" class="grid-line"/>
+                <line x1="96" y1="233" x2="344" y2="233" class="grid-line"/>
+                <line x1="96" y1="248" x2="344" y2="248" class="grid-line"/>
+                <line x1="96" y1="268" x2="344" y2="268" class="grid-line"/>
+                <!-- grid floor: verticals converging to (220,214) -->
+                <line x1="220" y1="214" x2="96" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="150" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="192" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="220" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="248" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="290" y2="268" class="grid-line"/>
+                <line x1="220" y1="214" x2="344" y2="268" class="grid-line"/>
+
+                <!-- invader sprites -->
+                <g class="inv f-cyan" filter="url(#a9neon)">
+                  <path d="M176 146 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z"/>
+                </g>
+                <g class="inv f-mag" filter="url(#a9neon)">
+                  <path d="M255 150 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z"/>
+                </g>
+
+                <!-- player ship -->
+                <g class="ship-bob f-cyan" filter="url(#a9neon)">
+                  <path d="M220 226 l9 12 h-6 v4 h-6 v-4 h-6 z"/>
+                </g>
+
+                <!-- score readouts -->
+                <text x="102" y="132" class="lcd f-cyan" font-size="8" letter-spacing="1">1UP 009900</text>
+                <text x="338" y="132" text-anchor="end" class="lcd f-mag" font-size="8" letter-spacing="1">HI 480000</text>
+
+                <!-- moving scanline sweep -->
+                <rect class="scan-sweep" x="96" y="118" width="248" height="30" fill="url(#a9sweep)"/>
+                <!-- static scanlines -->
+                <rect x="96" y="118" width="248" height="150" fill="url(#a9scan)"/>
+              </g>
+              <!-- glass edge highlight -->
+              <rect x="96" y="118" width="248" height="150" rx="8" fill="none" stroke="var(--cyan)" stroke-width="1" opacity=".25"/>
+            </g>
+
+            <!-- speaker grille -->
+            <g fill="var(--magenta)" opacity=".5">
+              <circle cx="150" cy="292" r="2"/><circle cx="162" cy="292" r="2"/><circle cx="174" cy="292" r="2"/>
+              <circle cx="266" cy="292" r="2"/><circle cx="278" cy="292" r="2"/><circle cx="290" cy="292" r="2"/>
+            </g>
+
+            <!-- control panel -->
+            <path class="cab-panel" d="M96 306 L344 306 L360 356 L80 356 Z" stroke="var(--magenta)" stroke-width="1.4"/>
+
+            <!-- joystick -->
+            <ellipse cx="150" cy="340" rx="20" ry="8" fill="var(--plane-2)" stroke="var(--cyan)" stroke-width="1.4"/>
+            <rect x="146" y="318" width="8" height="20" rx="4" fill="var(--plane-3)" stroke="var(--magenta)" stroke-width="1.2"/>
+            <circle cx="150" cy="315" r="9" class="f-mag" filter="url(#a9neon)"/>
+            <circle cx="147" cy="312" r="2.5" fill="#fff" opacity=".65"/>
+
+            <!-- buttons -->
+            <circle cx="252" cy="332" r="10" class="f-cyan"/><circle cx="252" cy="332" r="10" fill="none" stroke="#06251f" stroke-width="2"/>
+            <circle cx="284" cy="338" r="10" class="f-mag"/><circle cx="284" cy="338" r="10" fill="none" stroke="#2a0518" stroke-width="2"/>
+            <circle cx="316" cy="332" r="10" class="f-cyan"/><circle cx="316" cy="332" r="10" fill="none" stroke="#06251f" stroke-width="2"/>
+
+            <!-- coin door -->
+            <rect x="150" y="392" width="140" height="94" rx="6" fill="var(--plane-2)" stroke="var(--magenta)" stroke-width="1.4"/>
+            <rect x="204" y="404" width="32" height="18" rx="3" fill="var(--screen)" stroke="var(--cyan)" stroke-width="1.4"/>
+            <rect x="216" y="408" width="8" height="10" rx="2" class="f-cyan"/>
+            <text x="220" y="446" text-anchor="middle" class="lcd f-mag coin-blink" font-size="11" letter-spacing="2">INSERT COIN</text>
+            <!-- coin -->
+            <circle cx="220" cy="466" r="11" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+            <text x="220" y="470" text-anchor="middle" class="lcd f-cyan" font-size="11" font-weight="800">9</text>
+
+            <!-- base + feet -->
+            <rect x="88" y="504" width="264" height="8" rx="3" fill="var(--plane-3)"/>
+            <rect x="100" y="520" width="30" height="14" rx="3" fill="var(--plane-2)"/>
+            <rect x="310" y="520" width="30" height="14" rx="3" fill="var(--plane-2)"/>
+          </svg>
+        </div>
+        <p class="art-caption">cabinet 07 of 09 <b>Neon Drift</b> now on the floor</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="band" id="floor">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <p class="eyebrow">Why Arcade9</p>
+        <h2>An arcade, not a slot machine.</h2>
+        <p>Every rule of the storefront was rewritten around one idea: a small, curated floor beats an infinite one.</p>
+      </div>
+      <div class="feat-grid">
+
+        <article class="card reveal">
+          <span class="tag">01</span>
+          <svg class="ficon" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <rect x="7" y="9" width="32" height="22" rx="4" class="ficon-body"/>
+            <path d="M12 15 H28 M12 20 H24" class="ficon-accent" opacity=".85"/>
+            <path d="M23 31 V37 M15 40 H31" class="ficon-body"/>
+            <circle cx="23" cy="38.5" r="2.4" class="f-cyan"/>
+          </svg>
+          <h3>Hand-picked, never ranked</h3>
+          <p>There is no algorithm deciding what floats to the top, because there is no top. A rotating floor of nine cabinets, each one played end to end by our curators before it goes live. <span class="em">You browse a room, not a feed.</span></p>
+        </article>
+
+        <article class="card reveal" id="developers">
+          <span class="tag">02</span>
+          <svg class="ficon" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <circle cx="23" cy="23" r="15" class="ficon-body"/>
+            <path d="M23 14 V32 M19 18 H26 A3 3 0 0 1 26 24 H20 A3 3 0 0 0 20 30 H27" class="ficon-accent"/>
+          </svg>
+          <h3>Developers keep 92 percent</h3>
+          <p>A flat 8 percent platform fee, no ad buys, no featured-slot auctions, no fine print. Payouts land every two weeks. <span class="em">The people who make the games keep what the games earn.</span></p>
+        </article>
+
+        <article class="card reveal">
+          <span class="tag">03</span>
+          <svg class="ficon" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <rect x="7" y="10" width="32" height="22" rx="4" class="ficon-body"/>
+            <path d="M20 17 L28 21 L20 25 Z" class="f-cyan"/>
+            <path d="M16 37 H30" class="ficon-accent"/>
+          </svg>
+          <h3>Every game is playable first</h3>
+          <p>Each cabinet ships a real demo that runs in your browser: no download, no account, no wallet. Play the first level, then decide if it is worth your coin. <span class="em">The first demo is always on the house.</span></p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FLOOR STEPS ================= -->
+  <section class="band band-alt" id="curation">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <p class="eyebrow">How the floor works</p>
+        <h2>Three steps from submission to spotlight.</h2>
+        <p>Placement is never for sale. A cabinet is earned by being played, not bought with an ad spend.</p>
+      </div>
+      <div class="steps">
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 48 48" aria-hidden="true" fill="none">
+            <rect x="7" y="9" width="34" height="24" rx="4" class="ficon-body"/>
+            <path d="M20 17 L28 21 L20 25 Z" class="f-cyan"/>
+            <path d="M16 39 H32" class="ficon-accent"/>
+          </svg>
+          <span class="snum">Step 01</span>
+          <h3>We play the whole thing</h3>
+          <p>Every submission is played end to end by a curator, not scanned by a bot. If it does not hold up, it does not ship.</p>
+        </div>
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 48 48" aria-hidden="true" fill="none">
+            <path d="M12 12 h9 v9 h-9 z M27 12 h9 v9 h-9 z M12 27 h9 v9 h-9 z" class="ficon-body"/>
+            <rect x="27" y="27" width="9" height="9" class="f-mag"/>
+          </svg>
+          <span class="snum">Step 02</span>
+          <h3>It earns a cabinet</h3>
+          <p>Nine games make the floor each week. A cabinet is a spot in the room, not a slot you can buy. Placement is never for sale.</p>
+        </div>
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 48 48" aria-hidden="true" fill="none">
+            <circle cx="24" cy="24" r="15" class="ficon-body"/>
+            <text x="24" y="30" text-anchor="middle" class="f-cyan" font-size="16" font-weight="800" style="font-family:var(--font-mono)">9</text>
+          </svg>
+          <span class="snum">Step 03</span>
+          <h3>You try before you pay</h3>
+          <p>Pull the joystick on the in-browser demo. Like it, drop a coin, and 92 percent goes straight to the developer.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= POV ================= -->
+  <section class="band">
+    <div class="wrap pov reveal">
+      <span class="mono-lbl">// house rule</span>
+      <blockquote>Storefronts turned games into a slot machine and called it discovery. We built an arcade instead: nine cabinets, lit up, <span class="hl">waiting for a quarter.</span></blockquote>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="band" id="enter">
+    <div class="wrap">
+      <div class="cta-final reveal">
+        <div class="inner">
+          <h2>The floor is lit. Grab a coin.</h2>
+          <p>Nine new cabinets go live every Friday. Wander in, play the demos, and back the developers directly. It is free to look, and the first demo is always on the house.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#top">Enter the arcade
+              <svg class="arw" width="17" height="14" viewBox="0 0 17 14" fill="none" aria-hidden="true"><path d="M1 7h13M9 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="#developers">Submit your game</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Arcade9 home">
+          <svg class="mark" viewBox="0 0 30 32" aria-hidden="true" fill="none">
+            <rect x="4" y="2" width="22" height="18" rx="3" fill="var(--plane-3)" stroke="var(--magenta)" stroke-width="1.6"/>
+            <path d="M7 6 H23 M7 10 H23 M7 14 H19" stroke="var(--cyan)" stroke-width="1.4" opacity=".8" stroke-linecap="round"/>
+            <path d="M15 20 V25" stroke="var(--magenta)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="15" cy="26.5" r="4" fill="var(--magenta)"/>
+            <path d="M8 30 H22" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="txt">Arcade<span class="nine">9</span></span>
+        </a>
+        <p>A curated arcade for indie games. Nine cabinets, refreshed weekly, chosen by people who played them.</p>
+      </div>
+
+      <div class="foot-col">
+        <h4>Arcade</h4>
+        <ul>
+          <li><a href="#floor">The floor</a></li>
+          <li><a href="#floor">This week</a></li>
+          <li><a href="#floor">Genres</a></li>
+          <li><a href="#floor">Demos</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Developers</h4>
+        <ul>
+          <li><a href="#developers">Submit a game</a></li>
+          <li><a href="#developers">Revenue split</a></li>
+          <li><a href="#developers">Payouts</a></li>
+          <li><a href="#curation">Curation</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#top">About</a></li>
+          <li><a href="#top">Manifesto</a></li>
+          <li><a href="#top">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <p class="foot-note">Arcade9 curates indie games by hand. Placement is never sold, developers keep 92 percent, and every cabinet ships a playable demo. No algorithms were fed in the making of this floor.</p>
+      <p class="foot-meta">
+        <span class="cw">&copy; 2026 Arcade9</span>
+        Built for people who still read the marquee.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root=document.documentElement;
+    root.classList.add('js');
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var items=document.querySelectorAll('.reveal');
+    if(reduce||!('IntersectionObserver' in window)){
+      for(var i=0;i<items.length;i++){items[i].classList.add('is-in');}
+      return;
+    }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}
+      });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    items.forEach(function(el){io.observe(el);});
+  })();
+</script>
+</body>
+</html>

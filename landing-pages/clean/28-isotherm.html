@@ -1,0 +1,736 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Isotherm - a continuous temperature surface</title>
+<meta name="description" content="Isotherm fuses ground stations, satellite passes, and reanalysis models into one continuous temperature field, so you can see where heat is gathering before the monthly average admits it.">
+<style>
+  /* ---------- design tokens ---------- */
+  :root{
+    --bg:#0a0f14;
+    --bg-2:#0c1218;
+    --panel:#0f151b;
+    --panel-2:#131b23;
+    --ink:#e6eef2;
+    --muted:#9fb0bb;
+    --faint:#66757f;
+    --warm:#ff6b3d;
+    --warm-2:#ff8a5f;
+    --warm-ink:#0a0f14;
+    --teal:#37c8c8;
+    --teal-2:#5fd6d6;
+    --line:rgba(230,238,242,.10);
+    --line-2:rgba(230,238,242,.18);
+    --focus:#7fe7e7;
+    --r:8px;
+    --r-sm:6px;
+    --maxw:1180px;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --pad:clamp(1.1rem,4vw,2rem);
+    --sec:clamp(3.5rem,8vw,6.5rem);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:clamp(15px,1.4vw,16.5px);
+    line-height:1.6;
+    letter-spacing:.005em;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{max-width:100%}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.02em;line-height:1.04}
+  p{margin:0}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{color:var(--teal-2)}
+
+  /* ---------- focus ---------- */
+  :where(a,button,summary,input,.btn,.iso-hit):focus-visible{
+    outline:2px solid var(--focus);
+    outline-offset:3px;
+    border-radius:var(--r-sm);
+  }
+
+  .skip{
+    position:absolute;left:12px;top:-60px;z-index:50;
+    background:var(--warm);color:var(--warm-ink);
+    padding:.6rem .9rem;border-radius:var(--r);font-weight:650;
+    transition:top .15s ease;
+  }
+  .skip:focus{top:12px;color:var(--warm-ink)}
+
+  .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}
+
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted);
+    display:inline-flex;align-items:center;gap:.55rem;
+  }
+  .eyebrow::before{
+    content:"";width:22px;height:1px;background:var(--warm);flex:0 0 auto;
+  }
+  .eyebrow.teal::before{background:var(--teal)}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:30;
+    background:color-mix(in srgb,var(--bg) 82%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex;align-items:center;gap:1rem 1.4rem;flex-wrap:wrap;
+    padding-block:.7rem;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:.6rem;
+    color:var(--ink);font-weight:700;letter-spacing:-.01em;font-size:1.05rem;
+    min-width:0;
+  }
+  .brand svg{flex:0 0 auto}
+  .brand b{font-weight:700}
+  .nav-links{
+    display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;
+    margin-left:auto;min-width:0;
+  }
+  .nav-links a{
+    color:var(--muted);font-size:.92rem;font-weight:550;white-space:nowrap;
+  }
+  .nav-links a:hover{color:var(--ink)}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;justify-content:center;
+    font:inherit;font-weight:650;cursor:pointer;
+    border-radius:var(--r);border:1px solid transparent;
+    padding:.62rem 1rem;line-height:1;white-space:nowrap;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn-primary{background:var(--warm);color:var(--warm-ink);border-color:var(--warm)}
+  .btn-primary:hover{background:var(--warm-2);color:var(--warm-ink);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--ink);transform:translateY(-1px)}
+  .btn-sm{padding:.5rem .85rem;font-size:.9rem}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding-top:clamp(2.4rem,6vw,4.5rem);padding-bottom:var(--sec)}
+  .hero-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);
+    gap:clamp(1.6rem,4vw,3.4rem);align-items:center;
+  }
+  .hero-copy{min-width:0}
+  .hero h1{
+    font-size:clamp(2.15rem,6.4vw,4.15rem);
+    margin:.9rem 0 0;
+    max-width:14ch;
+    word-break:break-word;
+  }
+  .hero h1 .grad{
+    background:linear-gradient(92deg,var(--warm) 0%,var(--warm-2) 45%,var(--teal) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{
+    color:var(--muted);font-size:clamp(1rem,1.7vw,1.18rem);
+    margin-top:1.15rem;max-width:46ch;
+  }
+  .lede b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.7rem}
+
+  .readout{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:1px;margin-top:2.2rem;
+    border:1px solid var(--line);border-radius:var(--r);
+    background:var(--line);overflow:hidden;
+  }
+  .stat{background:var(--panel);padding:.85rem .9rem;min-width:0}
+  .stat .v{
+    font-family:var(--mono);font-size:clamp(1.05rem,2.4vw,1.5rem);
+    font-weight:600;letter-spacing:-.02em;color:var(--ink);
+    display:flex;align-items:baseline;gap:.18rem;
+  }
+  .stat .v .u{font-size:.66em;color:var(--muted);font-weight:500}
+  .stat.hot .v{color:var(--warm)}
+  .stat .k{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);margin-top:.35rem;
+    word-break:break-word;
+  }
+
+  .live{
+    display:inline-flex;align-items:center;gap:.45rem;
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;background:var(--warm);
+    box-shadow:0 0 0 0 rgba(255,107,61,.55);animation:pulse 2.4s ease-out infinite;
+    flex:0 0 auto;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(255,107,61,.5)}
+    70%{box-shadow:0 0 0 9px rgba(255,107,61,0)}
+    100%{box-shadow:0 0 0 0 rgba(255,107,61,0)}
+  }
+
+  /* ---------- hero figure ---------- */
+  .figure{
+    position:relative;border:1px solid var(--line);border-radius:var(--r);
+    background:
+      radial-gradient(120% 120% at 68% 46%, rgba(255,107,61,.10), transparent 55%),
+      linear-gradient(180deg,var(--panel),var(--bg-2));
+    padding:.5rem;overflow:hidden;min-width:0;
+  }
+  .figure .cap{
+    position:absolute;left:14px;top:12px;z-index:2;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+    color:var(--muted);text-transform:uppercase;
+  }
+  .figure .cap b{color:var(--ink);font-weight:600}
+  .iso{display:block;width:100%;height:auto}
+
+  .iso .grid line{stroke:var(--line);stroke-width:1}
+  .iso .stn{stroke:var(--faint);stroke-width:1.1}
+  .contours path{fill:none;stroke-width:1.7;stroke-linejoin:round;
+    filter:drop-shadow(0 0 3px rgba(0,0,0,.35))}
+  .contours path.core{fill:rgba(255,107,61,.10)}
+  .iso .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.02em}
+  .iso .lbl .n{fill:var(--ink)}
+  .iso .tick{stroke:var(--line-2);stroke-width:1}
+  .iso .coord{fill:var(--faint);font-family:var(--mono);font-size:10px;letter-spacing:.06em}
+  .iso .callout .box{fill:var(--panel-2);stroke:var(--line-2)}
+  .iso .callout line{stroke:var(--line-2);stroke-width:1}
+  .iso .callout .k{fill:var(--muted);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em}
+  .iso .callout .v{fill:var(--warm);font-family:var(--mono);font-size:14px;font-weight:600}
+  .iso .core-mark{fill:none;stroke:var(--warm);stroke-width:1.4}
+  .iso .core-dot{fill:var(--warm)}
+  .iso .legend .lg-t{fill:var(--muted);font-family:var(--mono);font-size:9.5px;letter-spacing:.06em}
+  .iso .scan{stroke:var(--teal);stroke-width:1;opacity:.28}
+
+  /* ---------- section frame ---------- */
+  section{padding-block:var(--sec)}
+  .sec-head{max-width:60ch}
+  .sec-head h2{
+    font-size:clamp(1.6rem,4.2vw,2.7rem);margin-top:.7rem;
+    letter-spacing:-.025em;word-break:break-word;
+  }
+  .sec-head p{color:var(--muted);margin-top:.9rem;font-size:clamp(1rem,1.6vw,1.12rem);max-width:52ch}
+
+  .rule{height:1px;background:var(--line);border:0;margin:0}
+  .wave{display:block;width:100%;height:34px}
+  .wave path{fill:none;stroke-width:1.2;stroke-linecap:round}
+
+  /* ---------- features ---------- */
+  .features{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:1rem;margin-top:2.6rem;
+  }
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:1.4rem 1.3rem 1.5rem;min-width:0;
+    display:flex;flex-direction:column;
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+  .card .idx{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--warm);
+  }
+  .card h3{font-size:1.16rem;margin-top:.8rem;letter-spacing:-.015em}
+  .card p{color:var(--muted);margin-top:.6rem;font-size:.96rem;min-width:0;word-break:break-word}
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.1rem}
+  .chip{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;
+    color:var(--muted);border:1px solid var(--line-2);border-radius:999px;
+    padding:.22rem .55rem;white-space:nowrap;
+  }
+  .card .spark{margin-top:1.2rem;height:38px;width:100%}
+  .card .spark path{fill:none;stroke:var(--teal);stroke-width:1.6}
+  .card .spark path.f{fill:rgba(55,200,200,.12);stroke:none}
+
+  /* api mini terminal */
+  .term{
+    margin-top:1.2rem;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:var(--r-sm);overflow:hidden;
+  }
+  .term .bar{
+    display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;
+    border-bottom:1px solid var(--line);
+  }
+  .term .bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2)}
+  .term .bar i:first-child{background:var(--warm)}
+  .term .bar span{
+    margin-left:.4rem;font-family:var(--mono);font-size:.68rem;color:var(--faint);
+  }
+  .term pre{
+    margin:0;padding:.75rem .8rem;overflow-x:auto;
+    font-family:var(--mono);font-size:.74rem;line-height:1.65;color:var(--ink);
+  }
+  .term .cm{color:var(--faint)}
+  .term .kk{color:var(--teal)}
+  .term .nm{color:var(--warm)}
+
+  /* ---------- ridge section ---------- */
+  .ridge-wrap{
+    display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr);
+    gap:clamp(1.5rem,4vw,3rem);align-items:center;margin-top:2.4rem;
+  }
+  .ridge-fig{
+    border:1px solid var(--line);border-radius:var(--r);
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    padding:1rem 1rem .7rem;min-width:0;overflow:hidden;
+  }
+  .ridge-fig svg{display:block;width:100%;height:auto}
+  .ridge-fig .ax{fill:var(--muted);font-family:var(--mono);font-size:11px}
+  .ridge-fig .axt{stroke:var(--line-2);stroke-width:1}
+  .rlegend{
+    display:flex;align-items:center;gap:.6rem;margin-top:.7rem;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.04em;
+  }
+  .rlegend .bar{
+    height:8px;width:120px;border-radius:999px;flex:0 0 auto;
+    background:linear-gradient(90deg,var(--teal),#c7aa73,var(--warm));
+  }
+  .ridge-note ul{list-style:none;margin:1.2rem 0 0;padding:0;display:grid;gap:.85rem}
+  .ridge-note li{display:flex;gap:.7rem;color:var(--muted);font-size:.98rem;min-width:0}
+  .ridge-note li b{color:var(--ink);font-weight:600}
+  .ridge-note li .m{
+    font-family:var(--mono);color:var(--warm);flex:0 0 auto;font-size:.82rem;
+    padding-top:.15rem;letter-spacing:.02em;
+  }
+
+  /* ---------- final cta ---------- */
+  .band{
+    position:relative;overflow:hidden;
+    border:1px solid var(--line);border-radius:var(--r);
+    background:
+      radial-gradient(90% 140% at 12% 20%, rgba(255,107,61,.14), transparent 55%),
+      radial-gradient(90% 140% at 92% 90%, rgba(55,200,200,.14), transparent 55%),
+      var(--panel);
+    padding:clamp(1.8rem,5vw,3.4rem);
+    text-align:center;
+  }
+  .band h2{font-size:clamp(1.7rem,4.4vw,2.8rem);letter-spacing:-.025em;max-width:18ch;margin-inline:auto}
+  .band p{color:var(--muted);margin:1rem auto 0;max-width:48ch}
+  .band .cta-row{justify-content:center}
+  .band .fine{margin-top:1rem;font-family:var(--mono);font-size:.72rem;color:var(--faint);letter-spacing:.04em}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding-block:2.6rem 3rem;margin-top:var(--sec)}
+  .foot{
+    display:grid;grid-template-columns:1.4fr repeat(2,minmax(0,1fr));
+    gap:1.6rem;
+  }
+  .foot .about{max-width:34ch;min-width:0}
+  .foot .about p{color:var(--muted);font-size:.9rem;margin-top:.7rem}
+  .fcol h4{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);margin:0 0 .7rem;font-weight:600;
+  }
+  .fcol a{display:block;color:var(--muted);font-size:.9rem;padding:.2rem 0}
+  .fcol a:hover{color:var(--ink)}
+  .legal{
+    margin-top:2.2rem;padding-top:1.3rem;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    color:var(--faint);font-size:.78rem;font-family:var(--mono);letter-spacing:.03em;
+  }
+  .legal p{max-width:70ch}
+
+  /* ---------- reveal (progressive, motion-safe) ---------- */
+  @media (prefers-reduced-motion:no-preference){
+    .js [data-reveal]{opacity:0;transform:translateY(16px);
+      transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+    .js [data-reveal].in{opacity:1;transform:none}
+    .js .contours path{stroke-dasharray:3400;stroke-dashoffset:3400;animation:draw 2.1s ease forwards}
+    .js .contours path:nth-child(1){animation-delay:.05s}
+    .js .contours path:nth-child(2){animation-delay:.14s}
+    .js .contours path:nth-child(3){animation-delay:.23s}
+    .js .contours path:nth-child(4){animation-delay:.32s}
+    .js .contours path:nth-child(5){animation-delay:.41s}
+    .js .contours path:nth-child(6){animation-delay:.50s}
+    .js .contours path:nth-child(7){animation-delay:.59s}
+    .js .contours path:nth-child(8){animation-delay:.68s}
+    .js .contours path:nth-child(9){animation-delay:.77s}
+    .iso .scan{animation:scan 6.5s linear infinite}
+  }
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes scan{0%{transform:translateY(0)}100%{transform:translateY(430px)}}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:920px){
+    .hero-grid{grid-template-columns:1fr}
+    .hero .figure{order:2}
+    .ridge-wrap{grid-template-columns:1fr}
+    .features{grid-template-columns:1fr 1fr}
+    .foot{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:620px){
+    .features{grid-template-columns:1fr}
+    .readout{grid-template-columns:1fr 1fr}
+    .foot{grid-template-columns:1fr}
+    .nav-links{gap:.85rem}
+    .nav-links a{font-size:.86rem}
+  }
+  @media (max-width:380px){
+    .readout{grid-template-columns:1fr 1fr}
+  }
+
+  /* ---------- reduced motion kill switch ---------- */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms!important;animation-iteration-count:1!important;
+      transition-duration:.001ms!important;scroll-behavior:auto!important;
+    }
+  }
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Isotherm home">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="2.4" fill="#ff6b3d"></circle>
+        <circle cx="12" cy="12" r="5.4" fill="none" stroke="#f2a15a" stroke-width="1.3"></circle>
+        <circle cx="12" cy="12" r="8.6" fill="none" stroke="#37c8c8" stroke-width="1.3"></circle>
+      </svg>
+      <span>Iso<b>therm</b></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#method">Method</a>
+      <a href="#data">Data</a>
+      <a href="#ridge">The signal</a>
+      <a class="btn btn-primary btn-sm" href="#get">Get an API key</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Climate data platform</span>
+        <h1 id="hero-h">Temperature is a <span class="grad">field</span>, not a number.</h1>
+        <p class="lede">Isotherm fuses <b>41,000 ground stations</b>, satellite passes, and reanalysis models into one continuous temperature surface, so you can see where heat is gathering hours before the monthly average admits it.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#get">Get an API key</a>
+          <a class="btn btn-ghost" href="#method">Read the method</a>
+        </div>
+
+        <div class="live" aria-hidden="true"><span class="dot"></span> Live grid, synced <span data-since>12s ago</span></div>
+        <div class="readout" role="group" aria-label="Current field readouts">
+          <div class="stat hot">
+            <div class="v">+1.48<span class="u">&deg;C</span></div>
+            <div class="k">Global mean anomaly, base 1991 to 2020</div>
+          </div>
+          <div class="stat">
+            <div class="v">41,207</div>
+            <div class="k">Stations ingested</div>
+          </div>
+          <div class="stat">
+            <div class="v">1<span class="u">km</span></div>
+            <div class="k">Grid resolution</div>
+          </div>
+          <div class="stat">
+            <div class="v">52<span class="u">min</span></div>
+            <div class="k">Median latency</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGNATURE ILLUSTRATION: isotherm contour field -->
+      <figure class="figure" data-reveal style="--d:.05s">
+        <figcaption class="cap"><b>ISO-9</b> temperature field / heat dome, <b>34.2&deg;C</b> peak</figcaption>
+        <svg class="iso" viewBox="20 -30 700 500" role="img" aria-labelledby="iso-t iso-d" preserveAspectRatio="xMidYMid meet">
+          <title id="iso-t">Isotherm contour field</title>
+          <desc id="iso-d">Nested temperature contour lines forming a heat dome, warm orange at the core fading to teal at the cooler edges, drawn like a scientific weather chart with labeled isotherms and observation stations.</desc>
+
+          <!-- graticule -->
+          <g class="grid" aria-hidden="true">
+            <line x1="120" y1="-30" x2="120" y2="470"></line>
+            <line x1="240" y1="-30" x2="240" y2="470"></line>
+            <line x1="360" y1="-30" x2="360" y2="470"></line>
+            <line x1="480" y1="-30" x2="480" y2="470"></line>
+            <line x1="600" y1="-30" x2="600" y2="470"></line>
+            <line x1="20" y1="40" x2="720" y2="40"></line>
+            <line x1="20" y1="140" x2="720" y2="140"></line>
+            <line x1="20" y1="240" x2="720" y2="240"></line>
+            <line x1="20" y1="340" x2="720" y2="340"></line>
+            <line x1="20" y1="440" x2="720" y2="440"></line>
+          </g>
+
+          <!-- contour lines (hot core -> cool edge) -->
+          <g class="contours" aria-hidden="true">
+            <path class="core" d="M392 244C396 246 401 249 404 252C406 254 407 258 407 261C406 264 403 266 400 268C397 270 392 271 388 272C384 272 379 272 376 272C372 272 368 272 365 272C362 272 359 271 356 270C353 269 351 268 349 267C346 266 345 264 343 263C342 262 341 261 339 260C337 259 335 260 332 259C329 259 325 260 322 259C319 258 315 257 313 256C311 255 310 252 310 250C309 248 311 246 312 244C313 242 315 240 316 239C317 237 317 235 318 233C318 231 317 229 317 226C317 224 317 220 318 218C320 216 322 213 325 212C328 210 332 210 336 210C340 210 344 211 347 211C350 212 354 214 356 215C359 216 362 217 364 219C366 220 368 222 369 224C370 226 370 228 370 230C370 232 369 234 369 235C369 237 369 238 370 238C372 239 375 239 379 240C382 241 388 242 392 244Z" stroke="#ff6b3d"></path>
+            <path d="M442 238C446 242 449 246 450 251C451 255 449 260 447 264C445 267 440 271 436 274C432 277 426 280 421 282C416 284 411 286 406 288C400 289 395 291 389 291C384 292 378 291 372 291C367 290 362 288 357 287C352 286 348 284 344 283C339 281 335 280 330 279C326 278 321 277 317 275C313 273 308 271 305 268C303 265 301 261 300 258C300 254 301 251 302 247C302 244 304 241 305 238C305 235 305 232 304 229C303 226 301 222 300 218C299 214 297 209 298 204C299 200 300 195 303 191C307 187 312 183 317 181C323 179 329 177 336 176C342 176 349 176 355 176C361 177 368 179 373 181C379 183 384 185 387 189C391 192 394 196 396 200C398 204 398 208 399 211C401 214 401 217 403 219C404 221 407 222 411 224C415 225 421 226 426 229C432 231 438 234 442 238Z" stroke="#fc7944"></path>
+            <path d="M485 228C487 233 487 239 486 245C484 250 481 255 478 260C474 265 470 270 466 274C461 279 456 283 451 287C445 291 439 295 432 298C425 301 418 304 410 306C402 307 394 308 386 308C378 308 370 308 362 307C354 306 346 305 338 304C331 302 323 300 316 298C310 295 303 291 298 286C294 282 291 276 289 271C288 266 289 259 289 254C290 249 292 245 293 240C293 236 293 232 292 228C291 224 288 220 286 215C283 210 280 205 278 199C277 193 276 186 278 180C279 174 283 167 288 162C293 157 300 152 307 148C315 144 324 142 333 140C341 138 351 138 360 138C369 139 379 141 387 144C394 147 402 152 407 157C413 161 417 167 421 172C424 177 426 181 430 185C433 189 436 192 441 194C445 197 451 199 457 203C462 206 469 209 474 213C479 218 483 223 485 228Z" stroke="#f9864c"></path>
+            <path d="M517 220C517 226 514 233 511 239C508 246 504 251 501 258C497 264 493 269 489 275C484 281 480 287 474 293C468 299 461 304 453 309C445 313 436 318 426 321C416 324 406 327 395 329C384 331 373 332 362 332C350 332 338 332 327 329C317 327 306 323 297 317C289 312 282 305 278 297C274 290 273 281 272 274C271 266 273 259 273 252C274 246 275 241 274 235C273 230 271 225 268 220C266 214 261 209 258 202C256 196 253 188 252 181C252 173 253 165 256 158C259 150 264 143 270 136C277 130 285 123 295 119C304 114 315 110 326 107C337 105 350 104 361 105C373 106 385 109 395 112C405 116 414 122 422 127C430 131 437 137 443 142C450 147 456 151 462 155C469 159 476 163 483 167C489 172 497 176 502 181C508 187 513 193 515 200C518 206 518 213 517 220Z" stroke="#f59453"></path>
+            <path d="M542 217C539 225 534 232 531 239C527 246 523 253 519 260C515 267 512 274 507 281C502 288 497 296 491 303C484 310 477 317 468 324C459 330 449 337 438 342C427 348 414 353 401 357C387 361 372 364 357 364C343 364 327 362 313 358C300 354 287 347 278 339C269 331 262 321 257 311C253 302 251 291 250 282C248 273 249 265 247 258C246 250 244 244 242 237C239 230 235 224 232 217C230 210 226 202 225 194C223 186 222 177 224 169C225 160 228 151 233 143C238 134 244 126 252 118C260 111 270 104 281 98C292 92 305 88 318 85C331 83 346 82 359 83C373 83 386 86 399 89C411 92 423 96 434 100C445 104 456 108 467 112C477 116 488 120 498 125C508 130 518 136 526 143C534 149 541 158 544 166C548 174 549 183 549 192C548 200 545 209 542 217Z" stroke="#6fb6bf"></path>
+            <path d="M566 219C562 229 556 237 552 245C547 253 543 261 539 269C534 277 530 285 525 293C519 301 514 310 507 318C500 327 492 336 483 345C473 353 462 363 449 370C436 377 420 385 404 389C388 394 369 397 352 396C335 395 316 391 301 385C286 380 272 370 261 361C250 351 243 340 236 329C229 319 226 308 221 299C217 289 213 281 209 272C205 263 201 255 197 246C194 237 190 228 189 219C187 210 186 201 187 191C188 182 190 172 194 162C198 153 203 143 210 134C217 125 225 116 235 108C245 101 256 93 269 88C282 82 296 78 311 75C325 72 341 71 356 70C371 69 386 70 401 71C416 71 431 72 446 74C462 76 478 78 493 82C507 86 523 91 536 98C548 105 560 114 567 124C575 134 580 146 581 157C583 168 581 179 578 190C576 200 570 210 566 219Z" stroke="#61bbc1"></path>
+            <path d="M597 223C591 234 586 243 580 253C575 262 570 271 564 280C559 289 553 298 547 308C541 317 535 327 527 337C520 348 511 359 500 369C489 379 476 390 461 398C446 406 427 414 409 418C390 421 369 422 349 420C330 418 311 413 294 406C277 399 262 389 249 380C236 371 225 360 214 350C204 340 195 331 186 320C178 310 170 300 163 290C157 279 151 268 147 257C144 246 142 234 143 223C143 212 146 200 149 189C153 178 159 167 166 157C173 147 181 137 190 128C200 119 211 110 223 103C235 95 249 89 263 83C277 78 292 74 308 70C323 66 338 62 354 59C371 56 387 52 405 50C423 48 443 46 462 46C481 46 503 48 521 52C539 57 558 65 572 74C586 84 598 96 605 109C613 122 615 136 616 150C617 163 614 177 611 189C607 201 602 212 597 223Z" stroke="#53bfc4"></path>
+            <path d="M638 223C633 235 626 247 620 258C614 269 608 279 601 290C594 301 588 311 581 322C573 333 566 345 557 356C547 367 537 380 523 390C509 400 493 411 475 418C457 425 436 430 416 432C395 435 373 434 353 431C332 428 312 422 294 417C275 411 258 403 241 396C224 388 208 380 193 371C177 362 162 352 149 341C137 331 125 319 116 306C108 293 101 279 98 265C95 251 96 237 98 223C101 209 107 196 114 183C121 170 130 158 141 148C151 137 164 127 177 118C190 110 204 102 219 95C233 88 248 83 263 77C278 71 292 66 308 60C323 53 339 47 357 40C374 34 394 27 414 23C435 18 459 14 482 14C504 14 529 17 550 23C571 30 591 40 606 52C621 64 633 79 640 94C648 108 652 125 653 140C655 155 653 170 650 184C647 198 643 211 638 223Z" stroke="#45c4c6"></path>
+            <path d="M690 217C686 231 680 245 674 258C667 272 660 284 653 297C645 310 637 322 627 335C618 347 608 360 594 372C581 383 566 395 549 404C532 412 511 420 491 425C470 430 448 432 426 432C405 433 383 431 362 429C340 427 320 424 299 420C278 417 257 413 235 407C214 402 192 396 172 388C152 379 132 369 115 357C99 345 84 331 74 316C64 301 57 283 55 267C52 250 54 233 58 217C63 201 72 185 82 171C92 157 106 144 121 132C135 121 152 112 169 103C185 95 202 88 218 81C234 74 249 68 264 61C279 54 293 46 310 37C326 29 343 19 362 10C382 2 405 -7 428 -11C452 -16 479 -19 503 -18C528 -17 555 -11 577 -3C599 5 619 17 635 30C652 43 665 60 674 75C684 91 690 108 694 124C698 140 699 156 698 172C697 187 694 202 690 217Z" stroke="#37c8c8"></path>
+          </g>
+
+          <!-- scan line -->
+          <line class="scan" x1="20" y1="0" x2="720" y2="0" aria-hidden="true"></line>
+
+          <!-- observation stations -->
+          <g class="stn" aria-hidden="true">
+            <path d="M300 178h8M304 174v8"></path>
+            <path d="M424 300h8M428 296v8"></path>
+            <path d="M520 152h8M524 148v8"></path>
+            <path d="M360 360h8M364 356v8"></path>
+            <path d="M602 280h8M606 276v8"></path>
+            <path d="M250 258h8M254 254v8"></path>
+            <path d="M470 200h8M474 196v8"></path>
+          </g>
+
+          <!-- isotherm labels -->
+          <g class="lbl" aria-hidden="true">
+            <line class="tick" x1="392" y1="244" x2="404" y2="238"></line>
+            <text class="n" x="406" y="240">30&deg;</text>
+            <line class="tick" x1="485" y1="228" x2="497" y2="222"></line>
+            <text class="n" x="499" y="224">25&deg;</text>
+            <line class="tick" x1="542" y1="217" x2="554" y2="211"></line>
+            <text class="n" x="556" y="213">20&deg;</text>
+            <line class="tick" x1="597" y1="223" x2="609" y2="217"></line>
+            <text class="n" x="611" y="219">15&deg;</text>
+          </g>
+
+          <!-- core marker + callout -->
+          <g class="core-mark" aria-hidden="true">
+            <circle cx="352" cy="236" r="7"></circle>
+            <path d="M352 222v-9M352 259v9M338 236h-9M366 236h9"></path>
+          </g>
+          <circle class="core-dot" cx="352" cy="236" r="2.4" aria-hidden="true"></circle>
+          <g class="callout" aria-hidden="true">
+            <line x1="352" y1="236" x2="150" y2="70"></line>
+            <rect class="box" x="56" y="44" width="118" height="46" rx="6"></rect>
+            <text class="k" x="68" y="62">CORE PEAK</text>
+            <text class="v" x="68" y="80">34.2&deg;C</text>
+          </g>
+
+          <!-- corner coordinates -->
+          <text class="coord" x="30" y="-14" aria-hidden="true">48.9&deg;N</text>
+          <text class="coord" x="660" y="-14" aria-hidden="true">2.4&deg;E</text>
+
+          <!-- legend -->
+          <g class="legend" aria-hidden="true">
+            <defs>
+              <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#37c8c8"></stop>
+                <stop offset="0.5" stop-color="#c7aa73"></stop>
+                <stop offset="1" stop-color="#ff6b3d"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="40" y="432" width="180" height="8" rx="4" fill="url(#lg)"></rect>
+            <text class="lg-t" x="40" y="456">8&deg;C</text>
+            <text class="lg-t" x="196" y="456">34&deg;C</text>
+          </g>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap"><svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 26 C 80 8 160 8 240 22 S 400 40 480 24 S 640 6 720 20 S 880 38 960 22 S 1120 8 1200 22" stroke="#37c8c8" opacity=".35"></path><path d="M0 32 C 80 16 160 16 240 28 S 400 44 480 30 S 640 14 720 26 S 880 42 960 28 S 1120 16 1200 28" stroke="#ff6b3d" opacity=".22"></path></svg></div>
+
+  <!-- ============ FEATURES / METHOD ============ -->
+  <section id="method" aria-labelledby="method-h">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">How the surface is built</span>
+        <h2 id="method-h">Most dashboards give you dots. We give you the whole field.</h2>
+        <p>A station is a pinprick. The weather between two of them is a guess. Isotherm makes that guess explicit, gridded, and queryable, then tells you how sure it is.</p>
+      </div>
+
+      <div class="features">
+        <article class="card" data-reveal style="--d:.04s">
+          <span class="idx">01 / interpolation</span>
+          <h3>One surface, not scattered dots</h3>
+          <p>Every station and satellite pass is kriged onto a single 1 km grid, not snapped to its nearest neighbor. Where coverage is thin, cells carry honest uncertainty instead of a silent zero.</p>
+          <div class="chips"><span class="chip">kriging</span><span class="chip">1 km grid</span><span class="chip">hourly</span></div>
+          <svg class="spark" viewBox="0 0 200 38" preserveAspectRatio="none" aria-hidden="true">
+            <path class="f" d="M0 34 C 30 30 40 20 60 22 S 100 8 120 14 S 160 4 200 10 L200 38 L0 38Z"></path>
+            <path d="M0 34 C 30 30 40 20 60 22 S 100 8 120 14 S 160 4 200 10"></path>
+          </svg>
+        </article>
+
+        <article class="card" data-reveal style="--d:.12s" id="data">
+          <span class="idx">02 / anomalies</span>
+          <h3>Every cell carries its own baseline</h3>
+          <p>Each grid cell remembers its 1991 to 2020 normal, so you read departures in warm and cool at a glance. A mild-sounding 24&deg;C in February still lights up when it should.</p>
+          <div class="chips"><span class="chip">per-cell base</span><span class="chip">warm / cool</span><span class="chip">z-score</span></div>
+          <svg class="spark" viewBox="0 0 200 38" preserveAspectRatio="none" aria-hidden="true">
+            <path class="f" d="M0 30 C 30 32 40 24 60 26 S 100 30 120 18 S 160 6 200 12 L200 38 L0 38Z"></path>
+            <path d="M0 30 C 30 32 40 24 60 26 S 100 30 120 18 S 160 6 200 12"></path>
+          </svg>
+        </article>
+
+        <article class="card" data-reveal style="--d:.20s">
+          <span class="idx">03 / access</span>
+          <h3>Built to be queried</h3>
+          <p>Pull any cell, any hour, back to 1880 through a typed API. Isotherm answers in GeoJSON, Arrow, or CSV, with the provenance of every reading attached to the value.</p>
+          <div class="chips"><span class="chip">GeoJSON</span><span class="chip">Arrow</span><span class="chip">CSV</span></div>
+          <div class="term">
+            <div class="bar"><i></i><i></i><i></i><span>isotherm / field.http</span></div>
+            <pre><span class="cm"># any point, any moment</span>
+GET /v1/<span class="kk">field</span>?lat=<span class="nm">48.85</span>&amp;lon=<span class="nm">2.35</span>&amp;at=now
+
+{ <span class="kk">"temp_c"</span>: <span class="nm">24.1</span>, <span class="kk">"anomaly_c"</span>: <span class="nm">+3.2</span>,
+  <span class="kk">"base"</span>: <span class="nm">"1991-2020"</span>, <span class="kk">"grid_km"</span>: <span class="nm">1</span>,
+  <span class="kk">"src"</span>: [<span class="nm">"stn"</span>,<span class="nm">"sat"</span>,<span class="nm">"era5"</span>] }</pre>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ RIDGE / SIGNAL ============ -->
+  <section id="ridge" aria-labelledby="ridge-h">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow teal">The signal</span>
+        <h2 id="ridge-h">144 years, one glance.</h2>
+        <p>Each ridge is a decade of global surface temperature, drawn back to front. The cool teal band at the back is the late 1800s. The warm crest pushing forward is now. Nobody needs the trend explained twice.</p>
+      </div>
+
+      <div class="ridge-wrap">
+        <figure class="ridge-fig" data-reveal>
+          <svg viewBox="0 0 700 340" role="img" aria-labelledby="rd-t rd-d" preserveAspectRatio="xMidYMid meet">
+            <title id="rd-t">Decadal temperature ridgeline</title>
+            <desc id="rd-d">A stacked ridgeline chart. Fourteen overlapping ridges run from back to front, cool teal at the top for the earliest decades warming to bright orange at the front for the most recent, with each crest sitting higher than the one behind it.</desc>
+            <!-- year axis -->
+            <g aria-hidden="true">
+              <text class="ax" x="34" y="52" text-anchor="end">1880</text>
+              <line class="axt" x1="38" y1="48" x2="40" y2="48"></line>
+              <text class="ax" x="34" y="150" text-anchor="end">1930</text>
+              <line class="axt" x1="38" y1="146" x2="40" y2="146"></line>
+              <text class="ax" x="34" y="248" text-anchor="end">1980</text>
+              <line class="axt" x1="38" y1="244" x2="40" y2="244"></line>
+              <text class="ax" x="34" y="322" text-anchor="end">2024</text>
+              <line class="axt" x1="38" y1="318" x2="40" y2="318"></line>
+            </g>
+            <g transform="translate(40,6)" aria-hidden="true">
+              <path d="M0 96L0 52C9 52 9 48 17 48C25 48 25 45 33 45C42 45 42 44 50 44C58 44 58 44 66 44C75 44 75 44 83 44C91 44 91 44 99 44C107 44 107 43 115 43C124 43 124 42 132 42C141 42 141 42 149 42C157 42 157 42 165 42C174 42 174 42 182 42C190 42 190 42 198 42C207 42 207 40 215 40C223 40 223 38 231 38C240 38 240 38 248 38C256 38 256 38 264 38C273 38 273 41 281 41C289 41 289 44 297 44C306 44 306 48 314 48C322 48 322 50 330 50C339 50 339 51 347 51C355 51 355 52 363 52C371 52 371 52 379 52C388 52 388 52 396 52C405 52 405 53 413 53C421 53 421 52 429 52C438 52 438 51 446 51C454 51 454 49 462 49C471 49 471 49 479 49C487 49 487 49 495 49C504 49 504 50 512 50C520 50 520 52 528 52C537 52 537 53 545 53C553 53 553 53 561 53C570 53 570 51 578 51C586 51 586 48 594 48C603 48 603 47 611 47C619 47 619 46 627 46C636 46 636 46 644 46C652 46 652 46 660 46L660 96Z" fill="#37c8c8" fill-opacity=".14" stroke="#37c8c8" stroke-opacity=".8" stroke-width="1.3"></path>
+              <path d="M0 113L0 58C9 58 9 59 17 59C25 59 25 61 33 61C42 61 42 65 50 65C58 65 58 67 66 67C75 67 75 68 83 68C91 68 91 67 99 67C107 67 107 66 115 66C124 66 124 65 132 65C141 65 141 65 149 65C157 65 157 66 165 66C174 66 174 67 182 67C190 67 190 68 198 68C207 68 207 68 215 68C223 68 223 69 231 69C240 69 240 71 248 71C256 71 256 73 264 73C273 73 273 75 281 75C289 75 289 76 297 76C306 76 306 75 314 75C322 75 322 73 330 73C339 73 339 70 347 70C355 70 355 68 363 68C371 68 371 68 379 68C388 68 388 68 396 68C405 68 405 69 413 69C421 69 421 70 429 70C438 70 438 69 446 69C454 69 454 69 462 69C471 69 471 69 479 69C487 69 487 69 495 69C504 69 504 69 512 69C520 69 520 68 528 68C537 68 537 66 545 66C553 66 553 63 561 63C570 63 570 61 578 61C586 61 586 60 594 60C603 60 603 62 611 62C619 62 619 65 627 65C636 65 636 68 644 68C652 68 652 70 660 70L660 113Z" fill="#54c2b7" fill-opacity=".14" stroke="#54c2b7" stroke-opacity=".8" stroke-width="1.3"></path>
+              <path d="M0 130L0 87C9 87 9 88 17 88C25 88 25 89 33 89C42 89 42 89 50 89C58 89 58 88 66 88C75 88 75 86 83 86C91 86 91 84 99 84C107 84 107 84 115 84C124 84 124 84 132 84C141 84 141 86 149 86C157 86 157 88 165 88C174 88 174 88 182 88C190 88 190 87 198 87C207 87 207 85 215 85C223 85 223 82 231 82C240 82 240 80 248 80C256 80 256 78 264 78C273 78 273 75 281 75C289 75 289 73 297 73C306 73 306 70 314 70C322 70 322 68 330 68C339 68 339 68 347 68C355 68 355 69 363 69C371 69 371 72 379 72C388 72 388 75 396 75C405 75 405 75 413 75C421 75 421 75 429 75C438 75 438 73 446 73C454 73 454 73 462 73C471 73 471 73 479 73C487 73 487 74 495 74C504 74 504 75 512 75C520 75 520 77 528 77C537 77 537 78 545 78C553 78 553 80 561 80C570 80 570 83 578 83C586 83 586 87 594 87C603 87 603 91 611 91C619 91 619 93 627 93C636 93 636 94 644 94C652 94 652 93 660 93L660 130Z" fill="#71bca6" fill-opacity=".14" stroke="#71bca6" stroke-opacity=".8" stroke-width="1.3"></path>
+              <path d="M0 147L0 102C9 102 9 103 17 103C25 103 25 104 33 104C42 104 42 105 50 105C58 105 58 105 66 105C75 105 75 105 83 105C91 105 91 106 99 106C107 106 107 107 115 107C124 107 124 108 132 108C141 108 141 108 149 108C157 108 157 105 165 105C174 105 174 101 182 101C190 101 190 96 198 96C207 96 207 92 215 92C223 92 223 89 231 89C240 89 240 89 248 89C256 89 256 89 264 89C273 89 273 90 281 90C289 90 289 90 297 90C306 90 306 91 314 91C322 91 322 92 330 92C339 92 339 94 347 94C355 94 355 96 363 96C371 96 371 98 379 98C388 98 388 98 396 98C405 98 405 98 413 98C421 98 421 97 429 97C438 97 438 98 446 98C454 98 454 101 462 101C471 101 471 106 479 106C487 106 487 110 495 110C504 110 504 114 512 114C520 114 520 115 528 115C537 115 537 116 545 116C553 116 553 116 561 116C570 116 570 116 578 116C586 116 586 115 594 115C603 115 603 114 611 114C619 114 619 112 627 112C636 112 636 108 644 108C652 108 652 106 660 106L660 147Z" fill="#8db695" fill-opacity=".15" stroke="#8db695" stroke-opacity=".82" stroke-width="1.3"></path>
+              <path d="M0 164L0 129C9 129 9 131 17 131C25 131 25 132 33 132C42 132 42 131 50 131C58 131 58 128 66 128C75 128 75 125 83 125C91 125 91 122 99 122C107 122 107 119 115 119C124 119 124 115 132 115C141 115 141 112 149 112C157 112 157 107 165 107C174 107 174 103 182 103C190 103 190 101 198 101C207 101 207 101 215 101C223 101 223 103 231 103C240 103 240 105 248 105C256 105 256 106 264 106C273 106 273 105 281 105C289 105 289 103 297 103C306 103 306 102 314 102C322 102 322 102 330 102C339 102 339 103 347 103C355 103 355 105 363 105C371 105 371 107 379 107C388 107 388 109 396 109C405 109 405 111 413 111C421 111 421 114 429 114C438 114 438 118 446 118C454 118 454 122 462 122C471 122 471 125 479 125C487 125 487 125 495 125C504 125 504 123 512 123C520 123 520 120 528 120C537 120 537 116 545 116C553 116 553 115 561 115C570 115 570 114 578 114C586 114 586 115 594 115C603 115 603 115 611 115C619 115 619 114 627 114C636 114 636 113 644 113C652 113 652 113 660 113L660 164Z" fill="#aab084" fill-opacity=".15" stroke="#aab084" stroke-opacity=".82" stroke-width="1.3"></path>
+              <path d="M0 181L0 135C9 135 9 133 17 133C25 133 25 129 33 129C42 129 42 124 50 124C58 124 58 120 66 120C75 120 75 118 83 118C91 118 91 118 99 118C107 118 107 120 115 120C124 120 124 121 132 121C141 121 141 123 149 123C157 123 157 123 165 123C174 123 174 124 182 124C190 124 190 126 198 126C207 126 207 128 215 128C223 128 223 129 231 129C240 129 240 129 248 129C256 129 256 127 264 127C273 127 273 125 281 125C289 125 289 124 297 124C306 124 306 126 314 126C322 126 322 130 330 130C339 130 339 135 347 135C355 135 355 140 363 140C371 140 371 142 379 142C388 142 388 143 396 143C405 143 405 143 413 143C421 143 421 143 429 143C438 143 438 143 446 143C454 143 454 143 462 143C471 143 471 141 479 141C487 141 487 138 495 138C504 138 504 135 512 135C520 135 520 134 528 134C537 134 537 135 545 135C553 135 553 137 561 137C570 137 570 139 578 139C586 139 586 140 594 140C603 140 603 139 611 139C619 139 619 137 627 137C636 137 636 135 644 135C652 135 652 133 660 133L660 181Z" fill="#c7aa73" fill-opacity=".16" stroke="#c7aa73" stroke-opacity=".84" stroke-width="1.3"></path>
+              <path d="M0 198L0 150C9 150 9 148 17 148C25 148 25 147 33 147C42 147 42 147 50 147C58 147 58 149 66 149C75 149 75 153 83 153C91 153 91 158 99 158C107 158 107 161 115 161C124 161 124 162 132 162C141 162 141 160 149 160C157 160 157 157 165 157C174 157 174 155 182 155C190 155 190 154 198 154C207 154 207 153 215 153C223 153 223 152 231 152C240 152 240 151 248 151C256 151 256 149 264 149C273 149 273 148 281 148C289 148 289 149 297 149C306 149 306 150 314 150C322 150 322 151 330 151C339 151 339 150 347 150C355 150 355 147 363 147C371 147 371 142 379 142C388 142 388 138 396 138C405 138 405 135 413 135C421 135 421 134 429 134C438 134 438 135 446 135C454 135 454 136 462 136C471 136 471 137 479 137C487 137 487 137 495 137C504 137 504 138 512 138C520 138 520 140 528 140C537 140 537 142 545 142C553 142 553 144 561 144C570 144 570 144 578 144C586 144 586 142 594 142C603 142 603 139 611 139C619 139 619 138 627 138C636 138 636 140 644 140C652 140 652 144 660 144L660 198Z" fill="#e4a462" fill-opacity=".16" stroke="#e4a462" stroke-opacity=".84" stroke-width="1.3"></path>
+              <path d="M0 215L0 162C9 162 9 164 17 164C25 164 25 166 33 166C42 166 42 169 50 169C58 169 58 172 66 172C75 172 75 174 83 174C91 174 91 174 99 174C107 174 107 172 115 172C124 172 124 168 132 168C141 168 141 165 149 165C157 165 157 163 165 163C174 163 174 164 182 164C190 164 190 166 198 166C207 166 207 167 215 167C223 167 223 166 231 166C240 166 240 164 248 164C256 164 256 160 264 160C273 160 273 157 281 157C289 157 289 154 297 154C306 154 306 152 314 152C322 152 322 149 330 149C339 149 339 146 347 146C355 146 355 144 363 144C371 144 371 143 379 143C388 143 388 145 396 145C405 145 405 150 413 150C421 150 421 157 429 157C438 157 438 162 446 162C454 162 454 165 462 165C471 165 471 166 479 166C487 166 487 166 495 166C504 166 504 167 512 167C520 167 520 169 528 169C537 169 537 172 545 172C553 172 553 174 561 174C570 174 570 176 578 176C586 176 586 177 594 177C603 177 603 180 611 180C619 180 619 184 627 184C636 184 636 188 644 188C652 188 652 192 660 192L660 215Z" fill="#f39d58" fill-opacity=".17" stroke="#f39d58" stroke-opacity=".86" stroke-width="1.3"></path>
+              <path d="M0 232L0 206C9 206 9 204 17 204C25 204 25 202 33 202C42 202 42 201 50 201C58 201 58 201 66 201C75 201 75 200 83 200C91 200 91 199 99 199C107 199 107 197 115 197C124 197 124 195 132 195C141 195 141 194 149 194C157 194 157 195 165 195C174 195 174 195 182 195C190 195 190 193 198 193C207 193 207 187 215 187C223 187 223 180 231 180C240 180 240 172 248 172C256 172 256 166 264 166C273 166 273 163 281 163C289 163 289 163 297 163C306 163 306 163 314 163C322 163 322 164 330 164C339 164 339 165 347 165C355 165 355 166 363 166C371 166 371 169 379 169C388 169 388 173 396 173C405 173 405 177 413 177C421 177 421 179 429 179C438 179 438 180 446 180C454 180 454 178 462 178C471 178 471 177 479 177C487 177 487 179 495 179C504 179 504 183 512 183C520 183 520 188 528 188C537 188 537 192 545 192C553 192 553 195 561 195C570 195 570 195 578 195C586 195 586 194 594 194C603 194 603 193 611 193C619 193 619 192 627 192C636 192 636 191 644 191C652 191 652 187 660 187L660 232Z" fill="#f59553" fill-opacity=".17" stroke="#f59553" stroke-opacity=".86" stroke-width="1.3"></path>
+              <path d="M0 249L0 203C9 203 9 199 17 199C25 199 25 198 33 198C42 198 42 200 50 200C58 200 58 201 66 201C75 201 75 201 83 201C91 201 91 198 99 198C107 198 107 195 115 195C124 195 124 191 132 191C141 191 141 188 149 188C157 188 157 186 165 186C174 186 174 183 182 183C190 183 190 178 198 178C207 178 207 174 215 174C223 174 223 171 231 171C240 171 240 171 248 171C256 171 256 174 264 174C273 174 273 179 281 179C289 179 289 184 297 184C306 184 306 186 314 186C322 186 322 186 330 186C339 186 339 186 347 186C355 186 355 186 363 186C371 186 371 188 379 188C388 188 388 190 396 190C405 190 405 194 413 194C421 194 421 196 429 196C438 196 438 198 446 198C454 198 454 201 462 201C471 201 471 205 479 205C487 205 487 211 495 211C504 211 504 216 512 216C520 216 520 218 528 218C537 218 537 217 545 217C553 217 553 213 561 213C570 213 570 208 578 208C586 208 586 204 594 204C603 204 603 202 611 202C619 202 619 202 627 202C636 202 636 202 644 202C652 202 652 202 660 202L660 249Z" fill="#f78c4f" fill-opacity=".18" stroke="#f78c4f" stroke-opacity=".88" stroke-width="1.3"></path>
+              <path d="M0 266L0 218C9 218 9 220 17 220C25 220 25 223 33 223C42 223 42 224 50 224C58 224 58 223 66 223C75 223 75 219 83 219C91 219 91 214 99 214C107 214 107 211 115 211C124 211 124 210 132 210C141 210 141 212 149 212C157 212 157 215 165 215C174 215 174 218 182 218C190 218 190 220 198 220C207 220 207 221 215 221C223 221 223 223 231 223C240 223 240 225 248 225C256 225 256 227 264 227C273 227 273 227 281 227C289 227 289 224 297 224C306 224 306 219 314 219C322 219 322 214 330 214C339 214 339 212 347 212C355 212 355 212 363 212C371 212 371 216 379 216C388 216 388 219 396 219C405 219 405 221 413 221C421 221 421 222 429 222C438 222 438 221 446 221C454 221 454 219 462 219C471 219 471 218 479 218C487 218 487 217 495 217C504 217 504 215 512 215C520 215 520 211 528 211C537 211 537 206 545 206C553 206 553 202 561 202C570 202 570 201 578 201C586 201 586 203 594 203C603 203 603 207 611 207C619 207 619 211 627 211C636 211 636 213 644 213C652 213 652 213 660 213L660 266Z" fill="#f9844a" fill-opacity=".18" stroke="#f9844a" stroke-opacity=".88" stroke-width="1.3"></path>
+              <path d="M0 283L0 229C9 229 9 229 17 229C25 229 25 228 33 228C42 228 42 227 50 227C58 227 58 224 66 224C75 224 75 223 83 223C91 223 91 224 99 224C107 224 107 228 115 228C124 228 124 234 132 234C141 234 141 240 149 240C157 240 157 243 165 243C174 243 174 242 182 242C190 242 190 239 198 239C207 239 207 235 215 235C223 235 223 232 231 232C240 232 240 229 248 229C256 229 256 226 264 226C273 226 273 223 281 223C289 223 289 219 297 219C306 219 306 215 314 215C322 215 322 214 330 214C339 214 339 215 347 215C355 215 355 217 363 217C371 217 371 219 379 219C388 219 388 217 396 217C405 217 405 214 413 214C421 214 421 209 429 209C438 209 438 205 446 205C454 205 454 205 462 205C471 205 471 207 479 207C487 207 487 211 495 211C504 211 504 214 512 214C520 214 520 218 528 218C537 218 537 221 545 221C553 221 553 226 561 226C570 226 570 232 578 232C586 232 586 238 594 238C603 238 603 242 611 242C619 242 619 243 627 243C636 243 636 242 644 242C652 242 652 240 660 240L660 283Z" fill="#fb7c46" fill-opacity=".19" stroke="#fb7c46" stroke-opacity=".9" stroke-width="1.3"></path>
+              <path d="M0 300L0 246C9 246 9 252 17 252C25 252 25 257 33 257C42 257 42 262 50 262C58 262 58 265 66 265C75 265 75 268 83 268C91 268 91 272 99 272C107 272 107 276 115 276C124 276 124 277 132 277C141 277 141 275 149 275C157 275 157 270 165 270C174 270 174 263 182 263C190 263 190 258 198 258C207 258 207 255 215 255C223 255 223 255 231 255C240 255 240 256 248 256C256 256 256 255 264 255C273 255 273 252 281 252C289 252 289 247 297 247C306 247 306 243 314 243C322 243 322 239 330 239C339 239 339 236 347 236C355 236 355 234 363 234C371 234 371 230 379 230C388 230 388 226 396 226C405 226 405 223 413 223C421 223 421 224 429 224C438 224 438 229 446 229C454 229 454 237 462 237C471 237 471 246 479 246C487 246 487 252 495 252C504 252 504 256 512 256C520 256 520 257 528 257C537 257 537 257 545 257C553 257 553 258 561 258C570 258 570 260 578 260C586 260 586 262 594 262C603 262 603 262 611 262C619 262 619 261 627 261C636 261 636 261 644 261C652 261 652 262 660 262L660 300Z" fill="#fd7341" fill-opacity=".19" stroke="#fd7341" stroke-opacity=".9" stroke-width="1.3"></path>
+              <path d="M0 317L0 294C9 294 9 297 17 297C25 297 25 297 33 297C42 297 42 293 50 293C58 293 58 287 66 287C75 287 75 282 83 282C91 282 91 279 99 279C107 279 107 275 115 275C124 275 124 271 132 271C141 271 141 266 149 266C157 266 157 261 165 261C174 261 174 258 182 258C190 258 190 257 198 257C207 257 207 258 215 258C223 258 223 257 231 257C240 257 240 254 248 254C256 254 256 248 264 248C273 248 273 239 281 239C289 239 289 232 297 232C306 232 306 227 314 227C322 227 322 226 330 226C339 226 339 227 347 227C355 227 355 229 363 229C371 229 371 232 379 232C388 232 388 235 396 235C405 235 405 240 413 240C421 240 421 246 429 246C438 246 438 254 446 254C454 254 454 260 462 260C471 260 471 263 479 263C487 263 487 263 495 263C504 263 504 262 512 262C520 262 520 261 528 261C537 261 537 264 545 264C553 264 553 269 561 269C570 269 570 274 578 274C586 274 586 279 594 279C603 279 603 281 611 281C619 281 619 281 627 281C636 281 636 280 644 280C652 280 652 279 660 279L660 317Z" fill="#ff6b3d" fill-opacity=".22" stroke="#ff6b3d" stroke-opacity="1" stroke-width="1.5"></path>
+            </g>
+          </svg>
+          <div class="rlegend"><span>cooler</span><span class="bar" aria-hidden="true"></span><span>warmer</span><span style="margin-left:auto">anomaly vs 1991 to 2020</span></div>
+        </figure>
+
+        <div class="ridge-note" data-reveal style="--d:.1s">
+          <ul>
+            <li><span class="m">01</span><span><b>The baseline is the argument.</b> We anchor every reading to the 1991 to 2020 normal, the same window the field standardized on, so the crest is not a chart trick. It is the departure.</span></li>
+            <li><span class="m">02</span><span><b>No smoothing you cannot switch off.</b> Every ridge is a real decadal mean you can pull back out as numbers. The picture and the table are the same data.</span></li>
+            <li><span class="m">03</span><span><b>Read it at any scale.</b> The same surface that draws this global ridge answers a query for one city block. Zoom is a parameter, not a different product.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section id="get" aria-labelledby="cta-h">
+    <div class="wrap">
+      <div class="band" data-reveal>
+        <span class="eyebrow">Start reading the field</span>
+        <h2 id="cta-h">Point a query at any spot on Earth.</h2>
+        <p>The free tier includes 10,000 cell queries a month and the full archive back to 1880. No card, no sales call, no throttling on the history.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#get">Get an API key</a>
+          <a class="btn btn-ghost" href="#ridge">Browse the live map</a>
+        </div>
+        <p class="fine">curl https://api.isotherm.dev/v1/field?lat=..&amp;lon=..</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="about">
+        <a class="brand" href="#top" aria-label="Isotherm home">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="2.4" fill="#ff6b3d"></circle>
+            <circle cx="12" cy="12" r="5.4" fill="none" stroke="#f2a15a" stroke-width="1.3"></circle>
+            <circle cx="12" cy="12" r="8.6" fill="none" stroke="#37c8c8" stroke-width="1.3"></circle>
+          </svg>
+          <span>Iso<b>therm</b></span>
+        </a>
+        <p>A continuous temperature surface for people who build. One field, gridded, queryable, honest about what it does not know.</p>
+      </div>
+      <div class="fcol">
+        <h4>Product</h4>
+        <a href="#method">Method</a>
+        <a href="#data">Data sources</a>
+        <a href="#get">API and pricing</a>
+        <a href="#ridge">The signal</a>
+      </div>
+      <div class="fcol">
+        <h4>Reference</h4>
+        <a href="#method">Baselines</a>
+        <a href="#method">Uncertainty model</a>
+        <a href="#get">Status</a>
+        <a href="#get">Changelog</a>
+      </div>
+    </div>
+    <div class="legal">
+      <p>Isotherm is an independent research tool. Temperature values are derived from open station networks and public reanalysis, and are not affiliated with or endorsed by any government agency.</p>
+      <p>&copy; 2026 Isotherm Labs</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root=document.documentElement;
+    root.classList.add('js');
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var nodes=document.querySelectorAll('[data-reveal]');
+    if('IntersectionObserver' in window && !reduce){
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+        });
+      },{rootMargin:'0px 0px -8% 0px',threshold:.12});
+      nodes.forEach(function(n){io.observe(n);});
+    }else{
+      nodes.forEach(function(n){n.classList.add('in');});
+    }
+
+    if(!reduce){
+      var t=document.querySelector('[data-since]');
+      if(t){
+        var s=12;
+        setInterval(function(){
+          s=s+1; if(s>59){s=0;}
+          t.textContent=(s===0?'just now':s+'s ago');
+        },1000);
+      }
+    }
+  })();
+</script>

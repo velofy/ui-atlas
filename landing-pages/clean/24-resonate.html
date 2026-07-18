@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<meta name="color-scheme" content="dark">
+<title>Resonate - lossless streaming that pays artists fairly</title>
+<meta name="description" content="Resonate streams every track in lossless master quality and passes 70 percent of every subscription straight to the people who made the music.">
+<style>
+  :root{
+    /* palette */
+    --bg:#0b0b10;
+    --bg-2:#101017;
+    --surface:#15151f;
+    --surface-2:#1c1c28;
+    --ink:#f3f3f7;
+    --muted:#b9b9c8;
+    --faint:#8f8fa2;
+    --violet:#8b5cf6;
+    --violet-lift:#a78bfa;
+    --pink:#ec4899;
+    --pink-lift:#f9a8d4;
+    --line:rgba(243,243,247,.10);
+    --line-strong:rgba(243,243,247,.18);
+    --grad:linear-gradient(120deg,#8b5cf6 0%,#c058b8 50%,#ec4899 100%);
+    --grad-soft:linear-gradient(120deg,rgba(139,92,246,.16),rgba(236,72,153,.16));
+    --focus:#f9a8d4;
+    /* geometry */
+    --radius:14px;
+    --radius-sm:10px;
+    --radius-lg:24px;
+    --radius-pill:999px;
+    --maxw:1140px;
+    --pad:clamp(18px,5vw,40px);
+    /* type */
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,'Times New Roman',serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    /* depth */
+    --shadow:0 24px 60px -28px rgba(0,0,0,.85);
+    --glow:0 0 0 1px rgba(139,92,246,.28), 0 22px 60px -22px rgba(236,72,153,.45);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 80% at 82% -8%,rgba(236,72,153,.14),transparent 55%),
+      radial-gradient(100% 70% at 8% 0%,rgba(139,92,246,.16),transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:clamp(16px,1.05vw,17px);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  img,svg{max-width:100%;display:block}
+  h1,h2,h3{line-height:1.08;margin:0}
+  p{margin:0}
+  a{color:var(--ink);text-decoration:none}
+
+  :focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--violet-lift);
+    margin:0 0 14px;
+  }
+
+  /* skip link */
+  .skip{
+    position:absolute;left:12px;top:-60px;
+    background:var(--ink);color:var(--bg);
+    padding:10px 16px;border-radius:var(--radius-sm);
+    font-weight:600;z-index:50;transition:top .18s ease;
+  }
+  .skip:focus{top:12px}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:.55em;
+    font-family:var(--sans);font-size:1rem;font-weight:650;
+    padding:.86em 1.35em;border-radius:var(--radius);
+    border:1px solid transparent;cursor:pointer;
+    transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease;
+    min-width:0;
+  }
+  /* primary = highest contrast interactive element: near-white fill on near-black text */
+  .btn-primary{
+    background:var(--ink);color:#0b0b10;
+    box-shadow:var(--glow);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(139,92,246,.5),0 26px 66px -20px rgba(236,72,153,.6)}
+  .btn-ghost{
+    background:rgba(243,243,247,.03);color:var(--ink);
+    border-color:var(--line-strong);
+  }
+  .btn-ghost:hover{border-color:var(--violet-lift);background:rgba(139,92,246,.10);transform:translateY(-2px)}
+  .btn-sm{padding:.6em 1em;font-size:.92rem}
+
+  /* ---------- header ---------- */
+  .top{
+    position:sticky;top:0;z-index:40;
+    background:rgba(11,11,16,.72);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    display:flex;align-items:center;gap:16px;
+    min-height:66px;flex-wrap:wrap;
+  }
+  .brand{display:inline-flex;align-items:center;gap:11px;color:var(--ink);font-weight:750;letter-spacing:-.01em;font-size:1.12rem}
+  .brand svg{width:30px;height:30px;flex:none}
+  nav.main{margin-left:auto;min-width:0}
+  nav.main ul{
+    list-style:none;margin:0;padding:0;
+    display:flex;align-items:center;gap:clamp(8px,2.4vw,26px);
+    flex-wrap:wrap;
+  }
+  nav.main a{color:var(--muted);font-size:.95rem;font-weight:550}
+  nav.main a:hover{color:var(--ink)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:clamp(40px,7vw,88px) 0 clamp(30px,5vw,54px)}
+  .hero-grid{
+    display:grid;grid-template-columns:1.05fr .95fr;
+    gap:clamp(28px,5vw,60px);align-items:center;
+  }
+  .hero-copy{min-width:0}
+  .hero h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(2.5rem,7.4vw,4.6rem);
+    letter-spacing:-.015em;
+    margin:0 0 22px;
+  }
+  .hero h1 .accent{
+    background:var(--grad);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;
+    font-style:italic;
+  }
+  .lede{font-size:clamp(1.05rem,2.3vw,1.25rem);color:var(--muted);max-width:34ch;margin:0 0 30px;word-break:break-word}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .cta-note{font-size:.85rem;color:var(--faint);display:flex;align-items:center;gap:.5em;margin-top:16px;flex-wrap:wrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--violet-lift);flex:none;box-shadow:0 0 10px 1px rgba(167,139,250,.8)}
+
+  /* hero art */
+  .hero-art{position:relative;min-width:0}
+  .hero-art figure{margin:0}
+  .art-caption{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);text-align:center;margin-top:14px;
+  }
+
+  /* equalizer bars (SVG rects animated with CSS) */
+  .eqbar{transform-box:fill-box;transform-origin:50% 100%;animation:eq 1.5s ease-in-out infinite alternate}
+  @keyframes eq{from{transform:scaleY(.28)}to{transform:scaleY(1)}}
+  .disc-spin{transform-box:fill-box;transform-origin:50% 50%;animation:spin 14s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pulse{animation:pulse 3.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+  /* paused state (JS toggle) */
+  .is-paused .eqbar,.is-paused .disc-spin,.is-paused .pulse{animation-play-state:paused}
+
+  /* ---------- marquee stats ---------- */
+  .band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2)}
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--line);
+  }
+  .stat{background:var(--bg-2);padding:22px var(--pad);min-width:0}
+  .stat b{display:block;font-family:var(--serif);font-size:clamp(1.5rem,3.6vw,2.1rem);letter-spacing:-.01em}
+  .stat span{display:block;color:var(--faint);font-size:.82rem;margin-top:2px}
+  .stat b .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* ---------- section shell ---------- */
+  section{padding:clamp(52px,8vw,96px) 0}
+  .head{max-width:56ch;margin:0 0 clamp(30px,5vw,52px)}
+  .head h2{font-family:var(--serif);font-size:clamp(1.9rem,4.6vw,2.9rem);letter-spacing:-.015em;margin:0 0 16px}
+  .head p{color:var(--muted);font-size:1.08rem}
+
+  /* features */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2.4vw,22px)}
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--line);border-radius:var(--radius-lg);
+    padding:clamp(22px,3vw,30px);min-width:0;position:relative;overflow:hidden;
+    transition:transform .18s ease,border-color .18s ease;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+  .card .ico{width:52px;height:52px;border-radius:13px;background:var(--grad-soft);border:1px solid var(--line-strong);display:grid;place-items:center;margin-bottom:20px}
+  .card .ico svg{width:28px;height:28px}
+  .card h3{font-size:1.24rem;letter-spacing:-.01em;margin:0 0 10px}
+  .card p{color:var(--muted);font-size:.98rem}
+  .card .k{
+    display:inline-block;margin-top:16px;font-family:var(--mono);font-size:.74rem;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--violet-lift);
+    border:1px solid var(--line-strong);border-radius:var(--radius-pill);padding:5px 11px;
+  }
+
+  /* payout panel */
+  .payout{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(26px,4vw,52px);align-items:center;
+    background:linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--line);border-radius:var(--radius-lg);
+    padding:clamp(24px,4vw,48px);
+  }
+  .payout h2{font-family:var(--serif);font-size:clamp(1.7rem,4vw,2.5rem);letter-spacing:-.015em;margin:0 0 16px}
+  .payout p{color:var(--muted);margin:0 0 18px;max-width:44ch}
+  .split{min-width:0}
+  .split .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.98rem;flex-wrap:wrap}
+  .split .row:last-child{border-bottom:0}
+  .split .row .lab{color:var(--muted);min-width:0}
+  .split .row .val{font-family:var(--mono);font-weight:600}
+  .split .row.big .val{font-size:1.2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .meter{height:12px;border-radius:var(--radius-pill);background:var(--surface-2);overflow:hidden;border:1px solid var(--line);margin-top:8px}
+  .meter i{display:block;height:100%;width:70%;background:var(--grad);border-radius:var(--radius-pill)}
+  .microcode{font-family:var(--mono);font-size:.82rem;color:var(--faint);margin-top:16px;overflow-x:auto;white-space:nowrap;padding-bottom:2px}
+
+  /* final CTA */
+  .final{text-align:center}
+  .final .inner{
+    background:
+      radial-gradient(90% 120% at 50% 0%,rgba(139,92,246,.20),transparent 60%),
+      linear-gradient(180deg,var(--surface),var(--bg-2));
+    border:1px solid var(--line-strong);border-radius:var(--radius-lg);
+    padding:clamp(38px,6vw,72px) var(--pad);position:relative;overflow:hidden;
+  }
+  .final h2{font-family:var(--serif);font-size:clamp(2rem,5.4vw,3.3rem);letter-spacing:-.02em;margin:0 auto 16px;max-width:16ch}
+  .final p{color:var(--muted);max-width:46ch;margin:0 auto 28px}
+  .final .cta-row{justify-content:center}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);background:var(--bg-2);padding:clamp(40px,6vw,64px) 0 40px}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:clamp(22px,3vw,36px)}
+  .foot-brand .brand{margin-bottom:14px}
+  .foot-brand p{color:var(--faint);font-size:.92rem;max-width:32ch}
+  .fcol h4{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 14px;font-family:var(--mono);font-weight:600}
+  .fcol ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .fcol a{color:var(--muted);font-size:.94rem}
+  .fcol a:hover{color:var(--ink)}
+  .foot-base{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:clamp(30px,4vw,48px);padding-top:22px;border-top:1px solid var(--line);color:var(--faint);font-size:.86rem}
+  .foot-base a{color:var(--muted)}
+  .foot-base a:hover{color:var(--ink)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .hero-art{max-width:460px;margin-inline:auto;order:-1}
+    .cards{grid-template-columns:1fr 1fr}
+    .payout{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){
+    .cards{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .foot-brand{grid-column:1 / -1}
+    nav.main a{font-size:.9rem}
+    .cta-row .btn{flex:1 1 auto;justify-content:center}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="#top" aria-label="Resonate home">
+      <svg viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="markg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ec4899"/>
+          </linearGradient>
+        </defs>
+        <circle cx="20" cy="20" r="18" fill="none" stroke="url(#markg)" stroke-width="2.4"/>
+        <circle cx="20" cy="20" r="4.4" fill="url(#markg)"/>
+        <g stroke="url(#markg)" stroke-width="2.6" stroke-linecap="round">
+          <line x1="11" y1="24" x2="11" y2="16"/>
+          <line x1="16" y1="27" x2="16" y2="13"/>
+          <line x1="24" y1="28" x2="24" y2="12"/>
+          <line x1="29" y1="24" x2="29" y2="16"/>
+        </g>
+      </svg>
+      Resonate
+    </a>
+    <nav class="main" aria-label="Primary">
+      <ul>
+        <li><a href="#sound">Sound</a></li>
+        <li><a href="#artists">Artists</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#login">Log in</a></li>
+        <li><a class="btn btn-primary btn-sm" href="#start">Start free</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <a id="top"></a>
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Lossless streaming, artist first</p>
+        <h1 id="hero-h">Hear the room it was <span class="accent">recorded</span> in.</h1>
+        <p class="lede">Resonate plays every track in 24-bit master quality and hands 70 percent of your subscription straight to the people who made it. No shuffle you did not ask for. No algorithm deciding what you love.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#start">Start listening free</a>
+          <a class="btn btn-ghost" href="#artists">See how payouts work</a>
+        </div>
+        <p class="cta-note"><span class="dot" aria-hidden="true"></span> 30 days of lossless, then 9 dollars a month. Cancel any time.</p>
+      </div>
+
+      <div class="hero-art">
+        <figure>
+          <!-- SIGNATURE ILLUSTRATION: vinyl disc + equalizer soundstage -->
+          <svg viewBox="0 0 520 460" role="img" aria-labelledby="art-t art-d" id="hero-svg">
+            <title id="art-t">Resonate soundstage</title>
+            <desc id="art-d">A spinning vinyl record beside a rising equalizer of violet and pink bars.</desc>
+            <defs>
+              <linearGradient id="gv" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ec4899"/>
+              </linearGradient>
+              <linearGradient id="gh" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ec4899"/>
+              </linearGradient>
+              <radialGradient id="label" cx="0.5" cy="0.42" r="0.7">
+                <stop offset="0" stop-color="#f9a8d4"/>
+                <stop offset="0.45" stop-color="#c058b8"/>
+                <stop offset="1" stop-color="#8b5cf6"/>
+              </radialGradient>
+              <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0" stop-color="rgba(236,72,153,.45)"/>
+                <stop offset="1" stop-color="rgba(236,72,153,0)"/>
+              </radialGradient>
+              <clipPath id="frame"><rect x="0" y="0" width="520" height="460" rx="22"/></clipPath>
+            </defs>
+
+            <g clip-path="url(#frame)">
+              <rect x="0" y="0" width="520" height="460" fill="#101017"/>
+              <rect x="0" y="0" width="520" height="460" fill="none" stroke="rgba(243,243,247,.10)" stroke-width="2" rx="22"/>
+
+              <!-- ambient glow -->
+              <circle cx="168" cy="196" r="180" fill="url(#glow)" class="pulse"/>
+
+              <!-- VINYL DISC -->
+              <g transform="translate(168,196)">
+                <g class="disc-spin">
+                  <circle r="150" fill="#08080c"/>
+                  <circle r="150" fill="none" stroke="url(#gv)" stroke-width="2" opacity=".5"/>
+                  <!-- grooves -->
+                  <g fill="none" stroke="#22222f" stroke-width="1.4">
+                    <circle r="138"/><circle r="128"/><circle r="118"/><circle r="108"/>
+                    <circle r="98"/><circle r="88"/><circle r="78"/><circle r="68"/>
+                  </g>
+                  <!-- highlight sheen -->
+                  <path d="M -120 -70 A 140 140 0 0 1 70 -120" fill="none" stroke="rgba(243,243,247,.16)" stroke-width="3" stroke-linecap="round"/>
+                  <!-- center label -->
+                  <circle r="52" fill="url(#label)"/>
+                  <circle r="52" fill="none" stroke="rgba(11,11,16,.35)" stroke-width="2"/>
+                  <path d="M -14 -18 L -14 18 L 20 0 Z" fill="#0b0b10"/>
+                  <!-- spindle hole -->
+                  <circle r="6" fill="#0b0b10"/>
+                </g>
+              </g>
+
+              <!-- tonearm -->
+              <g stroke-linecap="round">
+                <circle cx="440" cy="70" r="16" fill="#1c1c28" stroke="rgba(243,243,247,.18)" stroke-width="2"/>
+                <line x1="440" y1="70" x2="250" y2="238" stroke="url(#gv)" stroke-width="6"/>
+                <circle cx="250" cy="238" r="9" fill="#ec4899"/>
+              </g>
+
+              <!-- EQUALIZER soundstage -->
+              <g transform="translate(300,300)">
+                <!-- baseline -->
+                <line x1="0" y1="120" x2="196" y2="120" stroke="rgba(243,243,247,.14)" stroke-width="2"/>
+                <g fill="url(#gh)">
+                  <rect class="eqbar" style="animation-duration:1.1s;animation-delay:0s"   x="0"   y="30"  width="16" height="90"  rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.5s;animation-delay:.15s" x="26"  y="8"   width="16" height="112" rx="6"/>
+                  <rect class="eqbar" style="animation-duration:.9s;animation-delay:.3s"   x="52"  y="52"  width="16" height="68"  rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.7s;animation-delay:.1s"  x="78"  y="20"  width="16" height="100" rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.2s;animation-delay:.45s" x="104" y="64"  width="16" height="56"  rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.9s;animation-delay:.2s"  x="130" y="0"   width="16" height="120" rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.0s;animation-delay:.5s"  x="156" y="44"  width="16" height="76"  rx="6"/>
+                  <rect class="eqbar" style="animation-duration:1.4s;animation-delay:.05s" x="182" y="24"  width="16" height="96"  rx="6"/>
+                </g>
+              </g>
+
+              <!-- play/pause control -->
+              <g id="playToggle" transform="translate(60,388)" tabindex="-1">
+                <rect x="-8" y="-20" width="150" height="40" rx="20" fill="#15151f" stroke="rgba(243,243,247,.18)"/>
+                <circle cx="12" cy="0" r="12" fill="url(#gv)"/>
+                <g id="playGlyph" fill="#0b0b10"><path d="M 7 -6 L 7 6 L 17 0 Z"/></g>
+                <text x="34" y="4" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#f3f3f7" letter-spacing="1">NOW PLAYING</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption class="art-caption">Kestrel Sessions, side A, 24-bit / 96 kHz</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <div class="band" aria-label="Resonate by the numbers">
+    <div class="wrap" style="padding-inline:0">
+      <div class="stats">
+        <div class="stat" style="padding-inline:var(--pad)"><b><span class="g">24-bit</span></b><span>lossless on every track</span></div>
+        <div class="stat"><b>70%</b><span>of revenue to artists</span></div>
+        <div class="stat"><b>0</b><span>algorithmic autoplay</span></div>
+        <div class="stat"><b>9M+</b><span>albums, kept in order</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="sound" aria-labelledby="feat-h">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Why it sounds different</p>
+        <h2 id="feat-h">Built for people who still listen to albums front to back.</h2>
+        <p>Three decisions shape everything about Resonate. Each one is a stance, not a setting buried in a menu.</p>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="url(#gv)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12v0"/><path d="M3 9v6M7 6v12M11 3v18M15 7v10M19 10v4M23 12v0"/>
+            </svg>
+          </div>
+          <h3>Master quality, by default</h3>
+          <p>Every track streams in 24-bit lossless, the same file the mastering engineer signed off on. It is not a premium tier or a hidden toggle. Your ears earned it.</p>
+          <span class="k">No compression</span>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="url(#gv)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+            </svg>
+          </div>
+          <h3>Artists keep 70 percent</h3>
+          <p>We take a flat, published cut and pass the rest straight through. Follow a band and you can see, to the cent, what your listens paid them this month.</p>
+          <span class="k">Transparent payouts</span>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="url(#gv)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/>
+            </svg>
+          </div>
+          <h3>Albums, not slot machines</h3>
+          <p>Records play in the running order the artist chose. Liner notes, credits, and the sequence stay intact. Shuffle is a button you press, never the default.</p>
+          <span class="k">Sequence preserved</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYOUT PANEL -->
+  <section id="artists" aria-labelledby="pay-h">
+    <div class="wrap">
+      <div class="payout">
+        <div class="split-copy">
+          <p class="eyebrow">Where your 9 dollars goes</p>
+          <h2 id="pay-h">Every subscription splits the same way.</h2>
+          <p>No opaque per-stream pools, no majors skimming the top. Your monthly fee is divided by the artists you actually played, and most of it leaves our hands entirely.</p>
+          <a class="btn btn-ghost btn-sm" href="#start">Read the payout ledger</a>
+        </div>
+        <div class="split" aria-label="Monthly subscription breakdown">
+          <div class="row big"><span class="lab">To the artists you played</span><span class="val">6.30</span></div>
+          <div class="meter" role="img" aria-label="70 percent goes to artists"><i></i></div>
+          <div class="row"><span class="lab">Rights and publishing</span><span class="val">1.35</span></div>
+          <div class="row"><span class="lab">Servers and lossless delivery</span><span class="val">0.90</span></div>
+          <div class="row"><span class="lab">Resonate, flat</span><span class="val">0.45</span></div>
+          <p class="microcode">payout = plays[artist] / plays[you] * 6.30 &nbsp;// settled monthly, in full</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section id="start" class="final" aria-labelledby="final-h">
+    <div class="wrap">
+      <div class="inner">
+        <p class="eyebrow" style="justify-self:center">Free for 30 days</p>
+        <h2 id="final-h">Put on a record. Hear all of it.</h2>
+        <p>Start with a full month of lossless, no card required to listen. Keep going for 9 dollars, and know exactly who your money reaches.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#login" id="pricing">Create your account</a>
+          <a class="btn btn-ghost" href="#sound">Browse the catalog</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Resonate home">
+          <svg viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+            <circle cx="20" cy="20" r="18" fill="none" stroke="url(#markg)" stroke-width="2.4"/>
+            <circle cx="20" cy="20" r="4.4" fill="url(#markg)"/>
+            <g stroke="url(#markg)" stroke-width="2.6" stroke-linecap="round">
+              <line x1="11" y1="24" x2="11" y2="16"/><line x1="16" y1="27" x2="16" y2="13"/>
+              <line x1="24" y1="28" x2="24" y2="12"/><line x1="29" y1="24" x2="29" y2="16"/>
+            </g>
+          </svg>
+          Resonate
+        </a>
+        <p>Lossless streaming that treats musicians like the reason the service exists.</p>
+      </div>
+      <div class="fcol">
+        <h4>Listen</h4>
+        <ul>
+          <li><a href="#sound">Sound quality</a></li>
+          <li><a href="#start">Plans</a></li>
+          <li><a href="#sound">Catalog</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>For artists</h4>
+        <ul>
+          <li><a href="#artists">How payouts work</a></li>
+          <li><a href="#artists">Upload music</a></li>
+          <li><a href="#artists">Ledger</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#login">About</a></li>
+          <li><a href="#login">Privacy</a></li>
+          <li><a href="#login">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>Copyright 2026 Resonate Audio. Made for headphones.</span>
+      <span><a href="#top">Back to top</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progressive enhancement only. Page is fully functional without JS.
+  (function(){
+    var svg = document.getElementById('hero-svg');
+    var toggle = document.getElementById('playToggle');
+    var glyph = document.getElementById('playGlyph');
+    if(!svg || !toggle || !glyph) return;
+    var playing = true;
+    function render(){
+      svg.parentNode.parentNode.classList.toggle('is-paused', !playing);
+      // swap glyph: play triangle vs pause bars
+      glyph.innerHTML = playing
+        ? '<rect x="7" y="-6" width="3.5" height="12" rx="1"></rect><rect x="13" y="-6" width="3.5" height="12" rx="1"></rect>'
+        : '<path d="M 7 -6 L 7 6 L 17 0 Z"></path>';
+      toggle.setAttribute('aria-pressed', String(playing));
+    }
+    toggle.setAttribute('role','button');
+    toggle.setAttribute('tabindex','0');
+    toggle.setAttribute('aria-label','Pause or resume the equalizer animation');
+    toggle.style.cursor='pointer';
+    function flip(){ playing = !playing; render(); }
+    toggle.addEventListener('click', flip);
+    toggle.addEventListener('keydown', function(e){
+      if(e.key===' '||e.key==='Enter'){ e.preventDefault(); flip(); }
+    });
+    render();
+  })();
+</script>
+</body>
+</html>

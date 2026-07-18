@@ -21,6 +21,12 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`09-showreel.html`](landing-pages/velofy-co/09-showreel.html) | The Showreel | Site-of-the-day vocabulary in pure vanilla JS: preloader counter, kinetic wordmark, pinned scenes, a horizontal gallery, and a magnetic footer CTA. |
 | [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A monochrome dark startup page in white grotesk type that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
 
+## Collection 02: Clean templates
+
+Thirty self-contained reference designs, one per subject and aesthetic, each with a hand-authored inline-SVG illustration as its signature. Drawn from a survey of getdesign.md and designindex.xyz. They live in [`landing-pages/clean/`](landing-pages/clean/) and are indexed from [`index.html`](index.html).
+
+Cadence (minimal calendar), Nimbus (AI infra), Velar (EV), The Margin (broadsheet), Vault9 (crypto wallet), Bloop (kids app), Forge (brutalist CLI), Portway (terminal), Aurent (watch atelier), Northwind (Carbon B2B), Pixel Post (Y2K), Dial-Up Depot (90s catalog), Frame (photo portfolio), Orbit (scheduling AI), Slow Press (coffee), Terra (carbon tracker), Stackly (bento), Halftone (studio), Pulse (health), Sterling (private bank), Arcade9 (gaming), Sprout (education), Wayfarer (travel), Resonate (music), Blueprint (architecture), Morsel (food), Counsel (legal), Isotherm (climate), Atelier (fashion), Apogee (space).
+
 ## Ground rules every reference follows
 
 - One file per design. All CSS, JS, and graphics inline; icons and ornament are inline SVG or canvas.

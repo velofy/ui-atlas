@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Stackly - one workspace for your whole workday</title>
+<meta name="description" content="Stackly folds tasks, calendar, chat, and dashboards into a single bento workspace, so app-switching stops eating your afternoon.">
+<style>
+  :root{
+    --bg:#f7f8fa;
+    --surface:#ffffff;
+    --panel:#f1f3f7;
+    --ink:#0b1020;
+    --ink-soft:#545863;
+    --accent:#ff5a3c;
+    --accent-ink:#a8341c;
+    --accent-strong:#e6482c;
+    --accent-tint:#fff1ee;
+    --accent-tint2:#ffe4dd;
+    --hairline:#e6e9f0;
+
+    --radius:18px;
+    --radius-sm:12px;
+    --radius-lg:28px;
+
+    --shadow-sm:0 1px 2px rgba(11,16,32,0.04), 0 2px 10px rgba(11,16,32,0.05);
+    --shadow-md:0 10px 34px rgba(11,16,32,0.09);
+    --shadow-lift:0 18px 46px rgba(11,16,32,0.14);
+
+    --maxw:1120px;
+    --pad:clamp(16px, 4vw, 40px);
+    --gap:clamp(12px, 1.6vw, 18px);
+    --cell-pad:clamp(18px, 2.4vw, 26px);
+
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-serif:Georgia,'Times New Roman',serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.2,.7,.2,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* soft ambient glows, kept in the corners away from text */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(520px 380px at 96% -6%, rgba(255,90,60,0.10), transparent 60%),
+      radial-gradient(460px 420px at -6% 108%, rgba(255,90,60,0.06), transparent 60%);
+    pointer-events:none;
+  }
+
+  img,svg{ max-width:100%; }
+
+  a{ color:var(--ink-soft); text-decoration:none; }
+
+  :focus-visible{
+    outline:3px solid var(--accent);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+
+  .skip{
+    position:absolute;
+    left:12px;
+    top:-60px;
+    z-index:20;
+    background:var(--ink);
+    color:#fff;
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:600;
+    transition:top .18s var(--ease);
+  }
+  .skip:focus{ top:12px; }
+
+  .wrap{
+    width:100%;
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding-left:var(--pad);
+    padding-right:var(--pad);
+  }
+
+  /* ---------- Nav ---------- */
+  .site{ position:relative; z-index:5; }
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    padding-top:20px;
+    padding-bottom:12px;
+  }
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    color:var(--ink);
+    font-weight:800;
+    font-size:1.15rem;
+    letter-spacing:-0.01em;
+    min-width:0;
+  }
+  .brand .mark{ width:26px; height:26px; flex:0 0 auto; }
+  .links{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    min-width:0;
+  }
+  .links a:not(.btn){
+    color:var(--ink-soft);
+    font-weight:600;
+    font-size:0.95rem;
+    padding:8px 12px;
+    border-radius:10px;
+    transition:color .16s var(--ease), background .16s var(--ease);
+  }
+  .links a:not(.btn):hover{ color:var(--ink); background:var(--panel); }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:1rem;
+    line-height:1;
+    padding:14px 22px;
+    border-radius:12px;
+    border:1.5px solid transparent;
+    cursor:pointer;
+    transition:transform .16s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);
+  }
+  .btn-sm{ padding:10px 16px; font-size:0.94rem; border-radius:11px; }
+  .btn-primary{
+    background:var(--ink);
+    color:#ffffff;
+    box-shadow:var(--shadow-sm);
+  }
+  .btn-primary:hover{ background:#1a2136; transform:translateY(-1px); }
+  .btn-primary .arw{ color:var(--accent); }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink-soft);
+    border-color:var(--hairline);
+  }
+  .btn-ghost:hover{ color:var(--ink); border-color:var(--accent-strong); background:var(--accent-tint); }
+
+  /* ---------- Bento ---------- */
+  main{ padding-bottom:8px; }
+  .bento{
+    display:flex;
+    flex-direction:column;
+    gap:var(--gap);
+    padding-top:14px;
+    padding-bottom:36px;
+  }
+  .cell{
+    min-width:0;
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:var(--cell-pad);
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* headline */
+  .headline{ display:flex; flex-direction:column; gap:16px; }
+  .eyebrow{
+    margin:0;
+    font-family:var(--font-mono);
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent-ink);
+    font-weight:700;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(2.05rem, 5.4vw, 3.35rem);
+    line-height:1.04;
+    letter-spacing:-0.025em;
+    font-weight:800;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .hl{
+    background:linear-gradient(transparent 62%, var(--accent-tint2) 0);
+    border-radius:3px;
+    padding:0 0.04em;
+  }
+  .lede{
+    margin:0;
+    font-size:clamp(1.03rem, 2.1vw, 1.22rem);
+    line-height:1.5;
+    color:var(--ink-soft);
+    max-width:52ch;
+  }
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:2px;
+  }
+  .reassure{
+    margin:2px 0 0;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+  }
+
+  /* signature */
+  .signature{
+    position:relative;
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md);
+    background:
+      radial-gradient(120% 120% at 82% 8%, var(--accent-tint) 0%, transparent 46%),
+      var(--surface);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    overflow:hidden;
+    padding:clamp(16px, 2vw, 26px);
+  }
+  .sig-art{
+    width:100%;
+    flex:1 1 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:0;
+  }
+  .sig-cap{
+    margin:0 0 4px;
+    text-align:center;
+    max-width:40ch;
+    font-size:0.98rem;
+    line-height:1.45;
+    color:var(--ink-soft);
+  }
+  .sig-cap b{ color:var(--ink); font-weight:700; }
+  .signature .badge{
+    position:absolute;
+    top:16px;
+    left:16px;
+    z-index:2;
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:rgba(255,255,255,0.82);
+    border:1px solid var(--hairline);
+    padding:6px 10px;
+    border-radius:999px;
+  }
+  .hero-illo{ width:100%; height:auto; display:block; }
+
+  /* feature cells */
+  .feature{ display:flex; flex-direction:column; gap:12px; }
+  .tag{
+    font-family:var(--font-mono);
+    font-size:0.74rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .tag .n{ color:var(--accent-ink); font-weight:700; }
+  .spot{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:var(--radius-sm);
+  }
+  .ftitle{
+    margin:2px 0 0;
+    font-size:1.12rem;
+    line-height:1.25;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .fbody{
+    margin:0;
+    font-size:0.96rem;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+
+  /* metric */
+  .metric{ display:flex; flex-direction:column; gap:10px; justify-content:center; }
+  .stat{
+    margin:2px 0 0;
+    font-size:clamp(2.6rem, 7vw, 3.5rem);
+    line-height:0.95;
+    font-weight:800;
+    letter-spacing:-0.03em;
+    color:var(--accent);
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .stat .unit{
+    font-size:0.34em;
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:0;
+  }
+  .stat-label{
+    margin:0;
+    font-size:1rem;
+    line-height:1.4;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .stat-src{
+    margin:2px 0 0;
+    font-family:var(--font-mono);
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    word-break:break-word;
+  }
+
+  /* cta cell */
+  .cta{
+    background:
+      radial-gradient(120% 120% at 12% 12%, rgba(255,255,255,0.16), transparent 40%),
+      var(--accent);
+    border-color:transparent;
+    box-shadow:var(--shadow-md);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:18px;
+  }
+  .cta-title{
+    margin:0;
+    color:#ffffff;
+    font-size:clamp(1.35rem, 3vw, 1.7rem);
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    font-weight:800;
+    word-break:break-word;
+  }
+  .cta-note{ margin:0; color:#ffffff; font-weight:700; font-size:1.05rem; }
+  .cta .btn-primary{ align-self:flex-start; }
+  .cta .btn-primary:focus-visible{ outline-color:var(--ink); }
+
+  /* ---------- Footer ---------- */
+  .footer{
+    border-top:1px solid var(--hairline);
+    background:var(--surface);
+  }
+  .foot-inner{ padding-top:34px; padding-bottom:30px; }
+  .foot-top{
+    display:flex;
+    flex-wrap:wrap;
+    gap:24px;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .foot-brand{ min-width:0; max-width:44ch; }
+  .foot-brand .brand{ margin-bottom:8px; }
+  .foot-tag{
+    margin:0;
+    font-family:var(--font-serif);
+    font-style:italic;
+    font-size:1rem;
+    color:var(--ink-soft);
+    line-height:1.45;
+  }
+  .foot-links{ display:flex; flex-wrap:wrap; gap:6px; }
+  .foot-links a{
+    color:var(--ink-soft);
+    font-weight:600;
+    font-size:0.95rem;
+    padding:6px 12px;
+    border-radius:9px;
+    transition:color .16s var(--ease), background .16s var(--ease);
+  }
+  .foot-links a:hover{ color:var(--ink); background:var(--panel); }
+  .foot-bottom{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 20px;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+    padding-top:18px;
+    border-top:1px solid var(--hairline);
+  }
+  .foot-bottom p{ margin:0; font-size:0.86rem; color:var(--ink-soft); }
+  .mono-note{ font-family:var(--font-mono); }
+
+  /* ---------- Reveal (progressive, JS only) ---------- */
+  .cell.reveal{ opacity:0; transform:translateY(14px); transition:opacity .55s var(--ease), transform .55s var(--ease); }
+  .cell.reveal.in{ opacity:1; transform:none; }
+
+  .float{ transform-box:fill-box; transform-origin:center; }
+
+  /* ---------- Responsive grid ---------- */
+  @media (min-width:600px){
+    .bento{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      grid-template-areas:
+        "headline headline"
+        "sign     sign"
+        "tasks    cal"
+        "chat     chart"
+        "metric   cta";
+    }
+    .headline{ grid-area:headline; }
+    .signature{ grid-area:sign; min-height:300px; }
+    .f-tasks{ grid-area:tasks; }
+    .f-cal{ grid-area:cal; }
+    .f-chat{ grid-area:chat; }
+    .f-chart{ grid-area:chart; }
+    .metric{ grid-area:metric; }
+    .cta{ grid-area:cta; }
+    .signature .hero-illo{ max-width:460px; margin:0 auto; }
+  }
+
+  @media (min-width:900px){
+    .bento{
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      grid-template-areas:
+        "headline headline sign   sign"
+        "tasks    cal      sign   sign"
+        "chat     chart    metric cta";
+      grid-auto-rows:minmax(0, auto);
+    }
+    .signature{ min-height:0; }
+    .headline{ justify-content:center; }
+    .cell:not(.headline):not(.signature):not(.cta){
+      transition:transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
+    }
+    .cell.feature:hover,
+    .cell.metric:hover{
+      transform:translateY(-3px);
+      box-shadow:var(--shadow-lift);
+      border-color:#d5dae6;
+    }
+    .signature .hero-illo{ max-width:100%; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:0.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:0.001ms !important;
+      scroll-behavior:auto !important;
+    }
+    .cell.reveal{ opacity:1 !important; transform:none !important; }
+  }
+
+  @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
+  @keyframes bobb{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(6px); } }
+  @media (prefers-reduced-motion:no-preference){
+    .float.f1{ animation:bob 4.6s var(--ease) infinite; }
+    .float.f2{ animation:bobb 5.2s var(--ease) infinite; }
+    .float.f3{ animation:bob 5.8s var(--ease) infinite; }
+    .float.f4{ animation:bobb 4.9s var(--ease) infinite; }
+    .float.head{ animation:bob 6.4s var(--ease) infinite; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Stackly home">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="3.6" width="16" height="4.6" rx="2.3" fill="#ff5a3c"></rect>
+        <rect x="4" y="9.7" width="16" height="4.6" rx="2.3" fill="#0b1020"></rect>
+        <rect x="4" y="15.8" width="11" height="4.6" rx="2.3" fill="#0b1020" opacity="0.5"></rect>
+      </svg>
+      <span>Stackly</span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#docs">Docs</a>
+      <a class="btn btn-primary btn-sm" href="#get">Get Stackly free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <section class="bento" id="top" aria-label="Stackly overview">
+
+      <!-- Headline -->
+      <div class="cell headline" id="features">
+        <p class="eyebrow">The suite that ends context-switching</p>
+        <h1>Your whole workday, stacked in <span class="hl">one place</span>.</h1>
+        <p class="lede">Tasks, calendar, chat, and dashboards share a single bento workspace. No more losing your train of thought to the eleventh open tab.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#get">Get Stackly free <span class="arw" aria-hidden="true">-&gt;</span></a>
+          <a class="btn btn-ghost" href="#tour">Take the 2-minute tour</a>
+        </div>
+        <p class="reassure">Free for 14 days. No card up front. Bring the team when you are ready.</p>
+      </div>
+
+      <!-- Signature illustration -->
+      <div class="cell signature" aria-label="Stackly mascot illustration">
+        <span class="badge">meet Stax</span>
+        <div class="sig-art">
+        <svg class="hero-illo" viewBox="0 0 480 420" role="img" aria-labelledby="illoTitle illoDesc">
+          <title id="illoTitle">The Stackly mascot organizing floating work tools</title>
+          <desc id="illoDesc">A friendly character built from stacked rounded blocks, surrounded by orbiting cards for tasks, calendar, chat, and charts.</desc>
+
+          <!-- ground shadow -->
+          <ellipse cx="240" cy="372" rx="120" ry="17" fill="#0b1020" opacity="0.07"></ellipse>
+
+          <!-- orbit ring -->
+          <ellipse cx="240" cy="214" rx="190" ry="128" fill="none" stroke="#e6e9f0" stroke-width="3" stroke-dasharray="1 13" stroke-linecap="round"></ellipse>
+
+          <!-- connectors -->
+          <path d="M240 214 L104 148" fill="none" stroke="#e6e9f0" stroke-width="2.4" stroke-dasharray="2 9" stroke-linecap="round"></path>
+          <path d="M240 214 L376 148" fill="none" stroke="#e6e9f0" stroke-width="2.4" stroke-dasharray="2 9" stroke-linecap="round"></path>
+          <path d="M240 214 L86 272" fill="none" stroke="#e6e9f0" stroke-width="2.4" stroke-dasharray="2 9" stroke-linecap="round"></path>
+          <path d="M240 214 L394 272" fill="none" stroke="#e6e9f0" stroke-width="2.4" stroke-dasharray="2 9" stroke-linecap="round"></path>
+
+          <!-- token: checklist (top-left) -->
+          <g class="float f1">
+            <rect x="74" y="118" width="60" height="60" rx="16" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <circle cx="104" cy="148" r="15" fill="#ff5a3c"></circle>
+            <path d="M96 149 l5 5 l9 -11" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </g>
+
+          <!-- token: calendar (top-right) -->
+          <g class="float f2">
+            <rect x="346" y="118" width="60" height="60" rx="16" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <rect x="358" y="132" width="36" height="8" rx="4" fill="#ff5a3c"></rect>
+            <circle cx="363" cy="152" r="3" fill="#0b1020" opacity="0.28"></circle>
+            <circle cx="376" cy="152" r="3" fill="#0b1020" opacity="0.28"></circle>
+            <circle cx="389" cy="152" r="3" fill="#ff5a3c"></circle>
+            <circle cx="363" cy="164" r="3" fill="#0b1020" opacity="0.28"></circle>
+            <circle cx="376" cy="164" r="3" fill="#0b1020" opacity="0.28"></circle>
+            <circle cx="389" cy="164" r="3" fill="#0b1020" opacity="0.28"></circle>
+          </g>
+
+          <!-- token: chat (lower-left) -->
+          <g class="float f3">
+            <rect x="56" y="242" width="60" height="60" rx="16" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <path d="M70 258 h32 a8 8 0 0 1 8 8 v8 a8 8 0 0 1 -8 8 h-16 l-9 8 v-8 a8 8 0 0 1 -7 -8 v-8 a8 8 0 0 1 0 -16 z" fill="#ff5a3c"></path>
+            <circle cx="80" cy="272" r="2.6" fill="#ffffff"></circle>
+            <circle cx="88" cy="272" r="2.6" fill="#ffffff"></circle>
+            <circle cx="96" cy="272" r="2.6" fill="#ffffff"></circle>
+          </g>
+
+          <!-- token: chart (lower-right) -->
+          <g class="float f4">
+            <rect x="364" y="242" width="60" height="60" rx="16" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <rect x="376" y="278" width="8" height="12" rx="2.5" fill="#0b1020" opacity="0.24"></rect>
+            <rect x="390" y="270" width="8" height="20" rx="2.5" fill="#0b1020" opacity="0.32"></rect>
+            <rect x="404" y="260" width="8" height="30" rx="2.5" fill="#ff5a3c"></rect>
+          </g>
+
+          <!-- mascot -->
+          <g class="float head">
+            <!-- arms -->
+            <path d="M190 254 q-20 -6 -30 -22" fill="none" stroke="#0b1020" stroke-width="6" stroke-linecap="round"></path>
+            <path d="M290 254 q20 -6 30 -22" fill="none" stroke="#0b1020" stroke-width="6" stroke-linecap="round"></path>
+            <!-- body blocks -->
+            <rect x="176" y="286" width="128" height="48" rx="16" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <rect x="188" y="244" width="104" height="44" rx="14" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></rect>
+            <rect x="196" y="176" width="88" height="74" rx="22" fill="#ff5a3c"></rect>
+            <!-- head gloss -->
+            <rect x="204" y="184" width="30" height="14" rx="7" fill="#ffffff" opacity="0.25"></rect>
+            <!-- face -->
+            <circle cx="224" cy="210" r="8" fill="#ffffff"></circle>
+            <circle cx="256" cy="210" r="8" fill="#ffffff"></circle>
+            <circle cx="226" cy="211" r="3.6" fill="#0b1020"></circle>
+            <circle cx="258" cy="211" r="3.6" fill="#0b1020"></circle>
+            <path d="M226 228 q14 12 28 0" fill="none" stroke="#0b1020" stroke-width="3" stroke-linecap="round"></path>
+            <!-- antenna spark -->
+            <line x1="240" y1="176" x2="240" y2="160" stroke="#0b1020" stroke-width="4" stroke-linecap="round"></line>
+            <path d="M240 142 l3.2 8.4 l8.4 3.2 l-8.4 3.2 l-3.2 8.4 l-3.2 -8.4 l-8.4 -3.2 l8.4 -3.2 z" fill="#ff5a3c"></path>
+          </g>
+        </svg>
+        </div>
+        <p class="sig-cap">Stax keeps tasks, time, chat, and charts in <b>one orbit</b>, so you stop tab-hopping just to find them.</p>
+      </div>
+
+      <!-- Feature: tasks -->
+      <div class="cell feature f-tasks">
+        <p class="tag"><span class="n">01</span> tasks</p>
+        <svg class="spot" viewBox="0 0 200 132" role="img" aria-label="A checklist with two tasks completed and one still open">
+          <rect x="0" y="0" width="200" height="132" rx="14" fill="#f1f3f7"></rect>
+          <!-- row 1 done -->
+          <rect x="20" y="20" width="26" height="26" rx="8" fill="#ff5a3c"></rect>
+          <path d="M27 33 l5 5 l9 -11" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          <rect x="58" y="26" width="118" height="7" rx="3.5" fill="#0b1020" opacity="0.16"></rect>
+          <rect x="58" y="38" width="74" height="6" rx="3" fill="#0b1020" opacity="0.10"></rect>
+          <!-- row 2 done -->
+          <rect x="20" y="56" width="26" height="26" rx="8" fill="#ff5a3c"></rect>
+          <path d="M27 69 l5 5 l9 -11" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          <rect x="58" y="62" width="100" height="7" rx="3.5" fill="#0b1020" opacity="0.16"></rect>
+          <rect x="58" y="74" width="60" height="6" rx="3" fill="#0b1020" opacity="0.10"></rect>
+          <!-- row 3 open -->
+          <rect x="20" y="92" width="26" height="26" rx="8" fill="#ffffff" stroke="#ff5a3c" stroke-width="2.4"></rect>
+          <rect x="58" y="98" width="86" height="7" rx="3.5" fill="#0b1020" opacity="0.28"></rect>
+          <rect x="150" y="96" width="30" height="11" rx="5.5" fill="#ffe4dd"></rect>
+        </svg>
+        <h2 class="ftitle">Lists that watch the clock</h2>
+        <p class="fbody">Every task carries its due date onto your calendar, so your to-do list and your day never quietly disagree.</p>
+      </div>
+
+      <!-- Feature: calendar -->
+      <div class="cell feature f-cal">
+        <p class="tag"><span class="n">02</span> calendar</p>
+        <svg class="spot" viewBox="0 0 200 132" role="img" aria-label="A calendar with one day highlighted and a focus block reserved">
+          <rect x="0" y="0" width="200" height="132" rx="14" fill="#f1f3f7"></rect>
+          <!-- header -->
+          <rect x="20" y="18" width="86" height="15" rx="7.5" fill="#0b1020" opacity="0.12"></rect>
+          <rect x="122" y="19" width="40" height="13" rx="6.5" fill="#ff5a3c"></rect>
+          <circle cx="176" cy="26" r="4.5" fill="#0b1020" opacity="0.14"></circle>
+          <!-- grid row 1 -->
+          <rect x="20" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="45" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="70" y="52" width="18" height="16" rx="4" fill="#ff5a3c"></rect>
+          <rect x="95" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="120" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="145" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="170" y="52" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <!-- grid row 2 -->
+          <rect x="20" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="45" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="70" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="95" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="120" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="145" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <rect x="170" y="78" width="18" height="16" rx="4" fill="#0b1020" opacity="0.08"></rect>
+          <!-- focus block pill -->
+          <rect x="45" y="104" width="86" height="14" rx="7" fill="#ffe4dd"></rect>
+          <rect x="45" y="104" width="20" height="14" rx="7" fill="#ff5a3c"></rect>
+        </svg>
+        <h2 class="ftitle">Focus blocks that defend themselves</h2>
+        <p class="fbody">Stackly reads your week and reserves deep-work time before back-to-back meetings can swallow it.</p>
+      </div>
+
+      <!-- Feature: chat -->
+      <div class="cell feature f-chat">
+        <p class="tag"><span class="n">03</span> chat</p>
+        <svg class="spot" viewBox="0 0 200 132" role="img" aria-label="A short conversation with an incoming reply and an outgoing message">
+          <rect x="0" y="0" width="200" height="132" rx="14" fill="#f1f3f7"></rect>
+          <!-- incoming bubble -->
+          <path d="M20 24 h96 a12 12 0 0 1 12 12 v18 a12 12 0 0 1 -12 12 h-78 l-11 10 v-10 a12 12 0 0 1 -7 -12 v-18 a12 12 0 0 1 0 -12 z" fill="#ffffff" stroke="#e6e9f0" stroke-width="2"></path>
+          <rect x="34" y="38" width="78" height="6" rx="3" fill="#0b1020" opacity="0.18"></rect>
+          <rect x="34" y="49" width="52" height="6" rx="3" fill="#0b1020" opacity="0.12"></rect>
+          <!-- outgoing coral bubble -->
+          <path d="M84 78 h80 a12 12 0 0 1 12 12 v14 a12 12 0 0 1 -12 12 h-62 l-11 9 v-9 a12 12 0 0 1 -7 -12 v-14 a12 12 0 0 1 0 -12 z" fill="#ff5a3c"></path>
+          <rect x="98" y="92" width="64" height="6" rx="3" fill="#ffffff" opacity="0.92"></rect>
+          <rect x="98" y="103" width="40" height="6" rx="3" fill="#ffffff" opacity="0.7"></rect>
+        </svg>
+        <h2 class="ftitle">Conversations that keep their context</h2>
+        <p class="fbody">Reply right next to the work itself. Every thread links straight to the task or doc it is actually about.</p>
+      </div>
+
+      <!-- Feature: chart -->
+      <div class="cell feature f-chart">
+        <p class="tag"><span class="n">04</span> signals</p>
+        <svg class="spot" viewBox="0 0 200 132" role="img" aria-label="A bar chart trending upward with the latest bar highlighted">
+          <rect x="0" y="0" width="200" height="132" rx="14" fill="#f1f3f7"></rect>
+          <!-- baseline -->
+          <line x1="24" y1="110" x2="180" y2="110" stroke="#0b1020" stroke-width="2" opacity="0.14"></line>
+          <!-- bars -->
+          <rect x="30" y="80" width="26" height="30" rx="5" fill="#0b1020" opacity="0.16"></rect>
+          <rect x="68" y="64" width="26" height="46" rx="5" fill="#0b1020" opacity="0.24"></rect>
+          <rect x="106" y="50" width="26" height="60" rx="5" fill="#0b1020" opacity="0.32"></rect>
+          <rect x="144" y="30" width="26" height="80" rx="5" fill="#ff5a3c"></rect>
+          <!-- trend line -->
+          <path d="M43 80 L81 64 L119 50 L157 30" fill="none" stroke="#a8341c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="43" cy="80" r="3.4" fill="#a8341c"></circle>
+          <circle cx="81" cy="64" r="3.4" fill="#a8341c"></circle>
+          <circle cx="119" cy="50" r="3.4" fill="#a8341c"></circle>
+          <circle cx="157" cy="30" r="4.4" fill="#ff5a3c" stroke="#ffffff" stroke-width="2"></circle>
+        </svg>
+        <h2 class="ftitle">Dashboards that read themselves</h2>
+        <p class="fbody">Plain-language highlights sit above each chart, so a single glance tells you what moved and why.</p>
+      </div>
+
+      <!-- Metric -->
+      <div class="cell metric">
+        <p class="tag"><span class="n">05</span> the payoff</p>
+        <p class="stat">3.2<span class="unit">hrs</span></p>
+        <p class="stat-label">handed back to each teammate every week once the tab-juggling stops.</p>
+        <p class="stat-src">Median across 1,900 Stackly teams.</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="cell cta" id="get">
+        <div>
+          <h2 class="cta-title">Ready to unstack your day?</h2>
+          <p class="cta-note">One workspace. Every tool. Zero tab tax.</p>
+        </div>
+        <a class="btn btn-primary" href="#get">Get Stackly free <span class="arw" aria-hidden="true">-&gt;</span></a>
+      </div>
+
+    </section>
+  </div>
+</main>
+
+<footer class="footer" id="docs">
+  <div class="wrap foot-inner">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Stackly home">
+          <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="3.6" width="16" height="4.6" rx="2.3" fill="#ff5a3c"></rect>
+            <rect x="4" y="9.7" width="16" height="4.6" rx="2.3" fill="#0b1020"></rect>
+            <rect x="4" y="15.8" width="11" height="4.6" rx="2.3" fill="#0b1020" opacity="0.5"></rect>
+          </svg>
+          <span>Stackly</span>
+        </a>
+        <p class="foot-tag">A workspace for teams who would rather ship than switch.</p>
+      </div>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#features">Product</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#docs">Docs</a>
+        <a href="#privacy">Privacy</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <p>2026 Stackly Labs. Built as one self-contained HTML file.</p>
+      <p class="mono-note">System fonts, zero trackers, no network calls.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    if(!('IntersectionObserver' in window)) return;
+    var mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mq && mq.matches) return;
+    var cells = Array.prototype.slice.call(document.querySelectorAll('.cell'));
+    if(!cells.length) return;
+    cells.forEach(function(c){ c.classList.add('reveal'); });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold:0.12, rootMargin:'0px 0px -40px 0px' });
+    cells.forEach(function(c){ io.observe(c); });
+  })();
+</script>
+</body>
+</html>

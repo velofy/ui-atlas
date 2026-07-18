@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22%23808080%22/%3E%3C/svg%3E">
+<title>Morsel, neighborhood food delivery within a 12-minute ride</title>
+<meta name="description" content="Morsel delivers only from independent kitchens within a short bike ride. Food arrives hot, riders keep every tip, and more of every dollar stays on your block.">
+<style>
+  :root{
+    /* palette */
+    --bg:#fff5ee;
+    --bg-2:#fff0e4;
+    --ink:#2a1a12;
+    --ink-soft:#7a5646;
+    --orange:#ef6c3c;
+    --orange-deep:#c2410c;
+    --orange-tint:#ffe0cc;
+    --butter:#ffcf6b;
+    --butter-deep:#a86e00;
+    --leaf:#6fae4f;
+    --leaf-deep:#3f7d2c;
+    --drink:#f4a35a;
+    --berry:#e05a63;
+    --cream:#fff8f2;
+    --card:#ffffff;
+    --line:#f2d9c8;
+    --line-strong:#ecc9b2;
+    --ink-panel:#20130b;
+    --panel-text:#f6e6da;
+    --panel-soft:#d8bfae;
+    --shadow:0 22px 50px -26px rgba(42,26,18,.42);
+    --shadow-sm:0 10px 24px -14px rgba(42,26,18,.34);
+
+    /* type */
+    --font-display:Georgia,'Times New Roman',serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+    /* space + shape */
+    --radius:18px;
+    --radius-sm:12px;
+    --radius-lg:26px;
+    --radius-pill:999px;
+    --maxw:1120px;
+    --gutter:clamp(18px,5vw,40px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:clamp(16px,1vw + 14px,18px);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{max-width:100%;height:auto}
+
+  a{color:var(--orange-deep);text-underline-offset:3px}
+  a:hover{color:var(--ink)}
+
+  :focus-visible{
+    outline:3px solid var(--orange);
+    outline-offset:3px;
+    border-radius:8px;
+  }
+
+  .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--orange-deep);
+    margin:0;
+  }
+
+  /* buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:.55em;
+    font:inherit;font-weight:650;
+    border-radius:var(--radius-pill);
+    padding:.82em 1.45em;
+    border:2px solid transparent;
+    cursor:pointer;
+    text-decoration:none;
+    min-width:0;
+    transition:transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--cream);
+    box-shadow:var(--shadow-sm);
+  }
+  .btn-primary:hover{background:#160c06;color:#fff;transform:translateY(-2px)}
+  .btn-primary .pip{background:var(--orange)}
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border-color:var(--ink);
+  }
+  .btn-ghost:hover{background:var(--ink);color:var(--cream);transform:translateY(-2px)}
+  .btn-ghost:hover .pip{background:var(--orange)}
+  .btn .pip{
+    width:.62em;height:.62em;border-radius:50%;
+    background:var(--orange);display:inline-block;flex:0 0 auto;
+  }
+
+  /* header */
+  .site-head{
+    position:sticky;top:0;z-index:50;
+    background:color-mix(in srgb, var(--bg) 84%, transparent);
+    -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+    border-bottom:1px solid var(--line);
+  }
+  .head-row{display:flex;align-items:center;gap:1rem;min-height:66px}
+  .brand{
+    display:inline-flex;align-items:center;gap:.55rem;
+    font-family:var(--font-display);font-weight:700;font-size:1.28rem;
+    color:var(--ink);text-decoration:none;letter-spacing:.01em;min-width:0;
+  }
+  .brand:hover{color:var(--ink)}
+  .brand-mark{width:36px;height:36px;flex:0 0 auto}
+  .nav{margin-left:auto;display:flex;align-items:center;gap:clamp(.5rem,2.4vw,1.7rem);flex-wrap:wrap;min-width:0}
+  .nav a{
+    color:var(--ink);text-decoration:none;font-weight:550;font-size:.95rem;
+    padding:.35em 0;white-space:nowrap;
+  }
+  .nav a:hover{color:var(--orange-deep)}
+  .nav .btn{margin-left:.3rem}
+  .nav-cta-text{white-space:nowrap}
+
+  /* hero */
+  .hero{position:relative;padding-block:clamp(28px,6vw,66px) clamp(38px,7vw,80px)}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.02fr .98fr;
+    gap:clamp(28px,5vw,58px);
+    align-items:center;
+  }
+  .hero-copy{min-width:0}
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2.45rem,6.1vw,4.05rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+    margin:.55rem 0 .1rem;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .hero h1 .hot{color:var(--orange-deep);position:relative;white-space:nowrap}
+  .hero h1 .hot::after{
+    content:"";position:absolute;left:0;right:0;bottom:.02em;height:.16em;
+    background:var(--butter);border-radius:var(--radius-pill);z-index:-1;
+  }
+  .lede{
+    font-size:clamp(1.05rem,1.35vw,1.24rem);
+    color:var(--ink-soft);
+    max-width:36ch;
+    margin:1.1rem 0 1.7rem;
+  }
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+  .hero-note{
+    display:flex;align-items:center;gap:.55rem;
+    margin-top:1.15rem;font-size:.92rem;color:var(--ink-soft);min-width:0;
+  }
+  .hero-note .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--orange);flex:0 0 auto}
+  .hero-note b{color:var(--ink);font-weight:650}
+
+  /* hero art */
+  .hero-art{min-width:0;position:relative}
+  .hero-art svg{display:block;width:100%;height:auto;filter:drop-shadow(var(--shadow))}
+
+  /* animation */
+  @keyframes steam{0%{transform:translateY(0);opacity:.52}50%{transform:translateY(-11px);opacity:.26}100%{transform:translateY(0);opacity:.52}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes bob-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-9px)}}
+  @keyframes roll{0%,100%{transform:translate(0,0) rotate(-2deg)}50%{transform:translate(0,-5px) rotate(2deg)}}
+  .a-steam{transform-box:fill-box;transform-origin:50% 100%;animation:steam 4.2s ease-in-out infinite}
+  .a-steam.s2{animation-duration:5s;animation-delay:-1.3s}
+  .a-steam.s3{animation-duration:4.6s;animation-delay:-2.4s}
+  .a-bob{transform-box:fill-box;transform-origin:50% 50%;animation:bob 4.4s ease-in-out infinite}
+  .a-bob-slow{transform-box:fill-box;transform-origin:50% 50%;animation:bob-slow 6s ease-in-out infinite}
+  .a-sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5.4s ease-in-out infinite}
+  .a-drift{transform-box:fill-box;animation:drift 7s ease-in-out infinite}
+  .a-drift2{transform-box:fill-box;animation:drift 9s ease-in-out infinite;animation-delay:-2s}
+  .a-roll{transform-box:fill-box;transform-origin:50% 50%;animation:roll 6.5s ease-in-out infinite}
+
+  /* trust strip */
+  .strip{border-block:1px solid var(--line);background:var(--card)}
+  .strip-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:clamp(1rem,4vw,2.6rem);
+    padding-block:18px;
+  }
+  .strip-label{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0;max-width:15ch}
+  .stat{display:flex;flex-direction:column;min-width:0}
+  .stat b{font-family:var(--font-display);font-size:1.55rem;line-height:1;color:var(--orange-deep)}
+  .stat span{font-size:.82rem;color:var(--ink-soft)}
+
+  /* sections */
+  section{scroll-margin-top:80px}
+  .band{padding-block:clamp(52px,8vw,94px)}
+  .band-head{max-width:58ch}
+  .band-head h2{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.08;
+    letter-spacing:-.01em;margin:.6rem 0 .4rem;color:var(--ink);word-break:break-word;
+  }
+  .band-head p{color:var(--ink-soft);margin:0;font-size:1.05rem}
+
+  /* features */
+  .features{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(16px,2.4vw,24px);margin-top:clamp(28px,4vw,44px);
+  }
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius-lg);padding:26px 24px 28px;
+    min-width:0;display:flex;flex-direction:column;
+    box-shadow:var(--shadow-sm);
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--orange)}
+  .card .spot{width:80px;height:80px;flex:0 0 auto;margin-bottom:14px}
+  .card h3{
+    font-family:var(--font-display);font-weight:700;font-size:1.3rem;
+    margin:0 0 .45rem;color:var(--ink);line-height:1.15;
+  }
+  .card p{margin:0;color:var(--ink-soft);font-size:.98rem}
+  .card .tag{
+    margin-top:auto;padding-top:16px;font-family:var(--font-mono);
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);
+  }
+
+  /* radius panel */
+  .zone{
+    background:var(--ink-panel);color:var(--panel-text);border-radius:var(--radius-lg);
+    padding:clamp(28px,4.5vw,52px);position:relative;overflow:hidden;
+  }
+  .zone::before{
+    content:"";position:absolute;left:-90px;bottom:-90px;width:280px;height:280px;
+    border-radius:50%;background:radial-gradient(circle at 40% 40%, var(--orange), transparent 64%);
+    opacity:.4;pointer-events:none;
+  }
+  .zone-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(26px,4vw,52px);align-items:center;position:relative;z-index:1}
+  .zone-copy{min-width:0}
+  .zone h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.85rem,3.4vw,2.5rem);line-height:1.1;margin:.4rem 0 .7rem;color:#fff;word-break:break-word}
+  .zone .eyebrow{color:var(--butter)}
+  .zone p{color:var(--panel-soft);margin:0 0 1.4rem;max-width:42ch}
+  .steps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+  .steps li{display:flex;gap:14px;align-items:flex-start;min-width:0}
+  .steps .num{
+    font-family:var(--font-mono);font-size:.82rem;font-weight:600;
+    width:30px;height:30px;flex:0 0 auto;border-radius:50%;
+    display:grid;place-items:center;background:rgba(239,108,60,.2);color:var(--orange);
+    border:1px solid rgba(239,108,60,.5);
+  }
+  .steps b{color:#fff;display:block;font-size:1rem}
+  .steps span{color:var(--panel-soft);font-size:.92rem;min-width:0}
+  .zone-art{min-width:0}
+  .zone-art svg{display:block;width:100%;height:auto}
+
+  /* quote */
+  .quote{text-align:center;max-width:42ch;margin-inline:auto}
+  .quote blockquote{
+    font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2.05rem);
+    line-height:1.32;margin:.6rem 0 1.1rem;color:var(--ink);letter-spacing:-.005em;
+  }
+  .quote .by{font-size:.95rem;color:var(--ink-soft)}
+  .quote .by b{color:var(--ink)}
+
+  /* final cta */
+  .final{
+    background:
+      radial-gradient(1000px 340px at 50% -40%, var(--orange-tint), transparent 70%),
+      var(--bg);
+    text-align:center;
+  }
+  .final-inner{
+    background:var(--card);border:1px solid var(--line);border-radius:calc(var(--radius-lg) + 6px);
+    padding:clamp(34px,5vw,58px) clamp(24px,5vw,54px);box-shadow:var(--shadow);
+    max-width:760px;margin-inline:auto;position:relative;
+  }
+  .final .mini-mascot{width:104px;height:104px;margin:-72px auto 6px;display:block}
+  .final h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.9rem,4vw,2.75rem);line-height:1.06;margin:.4rem 0 .5rem;color:var(--ink);word-break:break-word}
+  .final p{color:var(--ink-soft);margin:0 auto 1.5rem;max-width:44ch}
+  .final .hero-cta{justify-content:center}
+  .final .fine{margin-top:1rem;font-size:.85rem;color:var(--ink-soft)}
+
+  /* footer */
+  .site-foot{border-top:1px solid var(--line);padding-block:44px 40px;background:var(--card)}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:28px 48px;justify-content:space-between}
+  .foot-brand{max-width:32ch;min-width:0}
+  .foot-brand .brand{margin-bottom:.5rem}
+  .foot-brand p{color:var(--ink-soft);font-size:.92rem;margin:0}
+  .foot-cols{display:flex;flex-wrap:wrap;gap:28px 48px}
+  .foot-col h4{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 .8rem}
+  .foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+  .foot-col a{color:var(--ink);text-decoration:none;font-size:.93rem}
+  .foot-col a:hover{color:var(--orange-deep);text-decoration:underline}
+  .foot-base{
+    display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center;
+    margin-top:34px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:.85rem;color:var(--ink-soft);
+  }
+  .foot-base a{color:var(--ink-soft)}
+  .foot-base a:hover{color:var(--ink)}
+  .foot-base .sep{color:var(--line-strong)}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:22px}
+    .hero-art{order:-1;max-width:440px;margin-inline:auto}
+    .lede{max-width:48ch}
+    .features{grid-template-columns:1fr}
+    .zone-grid{grid-template-columns:1fr}
+    .zone-art{max-width:360px;margin-inline:auto}
+  }
+  @media (max-width:560px){
+    .nav{gap:.9rem}
+    .nav a{font-size:.9rem}
+    .strip-row{gap:1.1rem 1.6rem}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" aria-label="Morsel home">
+      <svg class="brand-mark" viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+        <circle cx="20" cy="20" r="20" fill="#ffe0cc"/>
+        <path d="M9 22h22c0 6-5 10-11 10S9 28 9 22Z" fill="#ef6c3c"/>
+        <path d="M9 22h22" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+        <path d="M15 12c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <path d="M20 10c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <path d="M25 12c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span>Morsel</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#idea">How it works</a>
+      <a href="#zone">The radius</a>
+      <a href="#riders">For riders</a>
+      <a href="#order">Pricing</a>
+      <a class="btn btn-primary" href="#order"><span class="pip" aria-hidden="true"></span><span class="nav-cta-text">Order now</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Neighborhood food delivery</p>
+        <h1>Dinner is already <span class="hot">on your block</span>.</h1>
+        <p class="lede">Morsel delivers only from independent kitchens within a short bike ride. Your food shows up hot, your neighbors get paid fairly, and no meal ever crosses town to reach your door.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#order"><span class="pip" aria-hidden="true"></span>Order from your block</a>
+          <a class="btn btn-ghost" href="#zone">See how the radius works</a>
+        </div>
+        <p class="hero-note"><span class="dot" aria-hidden="true"></span><span>Serving <b>40 neighborhoods</b>, from <b id="hood">Riverton</b> to your doorstep. No chains, ever.</span></p>
+      </div>
+
+      <!-- SIGNATURE: hand-authored neighborhood noodle scene -->
+      <div class="hero-art">
+        <svg id="scene" viewBox="0 0 480 470" role="img"
+             aria-label="A cheerful noodle bowl with rising steam and chopsticks lifting a strand of noodles, a peach bubble tea beside it, and a floating leaf garnish, set inside a dashed map circle that marks the delivery zone.">
+          <defs>
+            <radialGradient id="sky" cx="50%" cy="30%" r="78%">
+              <stop offset="0%" stop-color="#fffdfb"/>
+              <stop offset="56%" stop-color="#fff1e6"/>
+              <stop offset="100%" stop-color="#ffe0cc"/>
+            </radialGradient>
+            <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f5824f"/>
+              <stop offset="100%" stop-color="#e85f2f"/>
+            </linearGradient>
+            <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fb9d70"/>
+              <stop offset="100%" stop-color="#f4794a"/>
+            </linearGradient>
+            <radialGradient id="broth" cx="50%" cy="38%" r="70%">
+              <stop offset="0%" stop-color="#ffe1ac"/>
+              <stop offset="100%" stop-color="#f3b463"/>
+            </radialGradient>
+            <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f7b877"/>
+              <stop offset="100%" stop-color="#ef985a"/>
+            </linearGradient>
+            <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#84c465"/>
+              <stop offset="100%" stop-color="#5fa03f"/>
+            </linearGradient>
+          </defs>
+
+          <!-- backdrop -->
+          <rect x="8" y="8" width="464" height="454" rx="34" fill="url(#sky)"/>
+
+          <!-- delivery zone map rings -->
+          <circle cx="240" cy="244" r="176" fill="none" stroke="#ef6c3c" stroke-width="2.2" stroke-dasharray="3 12" stroke-linecap="round" opacity=".28"/>
+          <circle cx="240" cy="244" r="120" fill="none" stroke="#ef6c3c" stroke-width="2" stroke-dasharray="2 11" stroke-linecap="round" opacity=".16"/>
+
+          <!-- tiny neighborhood kitchen pins on the ring -->
+          <g opacity=".55" fill="#ef6c3c">
+            <g transform="translate(118,120)"><path d="M0 -9C5 -9 8 -5 8 -1 8 5 0 11 0 11 0 11 -8 5 -8 -1 -8 -5 -5 -9 0 -9Z"/><circle cx="0" cy="-1" r="3" fill="#fff5ee"/></g>
+            <g transform="translate(372,150)"><path d="M0 -9C5 -9 8 -5 8 -1 8 5 0 11 0 11 0 11 -8 5 -8 -1 -8 -5 -5 -9 0 -9Z"/><circle cx="0" cy="-1" r="3" fill="#fff5ee"/></g>
+            <g transform="translate(408,268)"><path d="M0 -9C5 -9 8 -5 8 -1 8 5 0 11 0 11 0 11 -8 5 -8 -1 -8 -5 -5 -9 0 -9Z"/><circle cx="0" cy="-1" r="3" fill="#fff5ee"/></g>
+          </g>
+
+          <!-- floating sesame + garnish dots -->
+          <g class="a-drift"><ellipse cx="146" cy="120" rx="5" ry="3.4" fill="#e9b45f" transform="rotate(20 146 120)"/></g>
+          <g class="a-drift2"><ellipse cx="336" cy="112" rx="5" ry="3.4" fill="#e9b45f" transform="rotate(-16 336 112)"/></g>
+          <g class="a-drift2"><circle cx="410" cy="200" r="4.5" fill="#ef6c3c" opacity=".5"/></g>
+
+          <!-- floating leaf garnish -->
+          <g class="a-sway">
+            <g transform="translate(96,132)">
+              <path d="M0 -22C-20 -14 -22 12 0 22 22 12 20 -14 0 -22Z" fill="url(#leaf)"/>
+              <path d="M0 -18V18" stroke="#3f7d2c" stroke-width="1.8" opacity=".55"/>
+              <path d="M0 -6C6 -10 10 -12 13 -13" stroke="#3f7d2c" stroke-width="1.4" fill="none" opacity=".45"/>
+              <path d="M0 4C-6 0 -10 -2 -13 -3" stroke="#3f7d2c" stroke-width="1.4" fill="none" opacity=".45"/>
+              <path d="M0 22c0 8 0 12 0 18" stroke="#3f7d2c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            </g>
+          </g>
+
+          <!-- bubble tea -->
+          <g class="a-bob-slow">
+            <g transform="translate(0,4)">
+              <!-- straw -->
+              <path d="M96 214 L112 128" stroke="#ef6c3c" stroke-width="9" stroke-linecap="round"/>
+              <path d="M112 128 L120 108" stroke="#c2410c" stroke-width="9" stroke-linecap="round"/>
+              <!-- cup body -->
+              <path d="M60 208 L128 208 L119 344 Q117 356 105 356 L83 356 Q71 356 69 344 Z" fill="url(#cup)"/>
+              <!-- lid -->
+              <rect x="55" y="200" width="78" height="14" rx="6" fill="#ffd7ad"/>
+              <rect x="55" y="200" width="78" height="14" rx="6" fill="#ffffff" opacity=".18"/>
+              <!-- shine -->
+              <path d="M74 224 L69 330" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".35"/>
+              <!-- boba pearls -->
+              <g fill="#3a2416">
+                <circle cx="82" cy="340" r="6"/><circle cx="96" cy="344" r="6"/><circle cx="110" cy="338" r="5.5"/>
+                <circle cx="88" cy="328" r="5.5"/><circle cx="103" cy="330" r="5"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- location pin badge -->
+          <g class="a-bob" transform="translate(372,214)">
+            <path d="M0 -18C10 -18 16 -10 16 -3 16 8 0 24 0 24 0 24 -16 8 -16 -3 -16 -10 -10 -18 0 -18Z" fill="#ef6c3c"/>
+            <path d="M0 -18C10 -18 16 -10 16 -3 16 8 0 24 0 24 0 24 -16 8 -16 -3 -16 -10 -10 -18 0 -18Z" fill="none" stroke="#c2410c" stroke-width="1.6"/>
+            <circle cx="0" cy="-2" r="7" fill="#fff5ee"/>
+            <path d="M-4 -2h8M-3.4 -5h6.8c0 4-2 6-3.4 6S-3.4 1-3.4 -5Z" fill="#c2410c"/>
+          </g>
+
+          <!-- ===== the bowl ===== -->
+          <g class="a-bob-slow">
+            <!-- shadow -->
+            <ellipse cx="240" cy="404" rx="132" ry="20" fill="#2a1a12" opacity=".08"/>
+
+            <!-- steam -->
+            <g class="a-steam"><path d="M204 288C190 262 218 250 204 224 195 206 214 194 204 172" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/></g>
+            <g class="a-steam s2"><path d="M240 292C226 264 254 252 240 226 231 208 250 196 240 172" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/></g>
+            <g class="a-steam s3"><path d="M276 288C262 262 290 250 276 224 267 206 286 194 276 172" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/></g>
+
+            <!-- bowl foot -->
+            <ellipse cx="240" cy="386" rx="58" ry="12" fill="#d94f24"/>
+            <!-- front body -->
+            <path d="M116 300 C 122 380, 358 380, 364 300 Z" fill="url(#bowl)"/>
+            <!-- rim ring -->
+            <ellipse cx="240" cy="300" rx="124" ry="28" fill="url(#rim)"/>
+            <ellipse cx="240" cy="300" rx="124" ry="28" fill="none" stroke="#c2410c" stroke-width="2" opacity=".45"/>
+            <!-- broth surface -->
+            <ellipse cx="240" cy="300" rx="110" ry="22" fill="url(#broth)"/>
+
+            <!-- noodle strands on surface -->
+            <g stroke="#f0c073" stroke-width="4" fill="none" stroke-linecap="round" opacity=".95">
+              <path d="M164 300c18 -8 40 -8 58 0s40 8 58 0"/>
+              <path d="M158 306c20 8 44 8 66 0s44 -8 62 0"/>
+              <path d="M182 294c14 -6 30 -6 44 0"/>
+            </g>
+
+            <!-- toppings: soft egg -->
+            <g transform="translate(198,296)">
+              <ellipse cx="0" cy="0" rx="22" ry="15" fill="#fff4e2"/>
+              <circle cx="2" cy="-1" r="9.5" fill="#ffca5e"/>
+              <circle cx="-1.5" cy="-4" r="3" fill="#ffe0a0" opacity=".9"/>
+            </g>
+            <!-- toppings: nori -->
+            <rect x="250" y="278" width="20" height="26" rx="3" fill="#233238" transform="rotate(-10 260 291)"/>
+            <rect x="250" y="278" width="20" height="26" rx="3" fill="#2f4a52" opacity=".5" transform="rotate(-10 260 291)"/>
+            <!-- toppings: scallion rings -->
+            <g stroke="#6fae4f" stroke-width="3" fill="#eafbe0">
+              <circle cx="286" cy="304" r="4"/>
+              <circle cx="300" cy="296" r="3.4"/>
+              <circle cx="276" cy="310" r="3.4"/>
+            </g>
+            <!-- chili flecks -->
+            <g fill="#e05a63"><circle cx="232" cy="308" r="2"/><circle cx="222" cy="298" r="1.6"/><circle cx="256" cy="306" r="1.8"/></g>
+
+            <!-- chopsticks -->
+            <path d="M356 148 L246 250" stroke="#caa06a" stroke-width="8" stroke-linecap="round"/>
+            <path d="M370 162 L254 254" stroke="#caa06a" stroke-width="8" stroke-linecap="round"/>
+            <path d="M356 148 L246 250" stroke="#a97e46" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 26 4 200" opacity=".5"/>
+
+            <!-- lifted noodles -->
+            <g stroke="#f5c877" stroke-width="4.4" fill="none" stroke-linecap="round">
+              <path d="M250 252C244 274 256 282 248 302"/>
+              <path d="M256 254C252 276 262 284 256 302"/>
+              <path d="M244 250C238 272 246 282 240 300"/>
+            </g>
+            <ellipse cx="250" cy="252" rx="12" ry="7" fill="#f5c877" transform="rotate(-38 250 252)"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST STRIP ============ -->
+  <div class="strip">
+    <div class="wrap strip-row">
+      <p class="strip-label">Why neighbors switch to Morsel</p>
+      <div class="stat"><b>12 min</b><span>the widest ride we allow</span></div>
+      <div class="stat"><b>Under 18 min</b><span>median door to door</span></div>
+      <div class="stat"><b>100%</b><span>of tips go to riders</span></div>
+      <div class="stat"><b>0 chains</b><span>independent kitchens only</span></div>
+    </div>
+  </div>
+
+  <!-- ============ THE IDEA / FEATURES ============ -->
+  <section id="idea" class="band">
+    <div class="wrap">
+      <div class="band-head">
+        <p class="eyebrow">The Morsel idea</p>
+        <h2>Great food should not have to travel far.</h2>
+        <p>We built Morsel around one rule: if a kitchen cannot reach you hot on a bike, it does not belong in your feed. That single rule changes everything downstream, from how fast your dinner lands to how much your neighbors take home.</p>
+      </div>
+
+      <div class="features">
+        <article class="card">
+          <svg class="spot" viewBox="0 0 80 80" role="img" aria-label="A steaming noodle bowl with chopsticks resting across the rim.">
+            <ellipse cx="40" cy="66" rx="30" ry="6" fill="#2a1a12" opacity=".08"/>
+            <path d="M14 44c0-2 52-2 52 0 0 15-12 24-26 24S14 59 14 44Z" fill="#ef6c3c"/>
+            <ellipse cx="40" cy="44" rx="26" ry="7" fill="#f3b463"/>
+            <path d="M20 44c8-4 32-4 40 0" stroke="#f0c073" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M30 33c-6-9 4-12 0-21" stroke="#ffffff" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".6"/>
+            <path d="M44 32c-6-9 4-12 0-21" stroke="#ffffff" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".45"/>
+            <path d="M58 20 L34 44" stroke="#caa06a" stroke-width="4" stroke-linecap="round"/>
+            <path d="M64 26 L40 46" stroke="#caa06a" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <h3>Only the kitchens nearby</h3>
+          <p>Every kitchen on Morsel is an independent spot within a 12-minute ride of your address. No national chains, no far-off ghost kitchens cooking for ten apps at once.</p>
+          <span class="tag">Independent only</span>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 80 80" role="img" aria-label="A cold bubble tea with a straw, boba pearls, and a leaf garnish.">
+            <path d="M26 26 L54 26 L49 66 Q48 72 42 72 L38 72 Q32 72 31 66 Z" fill="#f7b877"/>
+            <rect x="23" y="20" width="34" height="9" rx="4" fill="#ffd7ad"/>
+            <path d="M42 22 L50 8" stroke="#ef6c3c" stroke-width="6" stroke-linecap="round"/>
+            <path d="M35 30 L32 60" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity=".4"/>
+            <g fill="#3a2416"><circle cx="37" cy="62" r="4"/><circle cx="45" cy="64" r="4"/><circle cx="41" cy="55" r="3.4"/></g>
+            <path d="M60 18C52 20 51 30 60 33 69 30 68 20 60 18Z" fill="#6fae4f"/>
+            <path d="M60 20v11" stroke="#3f7d2c" stroke-width="1.6"/>
+          </svg>
+          <h3>Hot noodles, cold drinks</h3>
+          <p>Short rides mean short trips. Median delivery is under 18 minutes, so your noodles stay springy and your iced tea reaches you still cold, not lukewarm.</p>
+          <span class="tag">Under 18 min median</span>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 80 80" role="img" aria-label="A fresh herb sprig with a lemon wedge, a garnish held over a plate.">
+            <path d="M40 70C24 62 16 46 22 20" stroke="#3f7d2c" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+            <path d="M28 30C18 26 14 34 22 40 30 38 34 32 28 30Z" fill="#84c465"/>
+            <path d="M34 46C24 44 22 52 30 56 38 52 40 46 34 46Z" fill="#6fae4f"/>
+            <path d="M24 20C16 14 8 20 14 28 24 28 28 24 24 20Z" fill="#6fae4f"/>
+            <path d="M52 54a13 13 0 1 0 13 13 13 13 0 0 0-13-13Z" fill="#ffcf6b"/>
+            <path d="M52 54v26M39 67h26M43 58l18 18M43 76l18-18" stroke="#e0a83a" stroke-width="1.6" opacity=".7"/>
+            <path d="M52 54a13 13 0 0 0-13 13" fill="none"/>
+          </svg>
+          <h3>Fair pay, close to home</h3>
+          <p>Riders keep every cent of their tips and earn a guaranteed minimum on each trip. Kitchens pay one flat monthly fee, never a slice of every single plate they sell.</p>
+          <span class="tag">Flat fee, full tips</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE RADIUS ============ -->
+  <section id="zone" class="band" style="padding-top:0">
+    <div class="wrap">
+      <div class="zone">
+        <div class="zone-grid">
+          <div class="zone-copy">
+            <p class="eyebrow">How the radius works</p>
+            <h2>One short ride, start to finish.</h2>
+            <p>When you open Morsel, you only see what can actually reach you hot. Everything inside the ring is on the menu. Everything past it, chains included, stays off your screen entirely.</p>
+            <ol class="steps">
+              <li>
+                <span class="num" aria-hidden="true">1</span>
+                <span><b>Drop your pin</b><span>We draw a 12-minute ride around your address and quietly hide everything beyond it.</span></span>
+              </li>
+              <li>
+                <span class="num" aria-hidden="true">2</span>
+                <span><b>Pick your morsel</b><span>Order from the independent kitchens sitting inside your ring, from noodle bars to bakeries.</span></span>
+              </li>
+              <li>
+                <span class="num" aria-hidden="true">3</span>
+                <span><b>Meet your rider</b><span>A neighbor on a bike brings it over, usually before the steam has a chance to fade.</span></span>
+              </li>
+            </ol>
+          </div>
+          <div class="zone-art">
+            <svg viewBox="0 0 320 300" role="img" aria-label="A simple neighborhood map. A dashed 12-minute ring is drawn around a central You pin, with four independent kitchen pins inside the ring and two crossed-out chain markers outside it.">
+              <defs>
+                <linearGradient id="mapbg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2a1a12"/>
+                  <stop offset="100%" stop-color="#180d07"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="320" height="300" rx="20" fill="url(#mapbg)"/>
+              <!-- streets -->
+              <g stroke="#f6e6da" stroke-width="1.4" opacity=".12">
+                <path d="M0 78H320M0 150H320M0 224H320"/>
+                <path d="M74 0V300M160 0V300M244 0V300"/>
+                <path d="M0 40 L320 118" opacity=".7"/>
+              </g>
+              <!-- 12-minute ring -->
+              <circle cx="160" cy="152" r="104" fill="#ef6c3c" opacity=".07"/>
+              <circle cx="160" cy="152" r="104" fill="none" stroke="#ef6c3c" stroke-width="2.2" stroke-dasharray="6 8" stroke-linecap="round"/>
+              <text x="160" y="42" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="11" letter-spacing="2" fill="#f7b877">12 MIN RIDE</text>
+
+              <!-- kitchen pins inside -->
+              <g>
+                <g transform="translate(108,110)"><path d="M0 -13C7 -13 12 -7 12 -1 12 8 0 20 0 20 0 20 -12 8 -12 -1 -12 -7 -7 -13 0 -13Z" fill="#ef6c3c"/><circle cx="0" cy="-1" r="6.5" fill="#fff5ee"/><path d="M-4 -2c0 3 2 5 4 5s4 -2 4 -5Z" fill="#c2410c"/></g>
+                <g transform="translate(214,124)"><path d="M0 -13C7 -13 12 -7 12 -1 12 8 0 20 0 20 0 20 -12 8 -12 -1 -12 -7 -7 -13 0 -13Z" fill="#ef6c3c"/><circle cx="0" cy="-1" r="6.5" fill="#fff5ee"/><path d="M-4 -2c0 3 2 5 4 5s4 -2 4 -5Z" fill="#c2410c"/></g>
+                <g transform="translate(112,204)"><path d="M0 -13C7 -13 12 -7 12 -1 12 8 0 20 0 20 0 20 -12 8 -12 -1 -12 -7 -7 -13 0 -13Z" fill="#ef6c3c"/><circle cx="0" cy="-1" r="6.5" fill="#fff5ee"/><path d="M-4 -2c0 3 2 5 4 5s4 -2 4 -5Z" fill="#c2410c"/></g>
+                <g transform="translate(206,196)"><path d="M0 -13C7 -13 12 -7 12 -1 12 8 0 20 0 20 0 20 -12 8 -12 -1 -12 -7 -7 -13 0 -13Z" fill="#ef6c3c"/><circle cx="0" cy="-1" r="6.5" fill="#fff5ee"/><path d="M-4 -2c0 3 2 5 4 5s4 -2 4 -5Z" fill="#c2410c"/></g>
+              </g>
+
+              <!-- chain markers outside, greyed and crossed out -->
+              <g opacity=".42">
+                <g transform="translate(38,44)"><rect x="-11" y="-11" width="22" height="22" rx="5" fill="#6b584c"/><path d="M-6 -6 L6 6M6 -6 L-6 6" stroke="#2a1a12" stroke-width="2.6" stroke-linecap="round"/></g>
+                <g transform="translate(286,262)"><rect x="-11" y="-11" width="22" height="22" rx="5" fill="#6b584c"/><path d="M-6 -6 L6 6M6 -6 L-6 6" stroke="#2a1a12" stroke-width="2.6" stroke-linecap="round"/></g>
+              </g>
+
+              <!-- you pin (center) -->
+              <g transform="translate(160,152)">
+                <ellipse cx="0" cy="20" rx="14" ry="4" fill="#000000" opacity=".3"/>
+                <circle cx="0" cy="0" r="15" fill="#ffcf6b"/>
+                <circle cx="0" cy="0" r="15" fill="none" stroke="#fff5ee" stroke-width="2.5"/>
+                <circle cx="0" cy="0" r="5.5" fill="#2a1a12"/>
+              </g>
+              <text x="160" y="196" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="11" letter-spacing="1.5" fill="#f6e6da">YOU</text>
+
+              <!-- little bike on the way -->
+              <g class="a-roll" transform="translate(138,236)">
+                <circle cx="0" cy="6" r="8" fill="none" stroke="#f7b877" stroke-width="2.4"/>
+                <circle cx="22" cy="6" r="8" fill="none" stroke="#f7b877" stroke-width="2.4"/>
+                <path d="M0 6 L11 -4 L22 6M11 -4 L14 -4M2 -6h6" stroke="#ef6c3c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RIDERS / QUOTE ============ -->
+  <section id="riders" class="band" style="padding-top:0">
+    <div class="wrap quote">
+      <p class="eyebrow">From the kitchen</p>
+      <blockquote>"Morsel sends me orders from six blocks away, not six neighborhoods over. The food lands hot, the tips are real, and I finally know the riders by name."</blockquote>
+      <p class="by"><b>Lucia Ferran</b>, owner of Perla noodle bar</p>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section id="order" class="final band">
+    <div class="wrap">
+      <div class="final-inner">
+        <svg class="mini-mascot" viewBox="0 0 104 104" role="img" aria-label="Morsel, a friendly noodle bowl character with a warm smile and a leaf sprout on top.">
+          <ellipse cx="52" cy="92" rx="34" ry="6" fill="#2a1a12" opacity=".08"/>
+          <path d="M22 54c0-3 60-3 60 0 0 17-13 28-30 28S22 71 22 54Z" fill="#ef6c3c"/>
+          <ellipse cx="52" cy="54" rx="30" ry="8" fill="#f3b463"/>
+          <path d="M28 54c10-4 38-4 48 0" stroke="#f0c073" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- steam -->
+          <path d="M40 42c-6-9 4-12 0-21" stroke="#c2410c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".4"/>
+          <path d="M64 42c-6-9 4-12 0-21" stroke="#c2410c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".3"/>
+          <!-- sprout -->
+          <path d="M52 30V16" stroke="#3f7d2c" stroke-width="3" stroke-linecap="round"/>
+          <path d="M52 22C44 18 40 24 46 30 54 30 56 26 52 22Z" fill="#6fae4f"/>
+          <!-- face -->
+          <circle cx="43" cy="62" r="4.2" fill="#2a1a12"/>
+          <circle cx="61" cy="62" r="4.2" fill="#2a1a12"/>
+          <circle cx="44.4" cy="60.6" r="1.3" fill="#ffffff"/>
+          <circle cx="62.4" cy="60.6" r="1.3" fill="#ffffff"/>
+          <circle cx="35" cy="66" r="4.5" fill="#ffb59a" opacity=".7"/>
+          <circle cx="69" cy="66" r="4.5" fill="#ffb59a" opacity=".7"/>
+          <path d="M45 70c4 5 10 5 14 0" stroke="#2a1a12" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        <p class="eyebrow" style="text-align:center">Hungry yet</p>
+        <h2>Find your block's best-kept secret.</h2>
+        <p>Drop your address and see the independent kitchens a short ride away. No subscription, no minimum, and no chains hiding in your results.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#top"><span class="pip" aria-hidden="true"></span>Order from your block</a>
+          <a class="btn btn-ghost" href="#idea">Cook with us</a>
+        </div>
+        <p class="fine">Free to join. Riders and kitchens both keep more with Morsel's flat fee.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Morsel home">
+          <svg class="brand-mark" viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+            <circle cx="20" cy="20" r="20" fill="#ffe0cc"/>
+            <path d="M9 22h22c0 6-5 10-11 10S9 28 9 22Z" fill="#ef6c3c"/>
+            <path d="M9 22h22" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15 12c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            <path d="M20 10c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            <path d="M25 12c-2 2-2 4 0 6" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span>Morsel</span>
+        </a>
+        <p>Neighborhood food delivery, one short ride at a time. A fictional demo built for velofy / ui-atlas.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Order</h4>
+          <ul>
+            <li><a href="#idea">How it works</a></li>
+            <li><a href="#zone">Kitchens near you</a></li>
+            <li><a href="#order">Gift a meal</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Partners</h4>
+          <ul>
+            <li><a href="#riders">For riders</a></li>
+            <li><a href="#idea">For kitchens</a></li>
+            <li><a href="#order">Flat-fee pricing</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#idea">Our promise</a></li>
+            <li><a href="#zone">Neighborhood map</a></li>
+            <li><a href="#top">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>Copyright 2026 Morsel. A fictional demo for velofy / ui-atlas.</span>
+      <span><a href="#top">Privacy</a> <span class="sep" aria-hidden="true">/</span> <a href="#top">Terms</a> <span class="sep" aria-hidden="true">/</span> <a href="#top">Rider safety</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* Progressive enhancement only: cycle the neighborhood name in the hero note.
+     The page is fully functional and readable with JavaScript disabled: the
+     markup already carries a valid neighborhood name, and motion preferences
+     are respected below. */
+  (function () {
+    var el = document.getElementById('hood');
+    if (!el) return;
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    var hoods = ['Riverton', 'Old Fourth', 'Marisol Hill', 'Canal End', 'Greenpoint', 'Ashfield'];
+    var i = 0;
+
+    setInterval(function () {
+      i = (i + 1) % hoods.length;
+      el.style.transition = 'opacity .28s ease';
+      el.style.opacity = '0';
+      setTimeout(function () {
+        el.textContent = hoods[i];
+        el.style.opacity = '1';
+      }, 280);
+    }, 2800);
+  })();
+</script>
+
+</body>
+</html>
