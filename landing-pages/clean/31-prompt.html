@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortex, the workspace you talk to</title>
+<meta name="description" content="Cortex is an AI workspace you brief in plain language. Attach a file, point it at the web, or just ask. It drafts, plans, and remembers, so you stay in flow.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d0d0d'/%3E%3Crect x='7' y='14' width='18' height='4' fill='%23fbd437'/%3E%3C/svg%3E">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --paper:#ebe9e6; --surface:#f4f2ef; --ink:#0d0d0d; --ink-2:#33322f; --muted:#6b6862;
+    --accent:#fbd437; --on-accent:#0d0d0d;
+    --hair:rgba(13,13,13,.14); --hair-soft:rgba(13,13,13,.08);
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --wrap:1080px; --r:16px;
+  }
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;
+    letter-spacing:-.011em;font-feature-settings:"ss01","cv01","cv05","case","liga";-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:var(--ink);text-decoration:none}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(20px,5vw,44px)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  header.top{border-bottom:1px solid var(--hair-soft)}
+  .top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em;font-size:19px}
+  .brand .mk{width:22px;height:22px;background:var(--ink);border-radius:6px;position:relative;flex:0 0 auto}
+  .brand .mk::after{content:"";position:absolute;left:4px;right:4px;top:9px;height:3px;background:var(--accent)}
+  nav.main{display:flex;gap:22px;font-size:14.5px}
+  nav.main a{color:var(--ink-2)}nav.main a:hover{color:var(--ink)}
+  .signin{font-weight:600;font-size:14px;border:1px solid var(--hair);padding:8px 15px;border-radius:999px}
+  @media(max-width:640px){nav.main{display:none}}
+
+  /* hero: the prompt IS the page */
+  .hero{padding:clamp(46px,9vw,96px) 0 clamp(30px,5vw,54px);text-align:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-2);background:var(--surface);border:1px solid var(--hair);border-radius:999px;padding:6px 13px}
+  .badge b{color:var(--on-accent);background:var(--accent);border-radius:4px;padding:1px 6px;font-weight:700;letter-spacing:.02em}
+  h1{font-weight:800;letter-spacing:-.045em;line-height:.98;font-size:clamp(40px,8vw,82px);margin:22px auto 0;max-width:14ch;text-wrap:balance}
+  .sub{margin:20px auto 0;max-width:56ch;color:var(--ink-2);font-size:clamp(16px,2.2vw,20px);text-wrap:balance}
+
+  .promptbox{margin:34px auto 0;max-width:660px;background:var(--surface);border:2px solid var(--ink);border-radius:20px;
+    box-shadow:0 2px 0 var(--ink);text-align:left;overflow:hidden}
+  .promptbox .row{display:flex;align-items:center;gap:8px;padding:12px 12px 12px 14px}
+  .pb-input{flex:1;min-width:0;border:0;background:transparent;font-family:var(--sans);font-size:16.5px;color:var(--ink);padding:10px 4px}
+  .pb-input::placeholder{color:var(--muted)}
+  .ico{width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;border:1px solid var(--hair);border-radius:11px;background:var(--paper);color:var(--ink-2);cursor:pointer}
+  .ico:hover{color:var(--ink);border-color:var(--ink)}
+  .ico svg{width:19px;height:19px}
+  .ico[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .send{width:44px;height:44px;border:2px solid var(--ink);border-radius:12px;background:var(--accent);color:var(--on-accent);cursor:pointer;display:grid;place-items:center}
+  .send:hover{background:var(--ink);color:var(--accent)}
+  .send svg{width:20px;height:20px}
+  .pb-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--hair-soft);padding:10px 14px;background:var(--paper)}
+  .pb-foot .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+  .sugg{font-family:var(--sans);font-size:13px;color:var(--ink-2);background:var(--surface);border:1px solid var(--hair);border-radius:999px;padding:6px 12px;cursor:pointer}
+  .sugg:hover{border-color:var(--ink);color:var(--ink)}
+  .hint{margin:16px auto 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .hint kbd{background:var(--surface);border:1px solid var(--hair);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-family:inherit}
+
+  /* logo wall (flat wordmarks) */
+  .trust{border-top:1px solid var(--hair-soft);border-bottom:1px solid var(--hair-soft);padding:22px 0}
+  .trust .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:14px 30px;justify-content:center}
+  .trust .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .trust .lg{font-weight:800;letter-spacing:-.02em;font-size:19px;color:var(--ink);opacity:.55}
+  .trust .lg:hover{opacity:1}
+
+  .section{padding:clamp(46px,7vw,82px) 0}
+  .section .head{max-width:40ch}
+  .section h2{font-weight:800;letter-spacing:-.03em;font-size:clamp(26px,4.4vw,40px);margin:8px 0 0;text-wrap:balance}
+  .section .lede{color:var(--ink-2);margin:12px 0 0;max-width:52ch}
+
+  .bento{display:grid;grid-template-columns:1fr;gap:14px;margin-top:34px}
+  @media(min-width:720px){.bento{grid-template-columns:repeat(3,1fr)}}
+  .cell{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);padding:22px;min-width:0}
+  .cell.big{grid-column:span 1}
+  @media(min-width:720px){.cell.big{grid-column:span 2}}
+  .cell .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .cell h3{font-weight:700;font-size:19px;margin:8px 0 6px;letter-spacing:-.01em}
+  .cell p{margin:0;color:var(--ink-2);font-size:14.5px}
+  .cell .num{font-weight:800;font-size:clamp(34px,5vw,52px);letter-spacing:-.02em;line-height:1}
+  .cell .num small{font-size:.32em;color:var(--muted);font-weight:600;letter-spacing:.02em}
+  .mini-chat{margin-top:14px;border:1px solid var(--hair);border-radius:12px;background:var(--paper);padding:12px;font-size:13.5px}
+  .mini-chat .u{color:var(--ink);font-weight:600}
+  .mini-chat .a{color:var(--ink-2);margin-top:6px;border-left:2px solid var(--accent);padding-left:10px}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:1fr;gap:0;margin-top:30px;border-top:1px solid var(--hair)}
+  @media(min-width:720px){.steps{grid-template-columns:repeat(3,1fr);border-top:0}}
+  .step{padding:22px 0;border-bottom:1px solid var(--hair-soft)}
+  @media(min-width:720px){.step{border-bottom:0;border-top:2px solid var(--ink);padding:22px 24px 0 0}}
+  .step .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .step h3{font-weight:700;font-size:19px;margin:6px 0 6px;letter-spacing:-.01em}
+  .step p{margin:0;color:var(--ink-2);font-size:14.5px}
+
+  /* faq */
+  .faq{margin-top:24px;border-top:1px solid var(--hair)}
+  details{border-bottom:1px solid var(--hair-soft)}
+  summary{list-style:none;cursor:pointer;padding:18px 0;font-weight:600;font-size:17px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary .plus{flex:0 0 auto;width:20px;height:20px;position:relative}
+  summary .plus::before,summary .plus::after{content:"";position:absolute;background:var(--ink);left:50%;top:50%;transform:translate(-50%,-50%)}
+  summary .plus::before{width:14px;height:2px}summary .plus::after{width:2px;height:14px;transition:transform .18s}
+  details[open] summary .plus::after{transform:translate(-50%,-50%) scaleY(0)}
+  details p{margin:0 0 18px;color:var(--ink-2);max-width:64ch}
+
+  .cta{margin-top:20px;text-align:center;border:2px solid var(--ink);border-radius:24px;background:var(--surface);padding:clamp(30px,5vw,54px);box-shadow:0 3px 0 var(--ink)}
+  .cta h2{margin:0}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;background:var(--accent);color:var(--on-accent);border:2px solid var(--ink);border-radius:999px;padding:13px 26px;margin-top:20px;cursor:pointer}
+  .btn:hover{background:var(--ink);color:var(--accent)}
+
+  footer{border-top:1px solid var(--hair);margin-top:8px;padding:34px 0 54px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:16px 40px;justify-content:space-between;color:var(--muted);font-size:13.5px}
+  footer a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+  footer .big{font-weight:800;font-size:26px;letter-spacing:-.03em;color:var(--ink)}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mk"></span>Cortex</a>
+    <nav class="main" aria-label="Primary"><a href="#how">How it works</a><a href="#features">Features</a><a href="#faq">FAQ</a></nav>
+    <a class="signin" href="#top">Sign in</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <span class="badge"><b>New</b> Cortex remembers every project now</span>
+      <h1>The workspace you talk to.</h1>
+      <p class="sub">Brief it like a teammate. Attach a file, point it at the web, or just ask. Cortex drafts, plans, and remembers, so you stay in flow.</p>
+
+      <form class="promptbox" id="pb" onsubmit="return false">
+        <div class="row">
+          <button type="button" class="ico" aria-label="Attach a file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <input class="pb-input" id="pbin" type="text" aria-label="Ask Cortex" placeholder="Ask Cortex to draft the launch plan...">
+          <button type="button" class="ico" id="web" aria-label="Search the web" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg></button>
+          <button type="button" class="ico" aria-label="Voice input"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></button>
+          <button type="submit" class="send" id="send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="pb-foot">
+          <span class="lbl">Try</span>
+          <button type="button" class="sugg">Summarize this PDF</button>
+          <button type="button" class="sugg">Plan my week</button>
+          <button type="button" class="sugg">Draft a cold email</button>
+        </div>
+      </form>
+      <p class="hint">Press <kbd>Enter</kbd> to send. No card, no setup, just type.</p>
+    </div>
+  </section>
+
+  <div class="trust">
+    <div class="wrap">
+      <span class="lbl">Trusted by teams at</span>
+      <span class="lg">Northwind</span><span class="lg">Fathom</span><span class="lg">Quill</span><span class="lg">Verado</span><span class="lg">Onset</span>
+    </div>
+  </div>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Features</span><h2>One box. The whole workspace behind it.</h2><p class="lede">Everything Cortex does starts from the same place you already are: a line of plain language.</p></div>
+      <div class="bento">
+        <div class="cell big">
+          <span class="k">Ask anything</span>
+          <h3>It reads the room, then the request.</h3>
+          <p>Cortex pulls the project you are in, the files you attached, and the sources you allowed, then answers with context, not guesses.</p>
+          <div class="mini-chat"><div class="u">Draft the changelog from these commits</div><div class="a">Done. 12 changes, grouped into Added, Fixed, and Breaking. Want it in the release voice?</div></div>
+        </div>
+        <div class="cell"><span class="k">Memory</span><div class="num">0<small>re-briefs</small></div><p>It remembers decisions, names, and style across sessions. Stop re-explaining yourself.</p></div>
+        <div class="cell"><span class="k">Attach</span><h3>Files, not screenshots</h3><p>Drop a PDF, sheet, or doc. It works from the source, and cites the line it used.</p></div>
+        <div class="cell"><span class="k">On the web</span><h3>Live when you allow it</h3><p>Flip the globe on and Cortex reads the open web, off by default, always disclosed.</p></div>
+        <div class="cell big"><span class="k">Yours</span><h3>Private by design. Nothing trains on your work.</h3><p>Your workspace stays your workspace. Export or delete everything in one click, and the audit log shows exactly what was read.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">How it works</span><h2>Three steps, no third act.</h2></div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h3>Type it</h3><p>Say what you want in plain language. No prompt engineering, no menus to hunt.</p></div>
+        <div class="step"><div class="n">02</div><h3>Point it</h3><p>Attach the file or flip on the web. Cortex only ever reads what you hand it.</p></div>
+        <div class="step"><div class="n">03</div><h3>Ship it</h3><p>It drafts, you steer, it remembers. The next ask already knows the context.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">FAQ</span><h2>The short version.</h2></div>
+      <div class="faq">
+        <details open><summary>Does it train on my data?<span class="plus"></span></summary><p>No. Your content is never used to train a model. It stays inside your workspace, and you can export or delete all of it at any time.</p></details>
+        <details><summary>What can I attach?<span class="plus"></span></summary><p>PDFs, spreadsheets, documents, and images. Cortex works from the source file and cites the specific line or cell it used, so you can check its work.</p></details>
+        <details><summary>Is the web always on?<span class="plus"></span></summary><p>No. Web access is off by default. Flip the globe on for a request when you want live sources, and Cortex will tell you which pages it read.</p></details>
+        <details><summary>Do I need to set anything up?<span class="plus"></span></summary><p>No card and no configuration. Type your first request in the box above and Cortex gets to work.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta"><h2>Stop managing tools. Start talking to one.</h2><button class="btn" type="button">Open the box, type anything</button></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><div class="big">Cortex</div><div style="margin-top:8px">The workspace you talk to.</div></div>
+    <div><a href="#top">Product</a> &nbsp; <a href="#how">How it works</a> &nbsp; <a href="#faq">FAQ</a></div>
+    <div>Private by design. &nbsp; A ui-atlas reference from <a href="https://github.com/velofy/ui-atlas">velofy</a>.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var input = document.getElementById("pbin");
+  if(!input) return;
+  var placeholders = [
+    "Ask Cortex to draft the launch plan...",
+    "Summarize the attached report in 5 bullets...",
+    "Turn these notes into a one-pager...",
+    "What changed since last Friday?",
+    "Write the release notes from these commits..."
+  ];
+  var i = 0, typing = false;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function cycle(){
+    if(reduce || document.activeElement === input || input.value) { schedule(); return; }
+    i = (i + 1) % placeholders.length;
+    input.setAttribute("placeholder", placeholders[i]);
+    schedule();
+  }
+  function schedule(){ setTimeout(cycle, 2600); }
+  schedule();
+
+  // suggestions fill the box
+  document.querySelectorAll(".sugg").forEach(function(b){
+    b.addEventListener("click", function(){ input.value = b.textContent; input.focus(); });
+  });
+  // web toggle
+  var web = document.getElementById("web");
+  web.addEventListener("click", function(){
+    var on = web.getAttribute("aria-pressed") === "true";
+    web.setAttribute("aria-pressed", on ? "false" : "true");
+  });
+  // submit -> flat acknowledgement (no backend)
+  var pb = document.getElementById("pb");
+  pb.addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = input.value.trim();
+    if(!v) { input.focus(); return; }
+    input.value = "";
+    input.setAttribute("placeholder", "On it. (This is a static reference, so nothing is sent.)");
+  });
+})();
+</script>
