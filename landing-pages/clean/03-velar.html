@@ -159,11 +159,10 @@
   .stage{position:relative;margin-top:clamp(8px,3vw,26px)}
   .stage::before{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:
-      linear-gradient(transparent 96%, var(--hairline) 96%) 0 0/100% 44px,
-      linear-gradient(90deg, transparent 96%, var(--hairline) 96%) 0 0/44px 100%;
-    opacity:.35;mask-image:radial-gradient(120% 90% at 50% 60%, #000 30%, transparent 78%);
-    -webkit-mask-image:radial-gradient(120% 90% at 50% 60%, #000 30%, transparent 78%);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M44 0H0V44' fill='none' stroke='%23222222' stroke-width='1'/%3E%3C/svg%3E");
+    background-position:0 0;
+    background-size:44px 44px;
+    opacity:.35;
   }
   .stage svg.scene{width:100%;height:auto;display:block;position:relative;z-index:1}
 
@@ -230,14 +229,14 @@
   .close{margin:clamp(20px,5vw,40px) 0}
   .close .panel{
     position:relative;overflow:hidden;border:1px solid var(--hairline);border-radius:var(--radius-lg);
-    background:
-      radial-gradient(120% 160% at 88% -20%, var(--accent-dim), transparent 60%),
-      linear-gradient(180deg, var(--panel-2), var(--panel));
+    background:var(--panel-2);
+    box-shadow:inset -90px 80px 150px -100px var(--accent-dim);
     padding:clamp(30px,6vw,64px);
   }
   .close .panel::after{
     content:"";position:absolute;right:-40px;bottom:-60px;width:280px;height:280px;
-    background:radial-gradient(circle, var(--accent-dim), transparent 70%);pointer-events:none;
+    border-radius:50%;
+    box-shadow:0 0 120px 24px var(--accent-dim);pointer-events:none;
   }
   .close h2{
     font-family:var(--font-display);font-stretch:condensed;font-weight:700;text-transform:uppercase;

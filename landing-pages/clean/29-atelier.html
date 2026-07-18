@@ -177,9 +177,10 @@
   .hero__art{
     position:relative;
     border:var(--rule) solid var(--ink);
-    background:
-      repeating-linear-gradient(0deg,transparent 0 39px,var(--hair) 39px 40px),
-      var(--panel);
+    background-color:var(--panel);
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Cline%20x1='0'%20y1='39.5'%20x2='40'%20y2='39.5'%20stroke='%23111111'%20stroke-opacity='0.16'%20stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat:repeat;
+    background-position:0 0;
     padding:22px;
   }
   .art-tag{

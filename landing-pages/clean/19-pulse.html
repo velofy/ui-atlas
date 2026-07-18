@@ -165,7 +165,7 @@
   .head-cta{display:flex;align-items:center;gap:.6rem;flex:none}
 
   /* ---- hero ---- */
-  .hero{background:linear-gradient(180deg,var(--paper) 0%, var(--wash) 100%);border-bottom:1px solid var(--line)}
+  .hero{background:var(--wash);border-bottom:1px solid var(--line)}
   .hero-grid{
     display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(2rem,5vw,4rem);
     align-items:center;padding-block:clamp(2.8rem,7vw,5rem);
@@ -182,7 +182,7 @@
   /* ---- hero illustration panel ---- */
   .panel{
     position:relative;min-width:0;
-    background:linear-gradient(165deg,#ffffff 0%, var(--mist) 62%, var(--mist-2) 100%);
+    background:var(--mist);
     border:1px solid var(--line);
     border-radius:var(--radius-lg);
     box-shadow:var(--shadow-lg);
@@ -240,7 +240,7 @@
   .card-read svg{flex:none;color:var(--teal-deep)}
 
   /* ---- why band ---- */
-  .why{position:relative;overflow:hidden;background:linear-gradient(175deg,var(--wash) 0%, var(--mist) 100%);border-block:1px solid var(--line)}
+  .why{position:relative;overflow:hidden;background:var(--mist);border-block:1px solid var(--line)}
   .why-waves{position:absolute;inset:auto 0 0 0;width:100%;height:auto;pointer-events:none;z-index:0}
   .why-inner{position:relative;z-index:1;max-width:24ch;margin:0 auto;text-align:center}
   .why-inner .eyebrow{justify-content:center}
@@ -375,30 +375,6 @@
         <svg class="panel-art" viewBox="0 0 560 360" role="img" aria-labelledby="artTitle artDesc">
           <title id="artTitle">A heartbeat line settling into calm waves</title>
           <desc id="artDesc">An ECG trace spikes twice on the left, then relaxes into smooth rolling waves that flow into soft teal wave bands below.</desc>
-          <defs>
-            <linearGradient id="wA" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#d9f3f8"/>
-              <stop offset="1" stop-color="#cbeef4"/>
-            </linearGradient>
-            <linearGradient id="wB" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#8fdcea"/>
-              <stop offset="1" stop-color="#5bcbe0"/>
-            </linearGradient>
-            <linearGradient id="wC" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#06b6d4"/>
-              <stop offset="1" stop-color="#22d3ee"/>
-            </linearGradient>
-            <linearGradient id="ecgStroke" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#155e75"/>
-              <stop offset=".62" stop-color="#0e7490"/>
-              <stop offset="1" stop-color="#06b6d4"/>
-            </linearGradient>
-            <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
-              <stop offset="1" stop-color="#eef6f8" stop-opacity=".55"/>
-            </linearGradient>
-          </defs>
-
           <!-- faint baseline grid -->
           <g stroke="#cfe4ea" stroke-width="1" opacity=".55">
             <line x1="0" y1="60" x2="560" y2="60"/>
@@ -408,12 +384,12 @@
           </g>
 
           <!-- soft wash behind the calm zone -->
-          <rect x="0" y="150" width="560" height="210" fill="url(#fade)"/>
+          <rect x="0" y="150" width="560" height="210" fill="#eef6f8" opacity=".28"/>
 
           <!-- the ECG signature: two spikes settling into calm rolling waves -->
           <path class="ecg-line" pathLength="1000"
             d="M16 150 H62 q9 -13 18 0 H108 l7 10 l6 -80 l6 94 l7 -24 H172 q13 -20 26 0 H244 q9 -13 18 0 H292 l7 10 l6 -80 l6 94 l7 -24 H356 q13 -20 26 0 C404 150 410 118 438 128 C468 138 476 182 506 176 C526 172 534 156 552 162"
-            fill="none" stroke="url(#ecgStroke)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            fill="none" stroke="#0e7490" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
 
           <!-- live read head on the calm tail -->
           <circle class="read-ring" cx="552" cy="162" r="9" fill="#06b6d4" opacity=".5"/>
@@ -421,9 +397,9 @@
           <circle cx="552" cy="162" r="2" fill="#ffffff"/>
 
           <!-- the calm the app produces: layered organic wave bands -->
-          <path fill="url(#wA)" d="M0 258 C 96 226 168 292 268 262 C 360 236 460 232 560 264 L560 360 L0 360 Z"/>
-          <path fill="url(#wB)" d="M0 292 C 120 266 210 322 330 292 C 438 266 486 300 560 296 L560 360 L0 360 Z" opacity=".9"/>
-          <path fill="url(#wC)" d="M0 320 C 140 306 246 346 366 322 C 470 302 508 322 560 318 L560 360 L0 360 Z"/>
+          <path fill="#cbeef4" d="M0 258 C 96 226 168 292 268 262 C 360 236 460 232 560 264 L560 360 L0 360 Z"/>
+          <path fill="#75d3e5" d="M0 292 C 120 266 210 322 330 292 C 438 266 486 300 560 296 L560 360 L0 360 Z" opacity=".9"/>
+          <path fill="#14c5e1" d="M0 320 C 140 306 246 346 366 322 C 470 302 508 322 560 318 L560 360 L0 360 Z"/>
         </svg>
 
         <div class="chip">

@@ -58,12 +58,10 @@
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
     background-color:var(--paper);
-    background-image:
-      linear-gradient(var(--grid-min) 1px,transparent 1px),
-      linear-gradient(90deg,var(--grid-min) 1px,transparent 1px),
-      linear-gradient(var(--grid-maj) 1px,transparent 1px),
-      linear-gradient(90deg,var(--grid-maj) 1px,transparent 1px);
-    background-size:28px 28px,28px 28px,140px 140px,140px 140px;
+    /* drafting grid drawn as flat inline-SVG hairlines (no gradient):
+       minor lines every 28px, major lines every 140px */
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='140'%20height='140'%3E%3Cg%20stroke='rgb(29,78,216)'%20fill='none'%3E%3Cpath%20d='M28%200V140M56%200V140M84%200V140M112%200V140M0%2028H140M0%2056H140M0%2084H140M0%20112H140'%20stroke-opacity='0.05'/%3E%3Cpath%20d='M0%200V140M0%200H140'%20stroke-opacity='0.09'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:140px 140px;
   }
   img,svg{max-width:100%;display:block;}
   ::selection{background:var(--blue);color:var(--paper);}
@@ -204,7 +202,8 @@
     height:26px;
     border-top:1.5px solid var(--ink);
     border-bottom:1px solid var(--line);
-    background-image:repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px 14px);
+    /* ruler ticks drawn as flat inline-SVG hairlines (no gradient) */
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='14'%20height='9'%3E%3Crect%20width='1'%20height='9'%20fill='rgb(20,33,61)'%20fill-opacity='0.3'/%3E%3C/svg%3E");
     background-position:left top;
     background-size:14px 9px;
     background-repeat:repeat-x;
@@ -312,10 +311,9 @@
   .cta-band{
     background-color:var(--ink);
     color:var(--paper);
-    background-image:
-      linear-gradient(var(--paper-line) 1px,transparent 1px),
-      linear-gradient(90deg,var(--paper-line) 1px,transparent 1px);
-    background-size:34px 34px,34px 34px;
+    /* dark-band grid drawn as flat inline-SVG hairlines (no gradient) */
+    background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%3E%3Cpath%20d='M0%200H34M0%200V34'%20stroke='rgb(244,242,236)'%20stroke-opacity='0.2'%20stroke-width='1'%20fill='none'/%3E%3C/svg%3E");
+    background-size:34px 34px;
     border-top:1.5px solid var(--ink);
     border-bottom:1.5px solid var(--ink);
   }

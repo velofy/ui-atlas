@@ -171,9 +171,7 @@
   .hero-art{margin:0;min-width:0}
   .art-frame{
     position:relative;border:1px solid var(--hair);
-    background:
-      radial-gradient(120% 120% at 50% 30%, rgba(200,162,74,0.05), transparent 60%),
-      var(--panel);
+    background:var(--panel);
     padding:clamp(20px,4vw,44px);
   }
   .art-frame::before,.art-frame::after{
@@ -218,9 +216,7 @@
   .statement{
     padding-top:clamp(72px,10vw,150px);padding-bottom:clamp(72px,10vw,150px);
     border-top:1px solid var(--hair);
-    background:
-      radial-gradient(90% 120% at 50% 0%, rgba(200,162,74,0.05), transparent 55%),
-      var(--bg);
+    background:var(--bg);
     text-align:center;
   }
   .statement-inner{max-width:900px;margin:0 auto}
@@ -272,11 +268,11 @@
   @keyframes sweep{to{transform:rotate(360deg)}}
 
   /* svg dial classes */
-  .dial-base{fill:url(#dialGrad)}
+  .dial-base{fill:#0d0b07}
   .bezel-outer{fill:none;stroke:var(--gold);stroke-width:2;stroke-opacity:0.9}
   .bezel-inner{fill:none;stroke:var(--gold);stroke-width:1;stroke-opacity:0.5}
   .chapter{fill:none;stroke:var(--gold);stroke-width:0.75;stroke-opacity:0.35}
-  .glint{fill:url(#glintGrad)}
+  .glint{fill:rgba(239,233,221,0.045)}
   .g-weave{fill:none;stroke:var(--gold);stroke-width:0.45;stroke-opacity:0.30;stroke-linejoin:round}
   .g-rose{fill:none;stroke:var(--gold);stroke-width:0.5;stroke-opacity:0.55}
   .g-ray{stroke:var(--gold);stroke-width:0.4;stroke-opacity:0.20}
@@ -375,18 +371,6 @@
           <svg class="watch" viewBox="0 0 400 400" role="img" aria-labelledby="watchTitle watchDesc">
             <title id="watchTitle">The Aurent AUR-01 dial</title>
             <desc id="watchDesc">A wristwatch dial with hand-engraved gold guilloche, Roman numerals, Breguet hands, and a running small-seconds subdial.</desc>
-            <defs>
-              <radialGradient id="dialGrad" cx="42%" cy="34%" r="72%">
-                <stop offset="0%" stop-color="#151109"/>
-                <stop offset="46%" stop-color="#0d0b07"/>
-                <stop offset="100%" stop-color="#060504"/>
-              </radialGradient>
-              <radialGradient id="glintGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#efe9dd" stop-opacity="0.14"/>
-                <stop offset="70%" stop-color="#efe9dd" stop-opacity="0.03"/>
-                <stop offset="100%" stop-color="#efe9dd" stop-opacity="0"/>
-              </radialGradient>
-            </defs>
             <circle class="dial-base" cx="200" cy="200" r="185"/>
             <ellipse class="glint" cx="150" cy="128" rx="120" ry="86"/>
             <circle class="bezel-outer" cx="200" cy="200" r="185"/>

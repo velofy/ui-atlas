@@ -292,9 +292,8 @@
   .dashline{display:none}
   @media (min-width:760px){
     .dashline{
-      display:block;position:absolute;left:8%;right:8%;top:38px;height:2px;z-index:0;
-      background-image:linear-gradient(90deg,var(--terracotta) 0 8px,transparent 8px 20px);
-      background-size:20px 2px;background-repeat:repeat-x;opacity:.7;
+      display:block;position:absolute;left:8%;right:8%;top:38px;height:0;z-index:0;
+      border-top:2px dashed var(--terracotta);opacity:.7;
     }
   }
 
@@ -306,11 +305,18 @@
     position:relative;overflow:hidden;
     box-shadow:var(--shadow-lg);
   }
+  .closer::before{
+    content:"";position:absolute;top:-90px;right:-70px;
+    width:260px;height:260px;border-radius:50%;
+    background:var(--terracotta);opacity:.16;
+    box-shadow:0 0 120px 40px rgba(224,122,95,.16);
+    pointer-events:none;
+  }
   .closer::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:
-      radial-gradient(120% 90% at 100% 0%, rgba(224,122,95,.30), transparent 60%),
-      repeating-linear-gradient(135deg, rgba(253,246,236,.05) 0 2px, transparent 2px 16px);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size:160px 160px;
+    opacity:.09;
   }
   .closer-inner{position:relative;z-index:1;max-width:60ch}
   .closer .kicker{color:var(--terracotta-soft)}
@@ -429,10 +435,6 @@
             <pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse">
               <circle cx="1.2" cy="1.2" r="1.2" fill="#2b2a26" opacity=".07"/>
             </pattern>
-            <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#cfe3e0"/>
-              <stop offset="1" stop-color="#bcd8d4"/>
-            </linearGradient>
             <clipPath id="frame">
               <rect x="16" y="16" width="608" height="488" rx="18"/>
             </clipPath>
@@ -448,7 +450,7 @@
             <rect x="16" y="16" width="608" height="488" fill="url(#grid)"/>
 
             <!-- sea, bottom-left -->
-            <path d="M16 400 C 90 410 150 448 214 470 C 250 483 250 504 250 520 L16 520 Z" fill="url(#sea)"/>
+            <path d="M16 400 C 90 410 150 448 214 470 C 250 483 250 504 250 520 L16 520 Z" fill="#c6deda"/>
             <!-- coastline highlight -->
             <path d="M16 400 C 90 410 150 448 214 470 C 250 483 250 504 250 520" fill="none" stroke="#4f7362" stroke-width="2" opacity=".4"/>
             <!-- little waves -->

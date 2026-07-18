@@ -183,12 +183,10 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='1' fill='%233a322c'/%3E%3C/svg%3E");
     background-size: 24px 24px;
-    opacity: 0.32;
+    opacity: 0.24;
     pointer-events: none;
-    -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 80%);
-            mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 80%);
   }
   .hero-grid {
     position: relative;
@@ -301,7 +299,7 @@
   .section-head p { color: var(--ink-muted); font-size: 1.08rem; max-width: 52ch; }
 
   /* ---- features ---- */
-  #features { border-top: 1px solid var(--line-soft); background: linear-gradient(180deg, var(--bg-2), var(--bg)); }
+  #features { border-top: 1px solid var(--line-soft); background: var(--bg-2); }
   .feature-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -517,10 +515,9 @@
           <title id="artTitle">Portway terminal running a deploy</title>
           <desc id="artDesc">A terminal window showing the command portway up detecting, building, testing and shipping, above a pipeline diagram flowing from commit to build to test to ship.</desc>
           <defs>
-            <radialGradient id="glow" cx="30%" cy="40%" r="65%">
-              <stop offset="0%" stop-color="#ff8a3d" stop-opacity="0.34"/>
-              <stop offset="100%" stop-color="#ff8a3d" stop-opacity="0"/>
-            </radialGradient>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="30"/>
+            </filter>
             <marker id="arw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M0 0 L10 5 L0 10 z" fill="#d96a22"/>
             </marker>
@@ -529,7 +526,7 @@
           <!-- terminal window -->
           <rect x="8" y="8" width="504" height="256" rx="14" fill="#1b1613" stroke="#3a322c"/>
           <!-- glow behind prompt -->
-          <ellipse cx="150" cy="96" rx="150" ry="52" fill="url(#glow)"/>
+          <ellipse cx="150" cy="96" rx="120" ry="40" fill="#ff8a3d" opacity="0.16" filter="url(#glow)"/>
           <!-- title bar -->
           <path d="M8 22 a14 14 0 0 1 14 -14 h476 a14 14 0 0 1 14 14 v22 h-504 z" fill="#241e1a"/>
           <line x1="8" y1="44" x2="512" y2="44" stroke="#3a322c"/>

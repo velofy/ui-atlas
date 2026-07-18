@@ -247,8 +247,8 @@
   }
   .zone::before{
     content:"";position:absolute;left:-90px;bottom:-90px;width:280px;height:280px;
-    border-radius:50%;background:radial-gradient(circle at 40% 40%, var(--orange), transparent 64%);
-    opacity:.4;pointer-events:none;
+    border-radius:50%;background:var(--orange);
+    opacity:.26;filter:blur(46px);pointer-events:none;
   }
   .zone-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(26px,4vw,52px);align-items:center;position:relative;z-index:1}
   .zone-copy{min-width:0}
@@ -279,9 +279,7 @@
 
   /* final cta */
   .final{
-    background:
-      radial-gradient(1000px 340px at 50% -40%, var(--orange-tint), transparent 70%),
-      var(--bg);
+    background:var(--bg-2);
     text-align:center;
   }
   .final-inner{
@@ -385,36 +383,8 @@
       <div class="hero-art">
         <svg id="scene" viewBox="0 0 480 470" role="img"
              aria-label="A cheerful noodle bowl with rising steam and chopsticks lifting a strand of noodles, a peach bubble tea beside it, and a floating leaf garnish, set inside a dashed map circle that marks the delivery zone.">
-          <defs>
-            <radialGradient id="sky" cx="50%" cy="30%" r="78%">
-              <stop offset="0%" stop-color="#fffdfb"/>
-              <stop offset="56%" stop-color="#fff1e6"/>
-              <stop offset="100%" stop-color="#ffe0cc"/>
-            </radialGradient>
-            <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f5824f"/>
-              <stop offset="100%" stop-color="#e85f2f"/>
-            </linearGradient>
-            <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#fb9d70"/>
-              <stop offset="100%" stop-color="#f4794a"/>
-            </linearGradient>
-            <radialGradient id="broth" cx="50%" cy="38%" r="70%">
-              <stop offset="0%" stop-color="#ffe1ac"/>
-              <stop offset="100%" stop-color="#f3b463"/>
-            </radialGradient>
-            <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f7b877"/>
-              <stop offset="100%" stop-color="#ef985a"/>
-            </linearGradient>
-            <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#84c465"/>
-              <stop offset="100%" stop-color="#5fa03f"/>
-            </linearGradient>
-          </defs>
-
           <!-- backdrop -->
-          <rect x="8" y="8" width="464" height="454" rx="34" fill="url(#sky)"/>
+          <rect x="8" y="8" width="464" height="454" rx="34" fill="#fff1e6"/>
 
           <!-- delivery zone map rings -->
           <circle cx="240" cy="244" r="176" fill="none" stroke="#ef6c3c" stroke-width="2.2" stroke-dasharray="3 12" stroke-linecap="round" opacity=".28"/>
@@ -435,7 +405,7 @@
           <!-- floating leaf garnish -->
           <g class="a-sway">
             <g transform="translate(96,132)">
-              <path d="M0 -22C-20 -14 -22 12 0 22 22 12 20 -14 0 -22Z" fill="url(#leaf)"/>
+              <path d="M0 -22C-20 -14 -22 12 0 22 22 12 20 -14 0 -22Z" fill="#6fae4f"/>
               <path d="M0 -18V18" stroke="#3f7d2c" stroke-width="1.8" opacity=".55"/>
               <path d="M0 -6C6 -10 10 -12 13 -13" stroke="#3f7d2c" stroke-width="1.4" fill="none" opacity=".45"/>
               <path d="M0 4C-6 0 -10 -2 -13 -3" stroke="#3f7d2c" stroke-width="1.4" fill="none" opacity=".45"/>
@@ -450,7 +420,7 @@
               <path d="M96 214 L112 128" stroke="#ef6c3c" stroke-width="9" stroke-linecap="round"/>
               <path d="M112 128 L120 108" stroke="#c2410c" stroke-width="9" stroke-linecap="round"/>
               <!-- cup body -->
-              <path d="M60 208 L128 208 L119 344 Q117 356 105 356 L83 356 Q71 356 69 344 Z" fill="url(#cup)"/>
+              <path d="M60 208 L128 208 L119 344 Q117 356 105 356 L83 356 Q71 356 69 344 Z" fill="#f3a869"/>
               <!-- lid -->
               <rect x="55" y="200" width="78" height="14" rx="6" fill="#ffd7ad"/>
               <rect x="55" y="200" width="78" height="14" rx="6" fill="#ffffff" opacity=".18"/>
@@ -485,12 +455,12 @@
             <!-- bowl foot -->
             <ellipse cx="240" cy="386" rx="58" ry="12" fill="#d94f24"/>
             <!-- front body -->
-            <path d="M116 300 C 122 380, 358 380, 364 300 Z" fill="url(#bowl)"/>
+            <path d="M116 300 C 122 380, 358 380, 364 300 Z" fill="#ef6c3c"/>
             <!-- rim ring -->
-            <ellipse cx="240" cy="300" rx="124" ry="28" fill="url(#rim)"/>
+            <ellipse cx="240" cy="300" rx="124" ry="28" fill="#f78b5d"/>
             <ellipse cx="240" cy="300" rx="124" ry="28" fill="none" stroke="#c2410c" stroke-width="2" opacity=".45"/>
             <!-- broth surface -->
-            <ellipse cx="240" cy="300" rx="110" ry="22" fill="url(#broth)"/>
+            <ellipse cx="240" cy="300" rx="110" ry="22" fill="#f3b463"/>
 
             <!-- noodle strands on surface -->
             <g stroke="#f0c073" stroke-width="4" fill="none" stroke-linecap="round" opacity=".95">
@@ -631,13 +601,7 @@
           </div>
           <div class="zone-art">
             <svg viewBox="0 0 320 300" role="img" aria-label="A simple neighborhood map. A dashed 12-minute ring is drawn around a central You pin, with four independent kitchen pins inside the ring and two crossed-out chain markers outside it.">
-              <defs>
-                <linearGradient id="mapbg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#2a1a12"/>
-                  <stop offset="100%" stop-color="#180d07"/>
-                </linearGradient>
-              </defs>
-              <rect x="0" y="0" width="320" height="300" rx="20" fill="url(#mapbg)"/>
+              <rect x="0" y="0" width="320" height="300" rx="20" fill="#20130b"/>
               <!-- streets -->
               <g stroke="#f6e6da" stroke-width="1.4" opacity=".12">
                 <path d="M0 78H320M0 150H320M0 224H320"/>

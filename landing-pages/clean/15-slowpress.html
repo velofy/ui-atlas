@@ -151,7 +151,7 @@
   /* ============================================================
      NAV
      ============================================================ */
-  .topbar{height:4px;width:100%;background:linear-gradient(90deg,var(--roast),var(--roast-deep));}
+  .topbar{height:4px;width:100%;background:var(--roast);}
   header.nav{
     position:sticky;top:0;z-index:20;
     background:rgba(239,230,214,.86);
@@ -280,7 +280,7 @@
   }
   .card::after{
     content:"";position:absolute;inset:0 0 auto 0;height:4px;
-    background:linear-gradient(90deg,var(--roast),transparent 70%);
+    background:var(--roast);
     opacity:.75;
   }
   .card .ico{
@@ -375,9 +375,7 @@
      ============================================================ */
   .subscribe{padding-block:var(--sect);}
   .band{
-    background:
-      radial-gradient(120% 140% at 12% 0%, rgba(181,101,29,.28), transparent 55%),
-      var(--ink);
+    background:var(--ink);
     color:var(--cream);
     border-radius:var(--radius-lg);
     padding:clamp(2rem,5vw,3.5rem);
@@ -565,16 +563,8 @@
         <title id="art-title">A pour-over coffee dripper resting on a warm mug with steam rising</title>
         <desc id="art-desc">Line-art illustration of a V60-style pour-over cone sitting on a ceramic mug, drawn in ink and roast-orange, with three ribbons of steam curling upward and roasted beans floating nearby.</desc>
 
-        <defs>
-          <radialGradient id="glow" cx="50%" cy="42%" r="58%">
-            <stop offset="0%" stop-color="#b5651d" stop-opacity=".22"/>
-            <stop offset="55%" stop-color="#b5651d" stop-opacity=".07"/>
-            <stop offset="100%" stop-color="#b5651d" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-
-        <!-- soft warmth behind the cup -->
-        <circle cx="220" cy="232" r="190" fill="url(#glow)"/>
+        <!-- soft warmth behind the cup (flat solid disc, no gradient) -->
+        <circle cx="220" cy="232" r="190" fill="var(--roast)" fill-opacity=".08"/>
         <circle cx="220" cy="232" r="176" fill="none" stroke="var(--roast)" stroke-width="1" stroke-opacity=".18" stroke-dasharray="2 8"/>
 
         <!-- steam ribbons (the motion signature) -->

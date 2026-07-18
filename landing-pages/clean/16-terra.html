@@ -273,9 +273,7 @@
   /* ---- cta band ---- */
   .cta-band{
     padding-top:clamp(2.8rem,6vw,4.4rem);padding-bottom:clamp(2.8rem,6vw,4.4rem);
-    background:
-      radial-gradient(120% 120% at 85% 10%, rgba(74,124,63,.10), transparent 55%),
-      linear-gradient(180deg, var(--sage-soft), #e7efdd);
+    background:var(--sage-soft);
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
   }
@@ -401,19 +399,11 @@
         <!-- SIGNATURE: topographic leaf-hill with a live growth curve -->
         <svg class="art" viewBox="0 0 560 540" role="img" focusable="false">
           <defs>
-            <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#fbfcf8"/>
-              <stop offset="1" stop-color="#eef2e6"/>
-            </linearGradient>
-            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#4a7c3f" stop-opacity=".16"/>
-              <stop offset="1" stop-color="#4a7c3f" stop-opacity="0"/>
-            </linearGradient>
             <path id="leaf" d="M280,58 C345,110 402,190 400,288 C398,368 348,424 280,452 C212,424 162,368 160,288 C158,190 215,110 280,58 Z"/>
           </defs>
 
           <!-- backdrop -->
-          <rect x="18" y="18" width="524" height="504" rx="26" fill="url(#bg)" stroke="#d8ddcb"/>
+          <rect x="18" y="18" width="524" height="504" rx="26" fill="#f4f7ef" stroke="#d8ddcb"/>
 
           <!-- ground shadow -->
           <ellipse cx="280" cy="472" rx="150" ry="20" fill="#1e2a1e" opacity=".05"/>
@@ -443,7 +433,7 @@
           </g>
 
           <!-- growth curve area -->
-          <path d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182 L455,470 L150,470 Z" fill="url(#area)"/>
+          <path d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182 L455,470 L150,470 Z" fill="#4a7c3f" opacity=".12"/>
           <!-- growth curve halo + line -->
           <path d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182" fill="none" stroke="#fbfcf8" stroke-width="7" stroke-linecap="round" opacity=".85"/>
           <path class="draw" style="--len:560" d="M150,410 C190,392 200,352 250,332 C300,312 320,308 345,300 C390,286 420,220 455,182" fill="none" stroke="#1e2a1e" stroke-width="3" stroke-linecap="round"/>

@@ -152,10 +152,11 @@
      ============================================================ */
   .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden;}
   .hero::before{
-    /* soft glow behind the lens */
+    /* soft glow behind the lens: flat solid accent, softened by a blur filter (not a gradient) */
     content:"";position:absolute;right:-8%;top:8%;
-    width:min(60vw,620px);aspect-ratio:1;
-    background:radial-gradient(circle at center,rgba(234,184,115,.14),rgba(14,14,14,0) 62%);
+    width:min(60vw,620px);aspect-ratio:1;border-radius:50%;
+    background:rgba(234,184,115,.1);
+    filter:blur(64px);
     pointer-events:none;z-index:0;
   }
   .hero-grid{
@@ -232,9 +233,9 @@
   .photo svg{width:100%;height:auto;display:block;}
   .photo::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:
-      radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.42) 100%),
-      repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);
+    /* scanline texture via inline SVG (not a gradient); edge vignette via inset shadow (not a gradient) */
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='3' height='1' fill='white' fill-opacity='0.028'/%3E%3C/svg%3E") repeat;
+    box-shadow:inset 0 0 60px 10px rgba(0,0,0,.42);
     mix-blend-mode:soft-light;
   }
   .frame .cap{
@@ -295,9 +296,9 @@
   .cta-card{
     position:relative;overflow:hidden;
     border:1px solid var(--line-2);border-radius:var(--r);
-    background:
-      radial-gradient(90% 140% at 82% 0%,rgba(234,184,115,.1),rgba(14,14,14,0) 60%),
-      var(--bg-2);
+    /* flat solid card; warm top glow hinted with an inset shadow (not a gradient) */
+    background:var(--bg-2);
+    box-shadow:inset 0 90px 140px -70px rgba(234,184,115,.12);
     padding:clamp(2rem,6vw,4.5rem);
   }
   .cta-card h2{

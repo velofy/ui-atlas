@@ -132,8 +132,7 @@
     word-break:break-word;
   }
   .hero h1 .grad{
-    background:linear-gradient(92deg,var(--warm) 0%,var(--warm-2) 45%,var(--teal) 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+    color:var(--warm);
   }
   .lede{
     color:var(--muted);font-size:clamp(1rem,1.7vw,1.18rem);
@@ -181,9 +180,7 @@
   /* ---------- hero figure ---------- */
   .figure{
     position:relative;border:1px solid var(--line);border-radius:var(--r);
-    background:
-      radial-gradient(120% 120% at 68% 46%, rgba(255,107,61,.10), transparent 55%),
-      linear-gradient(180deg,var(--panel),var(--bg-2));
+    background:var(--panel);
     padding:.5rem;overflow:hidden;min-width:0;
   }
   .figure .cap{
@@ -281,7 +278,7 @@
   }
   .ridge-fig{
     border:1px solid var(--line);border-radius:var(--r);
-    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    background:var(--panel);
     padding:1rem 1rem .7rem;min-width:0;overflow:hidden;
   }
   .ridge-fig svg{display:block;width:100%;height:auto}
@@ -293,8 +290,14 @@
   }
   .rlegend .bar{
     height:8px;width:120px;border-radius:999px;flex:0 0 auto;
-    background:linear-gradient(90deg,var(--teal),#c7aa73,var(--warm));
+    display:flex;overflow:hidden;background:var(--panel-2);
   }
+  .rlegend .bar i{flex:1 1 0;height:100%}
+  .rlegend .bar i:nth-child(1){background:var(--teal)}
+  .rlegend .bar i:nth-child(2){background:#8db695}
+  .rlegend .bar i:nth-child(3){background:#c7aa73}
+  .rlegend .bar i:nth-child(4){background:#f3a05a}
+  .rlegend .bar i:nth-child(5){background:var(--warm)}
   .ridge-note ul{list-style:none;margin:1.2rem 0 0;padding:0;display:grid;gap:.85rem}
   .ridge-note li{display:flex;gap:.7rem;color:var(--muted);font-size:.98rem;min-width:0}
   .ridge-note li b{color:var(--ink);font-weight:600}
@@ -307,10 +310,7 @@
   .band{
     position:relative;overflow:hidden;
     border:1px solid var(--line);border-radius:var(--r);
-    background:
-      radial-gradient(90% 140% at 12% 20%, rgba(255,107,61,.14), transparent 55%),
-      radial-gradient(90% 140% at 92% 90%, rgba(55,200,200,.14), transparent 55%),
-      var(--panel);
+    background:var(--panel);
     padding:clamp(1.8rem,5vw,3.4rem);
     text-align:center;
   }
@@ -524,14 +524,11 @@
 
           <!-- legend -->
           <g class="legend" aria-hidden="true">
-            <defs>
-              <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stop-color="#37c8c8"></stop>
-                <stop offset="0.5" stop-color="#c7aa73"></stop>
-                <stop offset="1" stop-color="#ff6b3d"></stop>
-              </linearGradient>
-            </defs>
-            <rect x="40" y="432" width="180" height="8" rx="4" fill="url(#lg)"></rect>
+            <rect x="40" y="432" width="36" height="8" fill="#37c8c8"></rect>
+            <rect x="76" y="432" width="36" height="8" fill="#8db695"></rect>
+            <rect x="112" y="432" width="36" height="8" fill="#c7aa73"></rect>
+            <rect x="148" y="432" width="36" height="8" fill="#f3a05a"></rect>
+            <rect x="184" y="432" width="36" height="8" fill="#ff6b3d"></rect>
             <text class="lg-t" x="40" y="456">8&deg;C</text>
             <text class="lg-t" x="196" y="456">34&deg;C</text>
           </g>
@@ -637,7 +634,7 @@ GET /v1/<span class="kk">field</span>?lat=<span class="nm">48.85</span>&amp;lon=
               <path d="M0 317L0 294C9 294 9 297 17 297C25 297 25 297 33 297C42 297 42 293 50 293C58 293 58 287 66 287C75 287 75 282 83 282C91 282 91 279 99 279C107 279 107 275 115 275C124 275 124 271 132 271C141 271 141 266 149 266C157 266 157 261 165 261C174 261 174 258 182 258C190 258 190 257 198 257C207 257 207 258 215 258C223 258 223 257 231 257C240 257 240 254 248 254C256 254 256 248 264 248C273 248 273 239 281 239C289 239 289 232 297 232C306 232 306 227 314 227C322 227 322 226 330 226C339 226 339 227 347 227C355 227 355 229 363 229C371 229 371 232 379 232C388 232 388 235 396 235C405 235 405 240 413 240C421 240 421 246 429 246C438 246 438 254 446 254C454 254 454 260 462 260C471 260 471 263 479 263C487 263 487 263 495 263C504 263 504 262 512 262C520 262 520 261 528 261C537 261 537 264 545 264C553 264 553 269 561 269C570 269 570 274 578 274C586 274 586 279 594 279C603 279 603 281 611 281C619 281 619 281 627 281C636 281 636 280 644 280C652 280 652 279 660 279L660 317Z" fill="#ff6b3d" fill-opacity=".22" stroke="#ff6b3d" stroke-opacity="1" stroke-width="1.5"></path>
             </g>
           </svg>
-          <div class="rlegend"><span>cooler</span><span class="bar" aria-hidden="true"></span><span>warmer</span><span style="margin-left:auto">anomaly vs 1991 to 2020</span></div>
+          <div class="rlegend"><span>cooler</span><span class="bar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>warmer</span><span style="margin-left:auto">anomaly vs 1991 to 2020</span></div>
         </figure>
 
         <div class="ridge-note" data-reveal style="--d:.1s">

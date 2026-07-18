@@ -71,11 +71,13 @@
   p{margin:0}
   a,button{font-family:inherit}
 
-  /* global CRT scanline texture (static) */
+  /* global CRT scanline texture (static, inline-SVG hairline pattern, not a gradient) */
   .crt-lines{
     position:fixed;inset:0;z-index:9998;pointer-events:none;
-    background:repeating-linear-gradient(to bottom,
-      transparent 0,transparent 2px,rgba(0,0,0,.16) 3px,transparent 4px);
+    background-color:transparent;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect y='3' width='4' height='1' fill='%23000000' fill-opacity='0.18'/%3E%3C/svg%3E");
+    background-size:4px 4px;
+    background-repeat:repeat;
     mix-blend-mode:multiply;opacity:.5;
   }
 
@@ -152,12 +154,13 @@
 
   /* ---------- hero ---------- */
   .s-hero{position:relative;padding:clamp(44px,7vw,88px) 0 clamp(52px,8vw,104px);overflow:hidden}
-  .s-hero::before{
-    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
-    background:
-      radial-gradient(52% 44% at 82% 8%,var(--mag-soft),transparent 70%),
-      radial-gradient(46% 42% at 4% 92%,var(--cyan-soft),transparent 72%);
+  /* flat solid corner accents replace the old radial glow field */
+  .s-hero::before,.s-hero::after{
+    content:"";position:absolute;pointer-events:none;z-index:0;
+    width:min(60vw,460px);height:min(50vw,380px);border-radius:50%;
   }
+  .s-hero::before{top:-10%;right:-8%;background:var(--mag-soft)}
+  .s-hero::after{bottom:-10%;left:-8%;background:var(--cyan-soft)}
   .hero-grid{
     position:relative;z-index:1;
     display:grid;grid-template-columns:1fr;gap:clamp(34px,6vw,56px);align-items:center;
@@ -263,11 +266,19 @@
     padding:clamp(40px,6vw,68px) clamp(24px,5vw,60px);
     text-align:center;
   }
+  /* flat solid corner accents replace the old radial glow field */
+  .cta-final::before,.cta-final::after{
+    content:"";position:absolute;pointer-events:none;border-radius:50%;
+  }
   .cta-final::before{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:
-      radial-gradient(58% 90% at 50% -18%,var(--mag-soft),transparent 68%),
-      radial-gradient(50% 80% at 100% 120%,var(--cyan-soft),transparent 70%);
+    width:min(70%,420px);height:70%;
+    top:-30%;left:50%;transform:translateX(-50%);
+    background:var(--mag-soft);
+  }
+  .cta-final::after{
+    width:min(60%,360px);height:60%;
+    bottom:-24%;right:-10%;
+    background:var(--cyan-soft);
   }
   .cta-final .inner{position:relative;z-index:1;max-width:660px;margin:0 auto}
   .cta-final h2{font-size:clamp(1.9rem,5vw,2.95rem);font-weight:850;letter-spacing:-.035em}

@@ -58,10 +58,7 @@
     position:fixed;
     inset:0;
     z-index:-1;
-    background:
-      radial-gradient(1000px 720px at 82% 8%, rgba(59,130,246,.16), transparent 58%),
-      radial-gradient(760px 620px at 6% 96%, rgba(59,130,246,.09), transparent 60%),
-      var(--bg);
+    background:var(--bg);
   }
 
   a{color:var(--link);text-decoration:none}
@@ -332,7 +329,7 @@
   }
   .card{
     min-width:0;
-    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    background:var(--panel-2);
     border:1px solid var(--hair);
     border-radius:var(--r-md);
     padding:clamp(22px,2.6vw,28px);
@@ -546,12 +543,12 @@
             <path class="arc-guard halo" d="M271 279 A64 64 0 0 1 375 288"/>
             <path class="arc-guard"      d="M271 279 A64 64 0 0 1 375 288"/>
 
-            <!-- sun glow + core -->
+            <!-- sun glow + core (flat solids, softened by a blur filter; no gradients) -->
             <g class="sun-breathe">
-              <circle cx="320" cy="320" r="128" fill="url(#sunGlow)"/>
-              <circle cx="320" cy="320" r="62"  fill="url(#sunGlow2)"/>
+              <circle cx="320" cy="320" r="112" fill="rgba(59,130,246,.14)" filter="url(#softGlow)"/>
+              <circle cx="320" cy="320" r="58"  fill="rgba(147,197,253,.26)" filter="url(#softGlow)"/>
             </g>
-            <circle cx="320" cy="320" r="25" fill="url(#sunCore)"/>
+            <circle cx="320" cy="320" r="25" fill="#93c5fd"/>
             <circle cx="313" cy="313" r="8" fill="#ffffff" opacity=".55"/>
 
             <!-- orbiter 1 : inner focus marker -->
@@ -585,20 +582,9 @@
             </g>
 
             <defs>
-              <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"  stop-color="rgba(59,130,246,.5)"/>
-                <stop offset="45%" stop-color="rgba(59,130,246,.16)"/>
-                <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
-              </radialGradient>
-              <radialGradient id="sunGlow2" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"  stop-color="rgba(147,197,253,.6)"/>
-                <stop offset="100%" stop-color="rgba(147,197,253,0)"/>
-              </radialGradient>
-              <radialGradient id="sunCore" cx="42%" cy="40%" r="65%">
-                <stop offset="0%"  stop-color="#f4f8ff"/>
-                <stop offset="42%" stop-color="#9cc2ff"/>
-                <stop offset="100%" stop-color="#2f6fe0"/>
-              </radialGradient>
+              <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+                <feGaussianBlur stdDeviation="15"/>
+              </filter>
             </defs>
           </svg>
           <figcaption class="caption">

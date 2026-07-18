@@ -53,15 +53,31 @@
     overflow-x:hidden;
   }
 
-  /* soft ambient glows, kept in the corners away from text */
+  /* soft ambient glows, kept in the corners away from text (box-shadow glow, not a gradient) */
   body::before{
     content:"";
     position:fixed;
-    inset:0;
+    top:-40px;
+    right:-40px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
     z-index:-2;
-    background:
-      radial-gradient(520px 380px at 96% -6%, rgba(255,90,60,0.10), transparent 60%),
-      radial-gradient(460px 420px at -6% 108%, rgba(255,90,60,0.06), transparent 60%);
+    background:transparent;
+    box-shadow:0 0 220px 170px rgba(255,90,60,0.10);
+    pointer-events:none;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    bottom:-40px;
+    left:-40px;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    z-index:-2;
+    background:transparent;
+    box-shadow:0 0 220px 180px rgba(255,90,60,0.06);
     pointer-events:none;
   }
 
@@ -206,7 +222,10 @@
     word-break:break-word;
   }
   .hl{
-    background:linear-gradient(transparent 62%, var(--accent-tint2) 0);
+    background:var(--accent-tint2);
+    background-repeat:no-repeat;
+    background-size:100% 38%;
+    background-position:left bottom;
     border-radius:3px;
     padding:0 0.04em;
   }
@@ -234,9 +253,7 @@
     position:relative;
     border-radius:var(--radius-lg);
     box-shadow:var(--shadow-md);
-    background:
-      radial-gradient(120% 120% at 82% 8%, var(--accent-tint) 0%, transparent 46%),
-      var(--surface);
+    background:var(--surface);
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -245,7 +262,23 @@
     overflow:hidden;
     padding:clamp(16px, 2vw, 26px);
   }
+  /* warm corner glow, clipped to the cell (box-shadow, not a gradient) */
+  .signature::before{
+    content:"";
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:transparent;
+    box-shadow:0 0 150px 84px var(--accent-tint);
+    z-index:0;
+    pointer-events:none;
+  }
   .sig-art{
+    position:relative;
+    z-index:1;
     width:100%;
     flex:1 1 auto;
     display:flex;
@@ -254,6 +287,8 @@
     min-height:0;
   }
   .sig-cap{
+    position:relative;
+    z-index:1;
     margin:0 0 4px;
     text-align:center;
     max-width:40ch;
@@ -350,11 +385,9 @@
 
   /* cta cell */
   .cta{
-    background:
-      radial-gradient(120% 120% at 12% 12%, rgba(255,255,255,0.16), transparent 40%),
-      var(--accent);
+    background:var(--accent);
     border-color:transparent;
-    box-shadow:var(--shadow-md);
+    box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2);
     display:flex;
     flex-direction:column;
     justify-content:space-between;

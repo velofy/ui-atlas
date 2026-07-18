@@ -73,18 +73,13 @@
     color:var(--muted);
   }
 
-  /* ambient mesh gradient behind everything */
+  /* ambient flat field behind everything */
   .mesh{
     position:fixed;
     inset:0;
     z-index:-2;
     pointer-events:none;
-    background:
-      radial-gradient(60% 55% at 15% 8%, rgba(124,92,255,.22), transparent 60%),
-      radial-gradient(55% 55% at 88% 18%, rgba(34,211,238,.16), transparent 60%),
-      radial-gradient(70% 60% at 78% 92%, rgba(124,92,255,.14), transparent 62%),
-      radial-gradient(50% 50% at 30% 88%, rgba(34,211,238,.08), transparent 60%),
-      var(--bg);
+    background:var(--bg);
   }
   /* grain overlay: inline SVG feTurbulence */
   .grain{
@@ -147,7 +142,7 @@
     white-space:nowrap;text-decoration:none;
   }
   .btn-primary{
-    background:linear-gradient(100deg,var(--violet) 0%,var(--cyan) 100%);
+    background:var(--violet);
     color:#07070d;
     box-shadow:var(--shadow-glow);
     font-weight:680;
@@ -187,9 +182,7 @@
     word-break:break-word;
   }
   h1 .grad{
-    background:linear-gradient(100deg,var(--violet-2),var(--cyan));
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;color:var(--cyan);
+    color:var(--cyan);
   }
   .lede{
     font-size:clamp(1.05rem,2.2vw,1.28rem);
@@ -211,8 +204,7 @@
   .stat{min-width:0}
   .stat .num{
     font-size:1.7rem;font-weight:680;letter-spacing:-.03em;
-    background:linear-gradient(100deg,var(--ink),var(--violet-2));
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--ink);
+    color:var(--ink);
   }
   .stat .lab{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px}
 
@@ -222,14 +214,14 @@
     position:relative;
     border:1px solid var(--hairline);
     border-radius:var(--radius-lg);
-    background:linear-gradient(180deg,rgba(124,92,255,.06),rgba(10,10,18,.4));
+    background:#14122a;
     padding:var(--s2);
     box-shadow:var(--shadow-md);
     overflow:hidden;
   }
   .art-frame::before{
     content:"";position:absolute;inset:0;border-radius:inherit;
-    background:radial-gradient(80% 70% at 50% 40%,rgba(34,211,238,.1),transparent 65%);
+    background:rgba(34,211,238,.05);
     pointer-events:none;
   }
   .art svg.constellation{width:100%;height:auto;display:block}
@@ -267,7 +259,7 @@
     width:46px;height:46px;border-radius:12px;flex:0 0 auto;
     display:grid;place-items:center;
     border:1px solid var(--hairline);
-    background:linear-gradient(180deg,rgba(124,92,255,.14),rgba(34,211,238,.06));
+    background:rgba(124,92,255,.12);
   }
   .card .ic svg{width:24px;height:24px}
   .card h3{font-size:1.22rem;letter-spacing:-.02em}
@@ -280,10 +272,7 @@
     position:relative;overflow:hidden;
     border:1px solid var(--hairline);
     border-radius:var(--radius-lg);
-    background:
-      radial-gradient(60% 120% at 12% 10%,rgba(124,92,255,.24),transparent 60%),
-      radial-gradient(60% 120% at 90% 90%,rgba(34,211,238,.18),transparent 60%),
-      var(--bg-2);
+    background:#14122a;
     padding:clamp(var(--s5),6vw,var(--s7));
     text-align:center;
   }
