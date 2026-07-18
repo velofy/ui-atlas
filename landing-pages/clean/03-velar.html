@@ -1,0 +1,629 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velar Motors - Vela GT</title>
+<meta name="description" content="The Velar Vela GT: an electric car that plugs in and still argues with the road. 540 km of real range, 10 to 80 percent in 18 minutes, torque that reads the corner.">
+<style>
+  :root{
+    --bg:#050505;
+    --panel:#0b0c0c;
+    --panel-2:#101211;
+    --ink:#f4f4f4;
+    --ink-2:#d5dad7;
+    --muted:#9aa39e;
+    --accent:#12e6a0;
+    --accent-ink:#041b13;
+    --accent-dim:rgba(18,230,160,.12);
+    --accent-line:rgba(18,230,160,.35);
+    --hairline:#222;
+    --radius:4px;
+    --radius-lg:8px;
+    --max:1200px;
+    --glow:0 0 0 1px var(--hairline), 0 24px 60px -30px rgba(0,0,0,.9);
+    --font-display:'Arial Narrow','Roboto Condensed','Helvetica Neue',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    line-height:1.55;
+    letter-spacing:.01em;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  img,svg{max-width:100%;display:block}
+  a{color:var(--ink);text-decoration:none}
+  h1,h2,h3,p{margin:0;overflow-wrap:break-word;word-break:break-word}
+  ::selection{background:var(--accent);color:var(--accent-ink)}
+
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+    border-radius:var(--radius);
+  }
+
+  .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 clamp(18px,5vw,48px)}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0;
+  }
+  .disp{
+    font-family:var(--font-display);
+    font-stretch:condensed;
+    font-weight:700;
+    letter-spacing:-.02em;
+    line-height:.92;
+    text-transform:uppercase;
+  }
+
+  /* Skip link */
+  .skip{
+    position:absolute;left:12px;top:-60px;z-index:100;
+    background:var(--accent);color:var(--accent-ink);
+    padding:10px 16px;border-radius:var(--radius);font-weight:700;
+    transition:top .18s ease;
+  }
+  .skip:focus{top:12px}
+
+  /* Ticker */
+  .ticker{
+    border-bottom:1px solid var(--hairline);
+    background:var(--bg);
+    font-family:var(--font-mono);
+    font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .ticker .wrap{display:flex;align-items:center;gap:14px;min-height:34px;flex-wrap:wrap}
+  .ticker b{color:var(--ink-2);font-weight:600}
+  .dotmark{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto;box-shadow:0 0 10px var(--accent);animation:pulse 2.6s ease-in-out infinite}
+
+  /* Header */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(5,5,5,.82);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--hairline);
+  }
+  header.nav .wrap{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px 20px;min-height:60px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;color:var(--ink)}
+  .brand .mark{width:26px;height:26px;flex:0 0 auto}
+  .brand .word{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;
+    font-size:22px;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .brand .word i{color:var(--accent);font-style:normal}
+  nav.links{display:flex;align-items:center;gap:clamp(12px,2.4vw,26px);flex-wrap:wrap;min-width:0}
+  nav.links a{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);white-space:nowrap;padding:6px 0;
+  }
+  nav.links a:hover{color:var(--ink)}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    border-radius:var(--radius);cursor:pointer;border:1px solid transparent;
+    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{
+    background:var(--accent);color:var(--accent-ink);font-weight:700;
+    padding:11px 20px;box-shadow:0 0 24px -6px var(--accent);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 30px -4px var(--accent)}
+  .btn-ghost{
+    background:transparent;color:var(--ink);border:1px solid var(--hairline);
+    padding:11px 20px;
+  }
+  .btn-ghost:hover{border-color:var(--accent-line);color:var(--ink)}
+  .nav-cta{padding:9px 16px}
+
+  /* Hero */
+  .hero{position:relative;padding-top:clamp(38px,7vw,74px)}
+  .hero-copy{max-width:920px;position:relative;z-index:2}
+  .hero h1{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;
+    text-transform:uppercase;letter-spacing:-.02em;line-height:.9;
+    font-size:clamp(2.7rem,9.2vw,6.6rem);
+    margin:18px 0 0;
+  }
+  .hero h1 .hl{color:var(--accent);display:inline-block}
+  .hero .sub{
+    color:var(--ink-2);font-size:clamp(1rem,2.3vw,1.32rem);line-height:1.5;
+    max-width:60ch;margin-top:22px;
+  }
+  .hero .sub b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  .trust{
+    display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  }
+  .trust span{display:inline-flex;align-items:center;gap:7px;min-width:0}
+  .trust span::before{content:"";width:5px;height:5px;background:var(--accent);border-radius:50%;flex:0 0 auto}
+
+  /* Stage / hero artwork */
+  .stage{position:relative;margin-top:clamp(8px,3vw,26px)}
+  .stage::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(transparent 96%, var(--hairline) 96%) 0 0/100% 44px,
+      linear-gradient(90deg, transparent 96%, var(--hairline) 96%) 0 0/44px 100%;
+    opacity:.35;mask-image:radial-gradient(120% 90% at 50% 60%, #000 30%, transparent 78%);
+    -webkit-mask-image:radial-gradient(120% 90% at 50% 60%, #000 30%, transparent 78%);
+  }
+  .stage svg.scene{width:100%;height:auto;display:block;position:relative;z-index:1}
+
+  /* SVG scene animation classes */
+  .arc-flow{stroke-dasharray:2 13;animation:flow 9s linear infinite}
+  .streaks line{opacity:0;animation:streak 2.6s linear infinite}
+  .charge-dot{transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-in-out infinite}
+  .under-glow{animation:pulse 3.4s ease-in-out infinite}
+  @keyframes flow{to{stroke-dashoffset:-450}}
+  @keyframes streak{0%{transform:translateX(18px);opacity:0}22%{opacity:.85}100%{transform:translateX(-72px);opacity:0}}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* Stat strip */
+  .stats{
+    border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+    margin-top:clamp(20px,5vw,52px);
+  }
+  .stats .grid{display:grid;grid-template-columns:repeat(3,1fr)}
+  .stat{padding:clamp(22px,4vw,40px) clamp(14px,3vw,32px);border-left:1px solid var(--hairline);min-width:0}
+  .stat:first-child{border-left:0}
+  .stat .num{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;
+    font-size:clamp(2.6rem,8vw,4.8rem);line-height:.9;letter-spacing:-.02em;color:var(--ink);
+  }
+  .stat .num .u{color:var(--accent);font-size:.42em;margin-left:.14em;letter-spacing:0}
+  .stat .lab{
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-top:10px;
+  }
+
+  /* Manifesto */
+  .manifesto{padding:clamp(52px,10vw,110px) 0}
+  .manifesto .wrap{max-width:1000px}
+  .manifesto .kicker{margin-bottom:26px}
+  .manifesto p{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;
+    text-transform:uppercase;letter-spacing:-.01em;line-height:1.02;
+    font-size:clamp(1.7rem,5.4vw,3.5rem);
+  }
+  .manifesto p .q{color:var(--muted)}
+  .manifesto p em{color:var(--accent);font-style:normal}
+
+  /* Features */
+  .features{padding-bottom:clamp(30px,6vw,64px)}
+  .features .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px;margin-bottom:34px}
+  .features .head h2{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;text-transform:uppercase;
+    letter-spacing:-.01em;line-height:.95;font-size:clamp(1.9rem,5vw,3rem);
+  }
+  .features .head p{color:var(--muted);max-width:38ch;font-size:.95rem}
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hairline);border:1px solid var(--hairline);border-radius:var(--radius-lg);overflow:hidden}
+  .fcard{background:var(--panel);padding:clamp(22px,3vw,34px);min-width:0;display:flex;flex-direction:column;gap:14px}
+  .fcard:hover{background:var(--panel-2)}
+  .ficon{width:46px;height:46px;flex:0 0 auto}
+  .fcard .tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .fcard h3{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;text-transform:uppercase;
+    letter-spacing:-.01em;line-height:1;font-size:clamp(1.4rem,3.4vw,1.85rem);color:var(--ink);
+  }
+  .fcard p{color:var(--muted);font-size:.96rem;line-height:1.55}
+  .fcard p b{color:var(--ink-2);font-weight:600}
+
+  /* Closing CTA */
+  .close{margin:clamp(20px,5vw,40px) 0}
+  .close .panel{
+    position:relative;overflow:hidden;border:1px solid var(--hairline);border-radius:var(--radius-lg);
+    background:
+      radial-gradient(120% 160% at 88% -20%, var(--accent-dim), transparent 60%),
+      linear-gradient(180deg, var(--panel-2), var(--panel));
+    padding:clamp(30px,6vw,64px);
+  }
+  .close .panel::after{
+    content:"";position:absolute;right:-40px;bottom:-60px;width:280px;height:280px;
+    background:radial-gradient(circle, var(--accent-dim), transparent 70%);pointer-events:none;
+  }
+  .close h2{
+    font-family:var(--font-display);font-stretch:condensed;font-weight:700;text-transform:uppercase;
+    letter-spacing:-.02em;line-height:.92;font-size:clamp(2.1rem,6.5vw,4rem);max-width:16ch;position:relative;z-index:1;
+  }
+  .close p{color:var(--ink-2);max-width:52ch;margin-top:18px;position:relative;z-index:1}
+  .close .cta-row{position:relative;z-index:1}
+
+  /* Footer */
+  footer{border-top:1px solid var(--hairline);padding:clamp(34px,6vw,56px) 0 30px;margin-top:clamp(30px,6vw,60px)}
+  .foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px}
+  .foot-brand{max-width:34ch;min-width:0}
+  .foot-brand .word{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:26px;letter-spacing:.16em;text-transform:uppercase}
+  .foot-brand .word i{color:var(--accent);font-style:normal}
+  .foot-brand p{color:var(--muted);font-size:.9rem;margin-top:12px}
+  .foot-cols{display:flex;gap:clamp(30px,6vw,72px);flex-wrap:wrap}
+  .foot-col h4{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:600}
+  .foot-col a{display:block;color:var(--ink-2);font-size:.92rem;padding:6px 0}
+  .foot-col a:hover{color:var(--accent)}
+  .foot-bar{
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
+    margin-top:clamp(28px,5vw,48px);padding-top:20px;border-top:1px solid var(--hairline);
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;
+  }
+  .foot-bar a{color:var(--muted)}
+  .foot-bar a:hover{color:var(--ink)}
+
+  /* Responsive */
+  @media (max-width:820px){
+    .stats .grid{grid-template-columns:1fr}
+    .stat{border-left:0;border-top:1px solid var(--hairline)}
+    .stat:first-child{border-top:0}
+    .fgrid{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    nav.links{gap:14px 16px}
+    .brand .word{font-size:19px}
+    .cta-row .btn{flex:1 1 auto;justify-content:center}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+    .streaks line{opacity:.5}
+  }
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="ticker">
+  <div class="wrap">
+    <span class="dotmark" aria-hidden="true"></span>
+    <span><b>Vela GT reservations are open.</b> First deliveries autumn 2027. Refundable deposits, no queue tricks.</span>
+  </div>
+</div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Velar Motors home">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="37" height="37" rx="4" stroke="var(--hairline)"/>
+        <path d="M8 11 L20 30 L32 11" stroke="var(--accent)" stroke-width="3" stroke-linecap="square" fill="none"/>
+        <circle cx="20" cy="14" r="2.4" fill="var(--accent)"/>
+      </svg>
+      <span class="word">Vel<i>a</i>r</span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a href="#range">Range</a>
+      <a href="#charging">Charging</a>
+      <a href="#drive">Design</a>
+      <a class="btn btn-primary nav-cta" href="#reserve">Reserve</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="h-title">
+    <div class="wrap hero-copy">
+      <p class="eyebrow">Velar &middot; Vela GT</p>
+      <h1 id="h-title">The quiet<br>has <span class="hl">teeth</span>.</h1>
+      <p class="sub">Somewhere along the way the electric car got too polite. Too smooth, too silent, too eager to vanish under you. The <b>Vela GT</b> plugs in and still argues with the road: 0 to 100 in 3.1 seconds, 540 kilometers of honest range, and a chassis that talks back.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#reserve">Reserve the Vela GT</a>
+        <a class="btn btn-ghost" href="#drive">See how it drives</a>
+      </div>
+      <div class="trust" aria-hidden="false">
+        <span>350 kW DC charging</span>
+        <span>Dual rear-biased motors</span>
+        <span>Built in Graz</span>
+      </div>
+    </div>
+
+    <div class="stage" aria-hidden="false">
+      <svg class="scene" viewBox="0 0 1200 560" role="img" aria-label="Side profile of the Velar Vela GT electric coupe, low and sleek, with trailing motion streak lines and a bright charge arc sweeping over the car.">
+        <defs>
+          <radialGradient id="vGlow" cx="52%" cy="62%" r="60%">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".20"/>
+            <stop offset="55%" stop-color="var(--accent)" stop-opacity=".05"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="vBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#23282a"/>
+            <stop offset="34%" stop-color="#12181a"/>
+            <stop offset="100%" stop-color="#06090a"/>
+          </linearGradient>
+          <linearGradient id="vGlass" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0e2b26"/>
+            <stop offset="100%" stop-color="#04100e"/>
+          </linearGradient>
+          <linearGradient id="vArc" x1="120" y1="0" x2="1080" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
+            <stop offset="26%" stop-color="var(--accent)" stop-opacity=".9"/>
+            <stop offset="72%" stop-color="var(--accent)"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="vBeam" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="vUnder" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="vRefl" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--bg)" stop-opacity="0"/>
+            <stop offset="70%" stop-color="var(--bg)" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="var(--bg)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ambient glow -->
+        <ellipse cx="620" cy="360" rx="560" ry="230" fill="url(#vGlow)"/>
+
+        <!-- charge arc (signature) -->
+        <g fill="none" stroke-linecap="round">
+          <path d="M 120 340 C 360 70 860 60 1082 320" stroke="var(--accent-line)" stroke-width="1"/>
+          <path class="arc-flow" d="M 120 340 C 360 70 860 60 1082 320" stroke="url(#vArc)" stroke-width="2.6"/>
+        </g>
+        <g fill="var(--accent)">
+          <circle cx="120" cy="340" r="3.4" opacity=".8"/>
+          <circle cx="1082" cy="320" r="4.6"/>
+          <circle cx="1082" cy="320" r="9" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".5"/>
+        </g>
+        <!-- charge label + bolt at arc head -->
+        <g transform="translate(1044,286)">
+          <path d="M7 0 L0 9 L5 9 L2 16 L11 6 L6 6 Z" fill="var(--accent)"/>
+        </g>
+        <text x="1064" y="298" font-family="ui-monospace, Menlo, monospace" font-size="13" letter-spacing="2" fill="var(--accent)">350 kW</text>
+
+        <!-- motion streaks trailing behind -->
+        <g class="streaks" stroke-linecap="round" stroke="var(--accent)">
+          <line x1="18" y1="250" x2="150" y2="250" stroke-width="2" style="animation-delay:0s"/>
+          <line x1="0"  y1="284" x2="170" y2="284" stroke-width="2.4" stroke="var(--ink)" style="animation-delay:.5s;opacity:.6"/>
+          <line x1="30" y1="316" x2="150" y2="316" stroke-width="2" style="animation-delay:.9s"/>
+          <line x1="8"  y1="346" x2="180" y2="346" stroke-width="3" stroke="var(--ink)" style="animation-delay:.3s;opacity:.5"/>
+          <line x1="46" y1="376" x2="160" y2="376" stroke-width="2" style="animation-delay:1.3s"/>
+        </g>
+
+        <!-- reflection -->
+        <g transform="matrix(1,0,0,-1,0,828)" opacity=".16">
+          <path d="M 168 350 L 170 322 Q 175 298 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 Q 986 330 984 345 L 960 351 L 930 351 A 80 80 0 0 0 780 351 L 420 351 A 80 80 0 0 0 270 351 L 168 350 Z" fill="var(--accent)"/>
+        </g>
+        <rect x="0" y="414" width="1200" height="146" fill="url(#vRefl)"/>
+
+        <!-- ground line -->
+        <line x1="60" y1="414" x2="1140" y2="414" stroke="var(--hairline)" stroke-width="1"/>
+        <ellipse class="under-glow" cx="600" cy="414" rx="330" ry="12" fill="url(#vUnder)"/>
+
+        <!-- CAR -->
+        <g>
+          <!-- body -->
+          <path d="M 168 350 L 170 322 Q 175 298 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 Q 986 330 984 345 L 960 351 L 930 351 A 80 80 0 0 0 780 351 L 420 351 A 80 80 0 0 0 270 351 L 168 350 Z"
+            fill="url(#vBody)" stroke="var(--hairline)" stroke-width="1.4"/>
+
+          <!-- glasshouse -->
+          <path d="M 262 282 C 340 250 430 210 512 202 Q 596 199 636 222 C 672 244 700 264 732 284 L 262 282 Z" fill="url(#vGlass)" stroke="var(--accent-line)" stroke-width="1"/>
+          <!-- b pillar -->
+          <path d="M 476 205 L 470 282" stroke="#05100d" stroke-width="9" stroke-linecap="round"/>
+          <!-- windscreen split highlight -->
+          <path d="M 512 203 C 596 200 632 224 664 250" stroke="var(--accent)" stroke-width="1" opacity=".4" fill="none"/>
+
+          <!-- shoulder / character line -->
+          <path d="M 236 300 C 440 288 700 292 902 308" stroke="var(--ink)" stroke-width="1" opacity=".12" fill="none"/>
+          <!-- lower crease -->
+          <path d="M 300 336 C 480 330 720 332 900 338" stroke="#000" stroke-width="2" opacity=".5" fill="none"/>
+
+          <!-- door cut + handle -->
+          <path d="M 560 300 L 566 351" stroke="#000" stroke-width="1.4" opacity=".5"/>
+          <rect x="606" y="304" width="34" height="6" rx="3" fill="var(--accent)" opacity=".85"/>
+
+          <!-- rear taillight bar -->
+          <path d="M 170 302 L 182 305 L 180 324 L 168 321 Z" fill="var(--accent)"/>
+          <path d="M 176 300 L 250 300" stroke="var(--accent)" stroke-width="2" opacity=".7"/>
+
+          <!-- headlight + beam -->
+          <path d="M 250 340 L 750 340" stroke="none"/>
+          <path d="M 958 330 L 986 336 L 984 345 L 956 340 Z" fill="var(--accent)"/>
+          <polygon points="986,335 1160,306 1160,372 986,345" fill="url(#vBeam)" opacity=".55"/>
+          <!-- charge port glow -->
+          <circle class="charge-dot" cx="905" cy="316" r="4" fill="var(--accent)"/>
+
+          <!-- front splitter -->
+          <path d="M 928 351 L 984 351 L 980 359 L 934 359 Z" fill="#0a0c0c" stroke="var(--hairline)" stroke-width="1"/>
+
+          <!-- WHEELS -->
+          <g transform="translate(855,352)">
+            <circle r="62" fill="#0a0b0b" stroke="#2a2d2c" stroke-width="6"/>
+            <circle r="40" fill="#101211" stroke="var(--accent)" stroke-width="2"/>
+            <g stroke="#3a3f3d" stroke-width="4" stroke-linecap="round">
+              <line x1="0" y1="-13" x2="0" y2="-36"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(72)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(144)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(216)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(288)"/>
+            </g>
+            <circle r="10" fill="var(--accent)"/>
+            <path d="M -30 -22 A 38 38 0 0 1 22 -30" fill="none" stroke="var(--accent)" stroke-width="3" opacity=".55"/>
+          </g>
+          <g transform="translate(345,352)">
+            <circle r="62" fill="#0a0b0b" stroke="#2a2d2c" stroke-width="6"/>
+            <circle r="40" fill="#101211" stroke="var(--accent)" stroke-width="2"/>
+            <g stroke="#3a3f3d" stroke-width="4" stroke-linecap="round">
+              <line x1="0" y1="-13" x2="0" y2="-36"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(72)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(144)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(216)"/>
+              <line x1="0" y1="-13" x2="0" y2="-36" transform="rotate(288)"/>
+            </g>
+            <circle r="10" fill="var(--accent)"/>
+            <path d="M -30 -22 A 38 38 0 0 1 22 -30" fill="none" stroke="var(--accent)" stroke-width="3" opacity=".55"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats" aria-label="Key figures">
+    <div class="wrap">
+      <div class="grid">
+        <div class="stat">
+          <div class="num"><span class="counter" data-value="3.1" data-dec="1">3.1</span><span class="u">s</span></div>
+          <div class="lab">0 to 100 km/h</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span class="counter" data-value="540" data-dec="0">540</span><span class="u">km</span></div>
+          <div class="lab">Real-world range</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span class="counter" data-value="18" data-dec="0">18</span><span class="u">min</span></div>
+          <div class="lab">10 to 80 percent charge</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto">
+    <div class="wrap">
+      <p class="eyebrow kicker">Our position</p>
+      <p><span class="q">Electric</span> should feel like <em>progress you can feel in your spine</em>, not a number you read on a screen. So we built a car that plugs in and still refuses to disappear.</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="drive">
+    <div class="wrap">
+      <div class="head">
+        <h2>Three things we<br>refused to fake</h2>
+        <p>Range, charging, and feel are where most electric cars quietly cut corners. These are the three we would not.</p>
+      </div>
+      <div class="fgrid">
+
+        <article class="fcard" id="range">
+          <svg class="ficon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M4 34 L44 34" stroke="var(--hairline)" stroke-width="2"/>
+            <path d="M8 34 L24 12 L40 34" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="24" cy="12" r="3" fill="var(--accent)"/>
+            <path d="M14 34 L14 40 M24 34 L24 40 M34 34 L34 40" stroke="var(--muted)" stroke-width="1.4"/>
+          </svg>
+          <div class="tag">Range</div>
+          <h3>540 km, measured honestly</h3>
+          <p>We quote range with the heating on, the highway under you, and five people aboard. <b>The number you see is the number you get</b>, not a best-case figure from a climate-controlled lab at 23 degrees.</p>
+        </article>
+
+        <article class="fcard" id="charging">
+          <svg class="ficon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M27 6 L14 27 L23 27 L20 42 L34 20 L25 20 Z" fill="var(--accent)"/>
+            <path d="M6 24 A18 18 0 0 1 24 6" stroke="var(--accent-line)" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="tag">Charging</div>
+          <h3>10 to 80 in 18 minutes</h3>
+          <p>A 350 kW pack that <b>holds its charge rate</b> instead of tapering the second you plug in. Long enough to stretch your legs, short enough that you resent the coffee line more than the car.</p>
+        </article>
+
+        <article class="fcard" id="drivecard">
+          <svg class="ficon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <circle cx="24" cy="24" r="16" stroke="var(--hairline)" stroke-width="2"/>
+            <path d="M24 24 L38 18 A16 16 0 0 1 40 30" stroke="var(--accent)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path d="M40 30 L44 27 M40 30 L37 34" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="3.4" fill="var(--accent)"/>
+          </svg>
+          <div class="tag">Drive</div>
+          <h3>Torque that reads the corner</h3>
+          <p>Dual rear-biased motors and adaptive vectoring send power to the wheel that wants it, mid-bend, in real time. <b>It does not correct your line. It rewards it.</b></p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="close" id="reserve">
+    <div class="wrap">
+      <div class="panel">
+        <h2>The waitlist is the fun part.</h2>
+        <p>Reserve the Vela GT with a fully refundable deposit. Configuration opens in early 2027 and deliveries begin that autumn. No dealer markup, no artificial queue, no theatrics.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#reserve">Reserve for a deposit</a>
+          <a class="btn btn-ghost" href="#drive">Book a test drive</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <div class="word">Vel<i>a</i>r</div>
+        <p>Velar Motors AG. Electric cars for people who still roll the window down. Designed and built in Graz, Austria.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Vehicle</h4>
+          <a href="#range">Range</a>
+          <a href="#charging">Charging</a>
+          <a href="#drive">Design</a>
+          <a href="#reserve">Reserve</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="#top">About</a>
+          <a href="#top">Press</a>
+          <a href="#top">Careers</a>
+          <a href="#top">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bar">
+      <span>(c) 2027 Velar Motors AG</span>
+      <span>Range and charge figures are WLTP estimates and vary with conditions.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progressive enhancement only. Page is fully functional without JS.
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var nums = document.querySelectorAll('.counter');
+    if (reduce || !('IntersectionObserver' in window) || !nums.length) return;
+
+    function animateTo(el){
+      var target = parseFloat(el.getAttribute('data-value'));
+      var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
+      if (isNaN(target)) return;
+      var start = null, dur = 1100;
+      function step(ts){
+        if (start === null) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * eased).toFixed(dec);
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = target.toFixed(dec);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ animateTo(e.target); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.6 });
+
+    nums.forEach(function(n){ io.observe(n); });
+  })();
+</script>

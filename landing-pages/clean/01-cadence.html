@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence, a minimal calendar for focused work</title>
+<meta name="description" content="Cadence is a minimal calendar that protects your deep-work hours, batches the busywork, and gives your week a steady rhythm.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Crect x='8' y='11' width='16' height='13' rx='2' fill='%23fff'/%3E%3Crect x='8' y='11' width='16' height='4' fill='%234f46e5'/%3E%3C/svg%3E">
+<style>
+  :root{
+    /* palette */
+    --bg:#fbfbfd;
+    --surface:#ffffff;
+    --ink:#0d0e12;
+    --muted:#6b7280;
+    --indigo:#4f46e5;
+    --indigo-soft:#eef0fd;
+    --hairline:#ececf1;
+    /* illustration tones */
+    --il-soft:#c8caf5;
+    --il-side:#f1f1fc;
+    --il-dot:#e7e7f6;
+    /* radius */
+    --radius:12px;
+    --radius-sm:8px;
+    --radius-lg:20px;
+    /* 8px scale */
+    --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px; --s7:96px; --s8:128px;
+    /* layout */
+    --maxw:1120px;
+    /* type */
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    /* elevation */
+    --shadow-sm:0 1px 2px rgba(13,14,18,0.05), 0 1px 1px rgba(13,14,18,0.03);
+    --shadow-md:0 10px 34px rgba(13,14,18,0.07);
+    --shadow-lg:0 28px 64px rgba(13,14,18,0.12);
+    /* motion */
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  img,svg{max-width:100%;display:block}
+  h1,h2,h3{line-height:1.1;letter-spacing:-0.02em;margin:0;font-weight:680}
+  p{margin:0}
+  a{color:var(--indigo)}
+
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-left:var(--s3);padding-right:var(--s3)}
+
+  /* skip link */
+  .skip{
+    position:absolute;left:var(--s2);top:-64px;z-index:60;
+    background:var(--ink);color:var(--surface);
+    padding:10px 16px;border-radius:var(--radius-sm);text-decoration:none;font-weight:600;
+    transition:top .18s var(--ease);
+  }
+  .skip:focus{top:var(--s2)}
+
+  /* focus ring */
+  a:focus-visible,button:focus-visible,.btn:focus-visible{
+    outline:2px solid var(--indigo);
+    outline-offset:3px;
+    border-radius:var(--radius-sm);
+  }
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(251,251,253,0.82);
+    backdrop-filter:saturate(180%) blur(12px);
+    -webkit-backdrop-filter:saturate(180%) blur(12px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .nav-inner{
+    display:flex;align-items:center;gap:var(--s3);
+    flex-wrap:wrap;
+    padding-top:14px;padding-bottom:14px;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:10px;
+    text-decoration:none;color:var(--ink);font-weight:700;
+    letter-spacing:-0.02em;font-size:18px;min-width:0;
+  }
+  .brand svg{width:28px;height:28px;flex:0 0 auto}
+  .brand-name{white-space:nowrap}
+  .nav-links{
+    display:flex;align-items:center;gap:var(--s3);
+    margin-left:auto;flex-wrap:wrap;min-width:0;
+  }
+  .nav-links a{
+    color:var(--ink);text-decoration:none;font-size:15px;font-weight:530;
+    white-space:nowrap;
+  }
+  .nav-links a:hover{color:var(--indigo)}
+  .nav-cta{flex:0 0 auto}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:inherit;font-size:15px;font-weight:620;line-height:1;
+    padding:13px 20px;border-radius:var(--radius);
+    text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .16s var(--ease), background .16s var(--ease), box-shadow .16s var(--ease), border-color .16s var(--ease);
+    white-space:nowrap;
+  }
+  .btn-sm{padding:10px 16px;font-size:14px}
+  .btn-primary{
+    background:var(--ink);color:var(--surface);
+    box-shadow:var(--shadow-sm);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);background:#000}
+  .btn-ghost{
+    background:var(--surface);color:var(--ink);border-color:var(--hairline);
+  }
+  .btn-ghost:hover{border-color:var(--indigo);color:var(--indigo);transform:translateY(-1px)}
+  .btn .arw{transition:transform .16s var(--ease)}
+  .btn:hover .arw{transform:translateX(3px)}
+
+  /* ---------- hero ---------- */
+  .hero{padding-top:var(--s6);padding-bottom:var(--s6)}
+  .hero-grid{
+    display:grid;grid-template-columns:1fr;gap:var(--s5);align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:640;letter-spacing:0.02em;
+    color:var(--indigo);
+    background:var(--indigo-soft);
+    padding:6px 12px;border-radius:999px;
+    margin-bottom:var(--s3);
+  }
+  .eyebrow .beat{display:inline-flex;gap:2px;align-items:flex-end;height:12px}
+  .eyebrow .beat i{width:2px;background:var(--indigo);border-radius:2px;display:block}
+  .eyebrow .beat i:nth-child(1){height:5px}
+  .eyebrow .beat i:nth-child(2){height:11px}
+  .eyebrow .beat i:nth-child(3){height:7px}
+  .hero h1{
+    font-size:clamp(2.35rem,6.4vw,4rem);
+    letter-spacing:-0.035em;
+    margin-bottom:var(--s3);
+    max-width:14ch;
+  }
+  .hero .lead{
+    font-size:clamp(1.05rem,2.3vw,1.25rem);
+    color:var(--muted);
+    max-width:52ch;
+    margin-bottom:var(--s4);
+    word-break:break-word;
+  }
+  .hero-cta{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;min-width:0}
+  .assure{
+    margin-top:var(--s3);color:var(--muted);font-size:14px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .assure .dot{width:5px;height:5px;border-radius:50%;background:var(--indigo);flex:0 0 auto}
+
+  /* illustration panel */
+  .art{
+    position:relative;
+    background:linear-gradient(180deg,#ffffff 0%, #fafaff 100%);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md);
+    padding:var(--s3);
+    min-width:0;
+    overflow:hidden;
+  }
+  .art svg.scene{width:100%;height:auto;display:block}
+
+  /* ---------- section frame ---------- */
+  .section{padding-top:var(--s7);padding-bottom:var(--s7)}
+  .kicker{
+    font-size:13px;font-weight:660;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--indigo);margin-bottom:var(--s2);
+  }
+  .section h2{
+    font-size:clamp(1.8rem,4.2vw,2.6rem);
+    max-width:20ch;margin-bottom:var(--s2);
+  }
+  .section .sub{color:var(--muted);max-width:56ch;font-size:1.05rem;word-break:break-word}
+
+  /* ---------- features ---------- */
+  .feat-grid{
+    display:grid;grid-template-columns:1fr;gap:var(--s3);
+    margin-top:var(--s5);
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:var(--s4);
+    min-width:0;
+    transition:transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:#e3e3f3}
+  .ic-badge{
+    width:48px;height:48px;border-radius:var(--radius-sm);
+    background:var(--indigo-soft);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:var(--s3);
+  }
+  .ic-badge svg{width:26px;height:26px}
+  .card h3{font-size:1.2rem;margin-bottom:10px;letter-spacing:-0.01em}
+  .card p{color:var(--muted);font-size:0.98rem;word-break:break-word}
+
+  /* ---------- rhythm / preview ---------- */
+  .rhythm-grid{
+    display:grid;grid-template-columns:1fr;gap:var(--s5);align-items:center;
+    margin-top:var(--s5);
+  }
+  .week{
+    background:var(--surface);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md);
+    padding:var(--s3);
+    min-width:0;
+  }
+  .week-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:4px 6px var(--s2);border-bottom:1px solid var(--hairline);margin-bottom:var(--s2);
+    gap:var(--s2);flex-wrap:wrap;
+  }
+  .week-head .title{font-weight:660;font-size:15px}
+  .week-head .meta{color:var(--muted);font-size:13px}
+  .week-cols{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+  }
+  .col{display:flex;flex-direction:column;min-width:0}
+  .col .day{
+    text-align:center;font-size:12px;font-weight:600;color:var(--muted);
+    margin-bottom:8px;letter-spacing:0.02em;
+  }
+  .track{
+    display:flex;flex-direction:column;gap:6px;min-height:270px;min-width:0;
+  }
+  .blk{
+    border-radius:var(--radius-sm);
+    padding:7px 8px;font-size:11px;font-weight:620;
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    line-height:1.2;
+  }
+  .blk.focus{background:var(--indigo);color:#fff}
+  .blk.focus.tall{padding-top:14px;padding-bottom:14px}
+  .blk.meet{background:var(--indigo-soft);color:var(--indigo)}
+  .blk.open{
+    flex:1;min-height:24px;
+    border:1px dashed var(--hairline);background:#fcfcfe;
+    color:#b8bcc6;display:flex;align-items:center;justify-content:center;
+    font-weight:560;
+  }
+  .legend{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s3)}
+  .legend span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .legend i{width:12px;height:12px;border-radius:4px;display:block;flex:0 0 auto}
+  .sw-focus{background:var(--indigo)}
+  .sw-meet{background:var(--indigo-soft);border:1px solid var(--il-soft)}
+  .sw-open{background:#fcfcfe;border:1px dashed var(--hairline)}
+  .rhythm-copy ul{list-style:none;padding:0;margin:var(--s3) 0 0}
+  .rhythm-copy li{
+    display:flex;gap:12px;align-items:flex-start;padding:10px 0;
+    color:var(--ink);font-size:0.98rem;
+  }
+  .rhythm-copy li svg{flex:0 0 auto;width:22px;height:22px;margin-top:1px}
+  .rhythm-copy li span{min-width:0;word-break:break-word}
+  .rhythm-copy li b{color:var(--ink)}
+  .rhythm-copy li small{color:var(--muted);display:block;font-size:0.9rem;font-weight:400}
+
+  /* ---------- cta band ---------- */
+  .cta{
+    background:var(--ink);color:var(--surface);
+    border-radius:var(--radius-lg);
+    padding:clamp(2rem,6vw,4.5rem);
+    text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .cta h2{color:var(--surface);font-size:clamp(1.9rem,4.6vw,2.8rem);max-width:18ch;margin:0 auto var(--s2)}
+  .cta p{color:#c4c6d4;max-width:46ch;margin:0 auto var(--s4);word-break:break-word}
+  .cta .btn-primary{background:var(--surface);color:var(--ink)}
+  .cta .btn-primary:hover{background:#fff}
+  .cta .fine{color:#9a9db0;font-size:13px;margin-top:var(--s3)}
+  .cta-beat{
+    position:absolute;inset:0;pointer-events:none;opacity:0.5;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--hairline);
+    padding-top:var(--s6);padding-bottom:var(--s5);
+    margin-top:var(--s7);
+  }
+  .foot-grid{
+    display:grid;grid-template-columns:1fr;gap:var(--s4);
+  }
+  .foot-brand .brand{margin-bottom:12px}
+  .foot-brand p{color:var(--muted);font-size:0.95rem;max-width:34ch;word-break:break-word}
+  .foot-cols{display:flex;flex-wrap:wrap;gap:var(--s5)}
+  .foot-col h4{font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:640}
+  .foot-col a{display:block;color:var(--ink);text-decoration:none;font-size:0.95rem;padding:5px 0}
+  .foot-col a:hover{color:var(--indigo)}
+  .foot-bottom{
+    display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:center;justify-content:space-between;
+    margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid var(--hairline);
+    color:var(--muted);font-size:13px;
+  }
+  .foot-bottom a{color:var(--muted);text-decoration:none}
+  .foot-bottom a:hover{color:var(--indigo)}
+
+  /* ---------- illustration classes ---------- */
+  .dl{fill:none;stroke:var(--indigo);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .dl-soft{fill:none;stroke:var(--il-soft);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .df-w{fill:var(--surface)}
+  .df-side{fill:var(--il-side)}
+  .df-ink{fill:var(--indigo)}
+  .ic{fill:none;stroke:var(--indigo);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------- reveal (progressive, JS only) ---------- */
+  .js .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease), transform .6s var(--ease)}
+  .js .reveal.in{opacity:1;transform:none}
+  .js .reveal.d1{transition-delay:.06s}
+  .js .reveal.d2{transition-delay:.12s}
+  .js .reveal.d3{transition-delay:.18s}
+
+  /* float + clock animation */
+  @keyframes floaty{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+  .card-float{animation:floaty 5.5s var(--ease) infinite alternate}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .second{transform-box:view-box;transform-origin:360px 206px;animation:spin 60s linear infinite}
+
+  /* ---------- responsive ---------- */
+  @media (min-width:720px){
+    .feat-grid{grid-template-columns:repeat(3,1fr)}
+    .foot-grid{grid-template-columns:1.4fr 1fr}
+  }
+  @media (min-width:900px){
+    .hero{padding-top:var(--s8);padding-bottom:var(--s7)}
+    .hero-grid{grid-template-columns:1.05fr 0.95fr;gap:var(--s6)}
+    .rhythm-grid{grid-template-columns:1fr 1fr;gap:var(--s6)}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:0.001ms!important;
+      animation-iteration-count:1!important;
+      transition-duration:0.001ms!important;
+      scroll-behavior:auto!important;
+    }
+    .card-float,.second{animation:none!important}
+    .js .reveal{opacity:1!important;transform:none!important}
+  }
+</style>
+</head>
+<body id="top">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Cadence, home">
+      <svg viewBox="0 0 28 28" role="img" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="25" height="25" rx="8" fill="var(--indigo)"/>
+        <line x1="9"  y1="18" x2="9"  y2="12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="14" y1="20" x2="14" y2="8"  stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="19" y1="17" x2="19" y2="11" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Cadence</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#rhythm">Rhythm</a>
+      <a href="#start">Pricing</a>
+      <a href="#start">Sign in</a>
+    </nav>
+    <a href="#start" class="btn btn-primary btn-sm nav-cta">Get started</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow reveal">
+          <span class="beat" aria-hidden="true"><i></i><i></i><i></i></span>
+          Calendar for focused work
+        </span>
+        <h1 class="reveal d1">Give your week a cadence.</h1>
+        <p class="lead reveal d2">
+          Cadence is a minimal calendar that protects your deep-work hours, batches the
+          busywork, and turns a wall of meetings into a week you can actually finish. Set
+          your rhythm once, then let the schedule hold the line.
+        </p>
+        <div class="hero-cta reveal d3">
+          <a href="#start" class="btn btn-primary">Start free <span class="arw" aria-hidden="true">-&gt;</span></a>
+          <a href="#rhythm" class="btn btn-ghost">See how it works</a>
+        </div>
+        <p class="assure reveal d3">
+          <span class="dot" aria-hidden="true"></span> Free for solo use, no card needed.
+          Import from any calendar in one step.
+        </p>
+      </div>
+
+      <!-- SIGNATURE ILLUSTRATION: thin-line isometric desk scene -->
+      <div class="art reveal d2">
+        <svg class="scene" viewBox="0 0 520 440" role="img"
+             aria-labelledby="sceneTitle sceneDesc">
+          <title id="sceneTitle">Isometric desk scene</title>
+          <desc id="sceneDesc">A thin-line isometric desk holding a calendar and a clock, with an event card floating above.</desc>
+          <defs>
+            <radialGradient id="glow" cx="50%" cy="42%" r="60%">
+              <stop offset="0%" stop-color="#eef0fd" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#eef0fd" stop-opacity="0"/>
+            </radialGradient>
+            <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.3" fill="var(--il-dot)"/>
+            </pattern>
+          </defs>
+
+          <!-- ambient background -->
+          <rect x="0" y="0" width="520" height="440" fill="url(#dots)" opacity="0.6"/>
+          <ellipse cx="260" cy="210" rx="235" ry="180" fill="url(#glow)"/>
+
+          <!-- ground shadow -->
+          <ellipse cx="260" cy="404" rx="176" ry="20" fill="var(--il-side)" opacity="0.75"/>
+
+          <!-- DESK slab -->
+          <path class="df-side" d="M260,374 L500,250 L500,274 L260,398 Z"/>
+          <path class="df-side" d="M20,250 L260,374 L260,398 L20,274 Z"/>
+          <path class="dl df-w" d="M260,374 L500,250 L260,126 L20,250 Z"/>
+          <path class="dl" d="M260,374 L500,250 L500,274 L260,398 Z"/>
+          <path class="dl" d="M20,250 L260,374 L260,398 L20,274 Z"/>
+
+          <!-- shadow of floating card on desk -->
+          <ellipse cx="350" cy="252" rx="34" ry="11" fill="var(--il-soft)" opacity="0.45"/>
+
+          <!-- ============ CALENDAR ============ -->
+          <g>
+            <!-- side faces -->
+            <path class="df-side dl" d="M217,245 L283,211 L283,177 L217,211 Z"/>
+            <path class="df-side dl" d="M217,245 L127,199 L127,165 L217,211 Z"/>
+            <!-- front colour band on right face -->
+            <path class="df-ink" d="M217,211 L283,177 L283,188 L217,222 Z"/>
+            <!-- top page -->
+            <path class="df-w dl" d="M193,131 L283,177 L217,211 L127,165 Z"/>
+            <!-- grid lines -->
+            <path class="dl-soft" d="M223,146 L157,180"/>
+            <path class="dl-soft" d="M253,162 L187,196"/>
+            <path class="dl-soft" d="M171,142 L261,188"/>
+            <path class="dl-soft" d="M149,154 L239,200"/>
+            <!-- highlighted day -->
+            <path class="df-ink" d="M227,152 l9,4.6 l-9,4.6 l-9,-4.6 Z"/>
+            <!-- binding loops -->
+            <path class="dl" d="M221,143 q -3,-8 4,-8"/>
+            <path class="dl" d="M239,152 q -3,-8 4,-8"/>
+          </g>
+
+          <!-- ============ CLOCK ============ -->
+          <g>
+            <ellipse class="df-w dl" cx="360" cy="240" rx="22" ry="10"/>
+            <circle class="df-w dl" cx="360" cy="206" r="32"/>
+            <!-- ticks -->
+            <path class="dl" d="M360,174 L360,180"/>
+            <path class="dl" d="M392,206 L386,206"/>
+            <path class="dl" d="M360,238 L360,232"/>
+            <path class="dl" d="M328,206 L334,206"/>
+            <!-- hands -->
+            <path class="dl" d="M360,206 L345,196"/>
+            <path class="dl" d="M360,206 L382,193"/>
+            <line class="dl-soft second" x1="360" y1="206" x2="360" y2="180"/>
+            <circle class="df-ink" cx="360" cy="206" r="2.6"/>
+          </g>
+
+          <!-- ============ FLOATING EVENT CARD ============ -->
+          <g class="card-float">
+            <!-- lift dots -->
+            <circle cx="352" cy="170" r="2.2" fill="var(--il-soft)"/>
+            <circle cx="356" cy="192" r="1.8" fill="var(--il-soft)"/>
+            <circle cx="360" cy="214" r="1.4" fill="var(--il-soft)"/>
+            <!-- card thickness -->
+            <path class="df-side dl" d="M366,146 L444,106 L444,114 L366,154 Z"/>
+            <path class="df-side dl" d="M366,146 L246,84 L246,92 L366,154 Z"/>
+            <!-- card top -->
+            <path class="df-w dl" d="M324,44 L444,106 L366,146 L246,84 Z"/>
+            <!-- content: dot + two bars -->
+            <circle class="df-ink" cx="332" cy="64" r="5"/>
+            <path d="M350,74 L410,105" stroke="var(--indigo)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85"/>
+            <path d="M322,88 L364,109" stroke="var(--il-soft)" stroke-width="4.4" stroke-linecap="round" fill="none"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="features">
+    <div class="wrap">
+      <p class="kicker reveal">What Cadence does</p>
+      <h2 class="reveal">Fewer decisions, more of the work that matters.</h2>
+      <p class="sub reveal">Three ideas do the heavy lifting. Each one removes a small choice you should not have to make twice.</p>
+
+      <div class="feat-grid">
+        <article class="card reveal">
+          <div class="ic-badge">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path class="ic" d="M12 3l7 3v5c0 4.2-2.8 7.4-7 8.7C7.8 18.4 5 15.2 5 11V6l7-3z"/>
+              <path class="ic" d="M9 11.6l2.1 2.1L15 9.3"/>
+            </svg>
+          </div>
+          <h3>Focus blocks that hold.</h3>
+          <p>Reserve deep-work windows and Cadence quietly declines conflicting invites, then offers the next open slot instead of eating your morning.</p>
+        </article>
+
+        <article class="card reveal d1">
+          <div class="ic-badge">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect class="ic" x="4" y="5" width="16" height="15" rx="3"/>
+              <path class="ic" d="M4 9.5h16"/>
+              <path class="ic" d="M8 3.2v3.4M16 3.2v3.4"/>
+              <path class="ic" d="M8.5 13.5h3.2"/>
+              <rect x="14.4" y="12.4" width="3" height="3" rx="1" fill="var(--indigo)"/>
+            </svg>
+          </div>
+          <h3>The whole week at a glance.</h3>
+          <p>A calm seven-day view with no color noise. See exactly where your hours go before Monday starts, and move a block with one drag.</p>
+        </article>
+
+        <article class="card reveal d2">
+          <div class="ic-badge">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path class="ic" d="M20 12a8 8 0 1 1-2.4-5.7"/>
+              <path class="ic" d="M20 4.5V9h-4.5"/>
+            </svg>
+          </div>
+          <h3>Rhythms, not reminders.</h3>
+          <p>Plan on Monday, ship on Thursday, review on Friday. Set a weekly cadence once and it recurs on its own, with no rebuilding required.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RHYTHM / PREVIEW ================= -->
+  <section class="section" id="rhythm" style="padding-top:0">
+    <div class="wrap">
+      <p class="kicker reveal">How it works</p>
+      <h2 class="reveal">A week that keeps its shape.</h2>
+      <p class="sub reveal">Most calendars fill up with other people's priorities. Cadence starts from yours: paint in the focus you need, and every invite has to fit around it.</p>
+
+      <div class="rhythm-grid">
+        <!-- week preview -->
+        <div class="week reveal" role="img" aria-label="A sample week where deep-work focus blocks anchor each day and meetings fit into the gaps.">
+          <div class="week-head">
+            <span class="title">This week</span>
+            <span class="meta">18 focus hours protected</span>
+          </div>
+          <div class="week-cols" aria-hidden="true">
+            <div class="col">
+              <span class="day">Mon</span>
+              <div class="track">
+                <div class="blk focus tall">Deep work</div>
+                <div class="blk meet">Standup</div>
+                <div class="blk focus">Plan week</div>
+                <div class="blk open">Open</div>
+              </div>
+            </div>
+            <div class="col">
+              <span class="day">Tue</span>
+              <div class="track">
+                <div class="blk focus tall">Deep work</div>
+                <div class="blk meet">1:1</div>
+                <div class="blk open">Open</div>
+              </div>
+            </div>
+            <div class="col">
+              <span class="day">Wed</span>
+              <div class="track">
+                <div class="blk meet">Review</div>
+                <div class="blk focus tall">Deep work</div>
+                <div class="blk open">Open</div>
+              </div>
+            </div>
+            <div class="col">
+              <span class="day">Thu</span>
+              <div class="track">
+                <div class="blk focus tall">Ship</div>
+                <div class="blk focus">Deep work</div>
+                <div class="blk meet">Sync</div>
+                <div class="blk open">Open</div>
+              </div>
+            </div>
+            <div class="col">
+              <span class="day">Fri</span>
+              <div class="track">
+                <div class="blk focus">Deep work</div>
+                <div class="blk meet">Retro</div>
+                <div class="blk focus">Review</div>
+                <div class="blk open">Open</div>
+              </div>
+            </div>
+          </div>
+          <div class="legend">
+            <span><i class="sw-focus"></i>Focus</span>
+            <span><i class="sw-meet"></i>Meetings</span>
+            <span><i class="sw-open"></i>Open</span>
+          </div>
+        </div>
+
+        <!-- copy -->
+        <div class="rhythm-copy reveal d1">
+          <p class="sub">What is left is a week that looks like the work you meant to do, not the meetings that found you.</p>
+          <ul>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic" d="M5 12.5l4 4L19 7"/></svg>
+              <span><b>Paint your focus first.</b><small>Drop in the deep-work blocks that anchor each day.</small></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic" d="M5 12.5l4 4L19 7"/></svg>
+              <span><b>Let invites negotiate.</b><small>New meetings land in the open gaps, never over your focus.</small></span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic" d="M5 12.5l4 4L19 7"/></svg>
+              <span><b>Repeat the rhythm.</b><small>Save the shape once and every week starts from the same steady beat.</small></span>
+            </li>
+          </ul>
+          <div class="hero-cta" style="margin-top:24px">
+            <a href="#start" class="btn btn-primary">Set your first rhythm <span class="arw" aria-hidden="true">-&gt;</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="section" id="start" style="padding-top:0">
+    <div class="wrap">
+      <div class="cta reveal">
+        <svg class="cta-beat" viewBox="0 0 520 220" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,150 L120,150 L150,90 L180,150 L230,150 L260,50 L290,150 L340,150 L370,110 L400,150 L520,150"
+                fill="none" stroke="#4f46e5" stroke-width="2" opacity="0.7"/>
+        </svg>
+        <h2>Your calmest week starts now.</h2>
+        <p>Join the people who traded a noisy calendar for a steady cadence.</p>
+        <a href="#start" class="btn btn-primary">Start free <span class="arw" aria-hidden="true">-&gt;</span></a>
+        <p class="fine">Takes about two minutes to set your first rhythm.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Cadence, home">
+          <svg viewBox="0 0 28 28" role="img" aria-hidden="true">
+            <rect x="1.5" y="1.5" width="25" height="25" rx="8" fill="var(--indigo)"/>
+            <line x1="9"  y1="18" x2="9"  y2="12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+            <line x1="14" y1="20" x2="14" y2="8"  stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+            <line x1="19" y1="17" x2="19" y2="11" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-name">Cadence</span>
+        </a>
+        <p>A calendar that defends your time. Built for people who make things, not meetings.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#rhythm">Rhythm</a>
+          <a href="#start">Pricing</a>
+          <a href="#start">Changelog</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="#top">About</a>
+          <a href="#top">Contact</a>
+          <a href="#top">Privacy</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>Copyright 2026 Cadence Labs. Built for focused work.</span>
+      <a href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    root.classList.add('js');
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

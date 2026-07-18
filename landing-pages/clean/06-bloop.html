@@ -1,0 +1,936 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloop - Learning kids beg to do</title>
+<meta name="description" content="Bloop turns reading, counting, and big questions into ten-minute quests with a cast of squishy characters. Made for ages 4 to 8. No ads, ever.">
+<meta name="theme-color" content="#fff7ed">
+<style>
+  /* ============ Design tokens ============ */
+  :root{
+    /* palette */
+    --bg:#fff7ed;
+    --ink:#241b2e;
+    --ink-soft:#574c63;
+    --pink:#ff5c8a;
+    --amber:#ffb020;
+    --sky:#4cc9f0;
+
+    /* surfaces + tints */
+    --surface:#ffffff;
+    --surface-warm:#fff1e0;
+    --tint-pink:#ffd9e5;
+    --tint-amber:#ffe9c4;
+    --tint-sky:#d7f1fb;
+    --line:#f0e2d0;
+
+    /* character shading */
+    --pink-dark:#e0456f;
+    --pink-light:#ff8fb1;
+    --amber-dark:#e2920c;
+    --amber-light:#ffcf6b;
+    --sky-dark:#2fb2db;
+    --sky-light:#8adcf6;
+    --mouth:#3a2b47;
+
+    /* radius */
+    --r-sm:12px;
+    --r:20px;
+    --r-lg:32px;
+    --r-pill:999px;
+
+    /* type */
+    --font:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+
+    /* effects */
+    --shadow-sm:0 6px 16px -10px rgba(36,27,46,.35);
+    --shadow:0 22px 48px -26px rgba(36,27,46,.40);
+    --shadow-lift:0 30px 60px -28px rgba(224,69,111,.35);
+    --focus:#241b2e;
+
+    /* rhythm */
+    --wrap:1120px;
+    --gutter:clamp(18px,4vw,40px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    font-size:clamp(1rem,0.96rem + 0.2vw,1.075rem);
+    line-height:1.55;
+    letter-spacing:-0.006em;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  img,svg{max-width:100%}
+  h1,h2,h3,p{margin:0;overflow-wrap:break-word;word-break:break-word}
+
+  a{color:var(--ink);text-decoration:none}
+
+  .wrap{
+    width:100%;
+    max-width:var(--wrap);
+    margin-inline:auto;
+    padding-inline:var(--gutter);
+  }
+
+  /* ============ Focus ============ */
+  :focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+    border-radius:6px;
+  }
+  .btn:focus-visible,.brand:focus-visible,.nav a:focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+    box-shadow:0 0 0 7px rgba(76,201,240,.45);
+  }
+
+  /* ============ Buttons ============ */
+  .btn{
+    --btn-bg:var(--ink);
+    --btn-fg:var(--bg);
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    min-height:44px;
+    padding:.72em 1.35em;
+    border-radius:var(--r-pill);
+    border:2px solid transparent;
+    font:inherit;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    line-height:1;
+    color:var(--btn-fg);
+    background:var(--btn-bg);
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+  }
+  .btn--primary{
+    box-shadow:0 10px 0 -2px var(--pink-dark), var(--shadow-sm);
+  }
+  .btn--primary:hover{transform:translateY(-2px);box-shadow:0 12px 0 -2px var(--pink-dark), var(--shadow)}
+  .btn--primary:active{transform:translateY(2px);box-shadow:0 6px 0 -2px var(--pink-dark), var(--shadow-sm)}
+  .btn--ghost{
+    --btn-bg:transparent;
+    --btn-fg:var(--ink);
+    border-color:var(--ink);
+    font-weight:700;
+  }
+  .btn--ghost:hover{background:var(--ink);color:var(--bg)}
+  .btn--big{min-height:52px;padding:.9em 1.7em;font-size:1.06rem}
+
+  .arrow{font-weight:900}
+
+  /* ============ Header ============ */
+  .site-header{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:saturate(1.4) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    display:flex;
+    align-items:center;
+    gap:14px 20px;
+    flex-wrap:wrap;
+    padding-block:12px;
+    min-width:0;
+  }
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-weight:900;
+    font-size:1.32rem;
+    letter-spacing:-0.03em;
+    color:var(--ink);
+    min-width:0;
+  }
+  .brand svg{flex:none}
+  .nav{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    flex-wrap:wrap;
+    margin-left:auto;
+    min-width:0;
+  }
+  .nav a{
+    color:var(--ink-soft);
+    font-weight:700;
+    font-size:.98rem;
+    padding:.5em .7em;
+    border-radius:var(--r-pill);
+    white-space:nowrap;
+  }
+  .nav a:hover{color:var(--ink);background:var(--surface-warm)}
+  .header-cta{margin-left:4px}
+
+  /* ============ Hero ============ */
+  .hero{position:relative;padding-top:clamp(28px,5vw,56px);padding-bottom:clamp(24px,4vw,44px)}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
+    gap:clamp(24px,4vw,56px);
+    align-items:center;
+  }
+  .hero-copy{min-width:0}
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    background:var(--pink);
+    color:var(--ink);
+    font-weight:800;
+    font-size:.82rem;
+    letter-spacing:.02em;
+    padding:.45em .9em;
+    border-radius:var(--r-pill);
+    box-shadow:var(--shadow-sm);
+  }
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--ink);flex:none}
+  h1{
+    margin-top:.6em;
+    font-size:clamp(2.5rem,7.4vw,4.4rem);
+    line-height:1.0;
+    letter-spacing:-0.035em;
+    font-weight:900;
+  }
+  .squiggle{position:relative;white-space:nowrap;color:var(--pink)}
+  .squiggle svg{position:absolute;left:0;right:0;bottom:-0.16em;width:100%;height:.34em}
+  .lead{
+    margin-top:1.1em;
+    max-width:34ch;
+    font-size:clamp(1.05rem,1rem + 0.4vw,1.28rem);
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:1.6em;
+  }
+  .trust{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5em 1.2em;
+    margin-top:1.5em;
+    font-size:.92rem;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .trust span{display:inline-flex;align-items:center;gap:.5em}
+  .trust .chk{color:var(--sky-dark);font-weight:900}
+
+  /* hero art */
+  .hero-art{
+    position:relative;
+    min-width:0;
+    background:
+      radial-gradient(120% 90% at 78% 8%, var(--tint-sky) 0%, transparent 60%),
+      linear-gradient(180deg, #ffffff 0%, var(--surface-warm) 100%);
+    border:2px solid var(--line);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    margin:0;
+  }
+  .hero-art svg.scene{display:block;width:100%;height:auto}
+
+  /* ============ Section shells ============ */
+  section{position:relative}
+  .band{padding-block:clamp(48px,7vw,88px)}
+  .section-head{max-width:56ch;margin-bottom:clamp(28px,4vw,44px)}
+  .kicker{
+    display:inline-block;
+    font-weight:800;
+    font-size:.8rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--pink-dark);
+    margin-bottom:.7em;
+  }
+  h2{font-size:clamp(1.85rem,1.4rem + 2vw,3rem);line-height:1.04;letter-spacing:-0.03em;font-weight:900}
+  .section-head p{margin-top:.8em;color:var(--ink-soft);font-size:clamp(1.02rem,1rem + 0.3vw,1.18rem)}
+
+  /* ============ Features ============ */
+  .features{background:var(--surface-warm)}
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+    gap:clamp(16px,2.4vw,26px);
+  }
+  .card{
+    min-width:0;
+    background:var(--surface);
+    border:2px solid var(--line);
+    border-radius:var(--r-lg);
+    padding:clamp(22px,3vw,30px);
+    box-shadow:var(--shadow-sm);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .spot{width:104px;height:104px;margin-bottom:18px}
+  .card h3{font-size:1.32rem;font-weight:900;letter-spacing:-0.02em;line-height:1.15}
+  .card p{margin-top:.55em;color:var(--ink-soft);font-size:1rem}
+
+  /* ============ Stats ============ */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    background:var(--ink);
+    color:var(--bg);
+    border-radius:var(--r-lg);
+    padding:clamp(24px,4vw,40px) clamp(18px,3vw,32px);
+    box-shadow:var(--shadow);
+  }
+  .stat{min-width:0;text-align:center}
+  .stat b{display:block;font-size:clamp(1.9rem,1.4rem + 2.4vw,3rem);font-weight:900;letter-spacing:-0.03em;line-height:1}
+  .stat .lbl{display:block;margin-top:.5em;font-size:.86rem;font-weight:700;color:#e7d9f0}
+  .stat--pink b{color:var(--pink)}
+  .stat--amber b{color:var(--amber)}
+  .stat--sky b{color:var(--sky)}
+
+  /* ============ Steps ============ */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));
+    gap:clamp(18px,2.6vw,28px);
+    counter-reset:step;
+  }
+  .step{position:relative;min-width:0;padding-top:6px}
+  .step-tile{
+    width:100%;
+    aspect-ratio:5/4;
+    display:grid;
+    place-items:center;
+    border-radius:var(--r-lg);
+    border:2px solid var(--line);
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .step:nth-child(1) .step-tile{background:var(--tint-pink)}
+  .step:nth-child(2) .step-tile{background:var(--tint-amber)}
+  .step:nth-child(3) .step-tile{background:var(--tint-sky)}
+  .step-tile svg{width:66%;height:auto}
+  .step-n{
+    counter-increment:step;
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    font-weight:900;
+    letter-spacing:.02em;
+    color:var(--pink-dark);
+    font-size:.85rem;
+    text-transform:uppercase;
+  }
+  .step-n::before{
+    content:counter(step);
+    display:grid;
+    place-items:center;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--ink);
+    color:var(--bg);
+    font-size:.9rem;
+  }
+  .step h3{margin-top:.5em;font-size:1.22rem;font-weight:900;letter-spacing:-0.02em}
+  .step p{margin-top:.4em;color:var(--ink-soft);font-size:.98rem}
+
+  /* ============ Quote ============ */
+  .quote-band{background:var(--surface-warm)}
+  .quote{
+    max-width:44ch;
+    margin-inline:auto;
+    text-align:center;
+  }
+  .quote blockquote{
+    margin:0;
+    font-size:clamp(1.35rem,1.1rem + 1.6vw,2.05rem);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.22;
+  }
+  .quote .mark{color:var(--pink);font-family:Georgia,"Times New Roman",serif;font-size:1.2em;line-height:0}
+  .quote figcaption{margin-top:1.2em;font-weight:700;color:var(--ink-soft)}
+  .quote figcaption b{color:var(--ink)}
+
+  /* ============ Final CTA ============ */
+  .cta-panel{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(90% 120% at 90% 110%, var(--pink-light) 0%, transparent 55%),
+      var(--pink);
+    color:var(--ink);
+    border-radius:var(--r-lg);
+    padding:clamp(34px,6vw,68px);
+    box-shadow:var(--shadow-lift);
+  }
+  .cta-panel .cta-inner{position:relative;z-index:2;max-width:30ch}
+  .cta-panel h2{color:var(--ink)}
+  .cta-panel p{margin-top:.7em;color:#5a1a34;font-weight:600;max-width:34ch}
+  .cta-panel .btn--primary{box-shadow:0 10px 0 -2px #b4224b, var(--shadow-sm)}
+  .cta-panel .btn--primary:hover{box-shadow:0 12px 0 -2px #b4224b, var(--shadow)}
+  .cta-panel .btn--ghost{border-color:var(--ink);color:var(--ink)}
+  .cta-panel .btn--ghost:hover{background:var(--ink);color:var(--pink)}
+  .cta-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:1.6em}
+  .cta-mascot{
+    position:absolute;
+    right:clamp(-30px,-2vw,8px);
+    bottom:-8px;
+    width:min(38%,240px);
+    height:auto;
+    z-index:1;
+    pointer-events:none;
+  }
+
+  /* ============ Footer ============ */
+  .site-footer{padding-block:clamp(40px,6vw,64px)}
+  .foot-top{
+    display:grid;
+    grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(0,1fr));
+    gap:28px;
+    padding-bottom:32px;
+    border-bottom:1px solid var(--line);
+  }
+  .foot-brand{min-width:0}
+  .foot-brand p{margin-top:.7em;color:var(--ink-soft);max-width:34ch;font-size:.98rem}
+  .foot-col{min-width:0}
+  .foot-col h4{margin:0 0 .8em;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:800}
+  .foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.5em}
+  .foot-col a{color:var(--ink-soft);font-weight:600;font-size:.98rem}
+  .foot-col a:hover{color:var(--ink);text-decoration:underline}
+  .foot-bottom{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 20px;
+    align-items:center;
+    justify-content:space-between;
+    padding-top:24px;
+    color:var(--ink-soft);
+    font-size:.9rem;
+  }
+  .foot-bottom p{color:var(--ink-soft)}
+
+  /* ============ Motion ============ */
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes bob-sm{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(4deg)}}
+  @keyframes twinkle{0%,100%{transform:scale(.75);opacity:.55}50%{transform:scale(1.1);opacity:1}}
+  @keyframes blink{0%,90%,100%{transform:scaleY(0)}94%,97%{transform:scaleY(1)}}
+  @keyframes ray{0%,100%{transform:rotate(0)}50%{transform:rotate(18deg)}}
+
+  .anim-bob{animation:bob 4.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+  .anim-bob.d1{animation-duration:3.6s;animation-delay:-.6s}
+  .anim-bob.d2{animation-duration:4.8s;animation-delay:-1.4s}
+  .anim-bob-sm{animation:bob-sm 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+  .floaty{animation:floaty 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .floaty.f1{animation-duration:7.2s;animation-delay:-1s}
+  .floaty.f2{animation-duration:5.4s;animation-delay:-2.2s}
+  .floaty.f3{animation-duration:6.6s;animation-delay:-3s}
+  .twinkle{animation:twinkle 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .twinkle.t1{animation-delay:-1s}
+  .twinkle.t2{animation-delay:-2s}
+  .lid{transform-box:fill-box;transform-origin:center top;transform:scaleY(0);animation:blink 5.5s ease-in-out infinite}
+  .lid.b1{animation-delay:-2.2s;animation-duration:6.1s}
+  .lid.b2{animation-delay:-3.7s;animation-duration:5s}
+  .sun-rays{animation:ray 9s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation:none !important;
+      transition:none !important;
+      scroll-behavior:auto !important;
+    }
+    .lid{transform:scaleY(0)}
+  }
+
+  /* ============ Responsive ============ */
+  @media (max-width:880px){
+    .hero-grid{grid-template-columns:1fr}
+    .hero-art{order:-1}
+    .lead{max-width:46ch}
+    .foot-top{grid-template-columns:1fr 1fr}
+    .foot-brand{grid-column:1 / -1}
+  }
+  @media (max-width:560px){
+    .header-cta{display:none}
+    .nav{margin-left:auto}
+    .stats{grid-template-columns:1fr;gap:20px}
+    .stat{display:flex;align-items:baseline;justify-content:center;gap:.6em;text-align:left}
+    .stat .lbl{margin-top:0}
+    .foot-top{grid-template-columns:1fr}
+    .cta-mascot{opacity:.28;width:56%}
+  }
+  @media (max-width:380px){
+    .nav a{padding:.5em .5em;font-size:.92rem}
+    h1{font-size:clamp(2.2rem,10vw,2.6rem)}
+  }
+</style>
+
+<!-- ============ Header ============ -->
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="Bloop home">
+      <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M20 3c9 0 15 6.4 15 15.5C35 30 29 37 20 37S5 30 5 18.5C5 9.4 11 3 20 3Z" fill="#ff5c8a"/>
+        <circle cx="15" cy="19" r="5.4" fill="#fff"/>
+        <circle cx="26" cy="19" r="5.4" fill="#fff"/>
+        <circle cx="16" cy="20" r="2.6" fill="#241b2e"/>
+        <circle cx="27" cy="20" r="2.6" fill="#241b2e"/>
+        <path d="M15 27c2.6 2.6 7.4 2.6 10 0" stroke="#241b2e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      Bloop
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#features">Why Bloop</a>
+      <a href="#how">How it works</a>
+      <a href="#families">For families</a>
+    </nav>
+    <a class="btn btn--primary header-cta" href="#start">Start playing free</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span> Made for ages 4 to 8</span>
+        <h1>Learning kids <span class="squiggle">beg<svg viewBox="0 0 120 16" preserveAspectRatio="none" aria-hidden="true"><path d="M2 10c14-11 28 8 42-1s28 8 42-1 26 4 32 2" fill="none" stroke="#ff5c8a" stroke-width="5" stroke-linecap="round"/></svg></span> to do</h1>
+        <p class="lead">Bloop turns reading, counting, and big curious questions into ten-minute quests, guided by a cast of squishy characters who cheer every single try.</p>
+        <div class="hero-actions">
+          <a class="btn btn--primary btn--big" href="#start">Start playing free <span class="arrow" aria-hidden="true">-&gt;</span></a>
+          <a class="btn btn--ghost btn--big" href="#how">See a quest</a>
+        </div>
+        <div class="trust">
+          <span><span class="chk" aria-hidden="true">+</span> No ads, ever</span>
+          <span><span class="chk" aria-hidden="true">+</span> No surprise charges</span>
+          <span><span class="chk" aria-hidden="true">+</span> Built with teachers</span>
+        </div>
+      </div>
+
+      <!-- SIGNATURE ILLUSTRATION -->
+      <figure class="hero-art">
+        <svg class="scene" viewBox="0 0 560 470" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Three round Bloop characters in pink, amber, and blue play together on a sunny hill under a sky full of floating letters and numbers.">
+          <defs>
+            <clipPath id="sceneClip"><rect x="0" y="0" width="560" height="470" rx="0"/></clipPath>
+          </defs>
+          <g clip-path="url(#sceneClip)">
+            <!-- sky wash -->
+            <rect x="0" y="0" width="560" height="470" fill="none"/>
+
+            <!-- sun -->
+            <g transform="translate(80,84)">
+              <g class="sun-rays">
+                <g fill="#ffcf6b">
+                  <rect x="-3" y="-58" width="6" height="16" rx="3"/>
+                  <rect x="-3" y="42" width="6" height="16" rx="3"/>
+                  <rect x="-58" y="-3" width="16" height="6" rx="3"/>
+                  <rect x="42" y="-3" width="16" height="6" rx="3"/>
+                  <rect x="-3" y="-58" width="6" height="16" rx="3" transform="rotate(45)"/>
+                  <rect x="-3" y="42" width="6" height="16" rx="3" transform="rotate(45)"/>
+                  <rect x="-58" y="-3" width="16" height="6" rx="3" transform="rotate(45)"/>
+                  <rect x="42" y="-3" width="16" height="6" rx="3" transform="rotate(45)"/>
+                </g>
+              </g>
+              <circle r="42" fill="#ffe9c4"/>
+              <circle r="30" fill="#ffb020"/>
+            </g>
+
+            <!-- clouds -->
+            <g fill="#ffffff" opacity=".9">
+              <g class="floaty f1"><ellipse cx="250" cy="96" rx="42" ry="20"/><ellipse cx="278" cy="88" rx="30" ry="18"/></g>
+              <g class="floaty f2"><ellipse cx="452" cy="150" rx="38" ry="18"/><ellipse cx="480" cy="144" rx="26" ry="15"/></g>
+            </g>
+
+            <!-- floating letters + numbers -->
+            <g class="letter floaty f2" font-family="ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-weight="900">
+              <text x="470" y="102" font-size="46" fill="#4cc9f0">A</text>
+            </g>
+            <g class="floaty f3">
+              <text x="498" y="212" font-size="42" font-family="ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-weight="900" fill="#ffb020">1</text>
+            </g>
+            <g class="floaty f1">
+              <text x="30" y="222" font-size="44" font-family="ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-weight="900" fill="#ff5c8a">+</text>
+            </g>
+            <g class="floaty f3">
+              <text x="150" y="150" font-size="52" font-family="ui-rounded,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-weight="900" fill="#e0456f">?</text>
+            </g>
+
+            <!-- sparkles -->
+            <g class="twinkle" transform="translate(300,60)"><path d="M0-13C1.4-4 4-1.4 13 0 4 1.4 1.4 4 0 13-1.4 4-4 1.4-13 0-4-1.4-1.4-4 0-13Z" fill="#ffb020"/></g>
+            <g class="twinkle t1" transform="translate(410,86) scale(.7)"><path d="M0-13C1.4-4 4-1.4 13 0 4 1.4 1.4 4 0 13-1.4 4-4 1.4-13 0-4-1.4-1.4-4 0-13Z" fill="#4cc9f0"/></g>
+            <g class="twinkle t2" transform="translate(70,300) scale(.8)"><path d="M0-13C1.4-4 4-1.4 13 0 4 1.4 1.4 4 0 13-1.4 4-4 1.4-13 0-4-1.4-1.4-4 0-13Z" fill="#ff5c8a"/></g>
+
+            <!-- hills -->
+            <path d="M-20 356 C120 322 210 366 300 350 C392 334 470 366 580 340 L580 500 L-20 500 Z" fill="#ffe9c4"/>
+            <path d="M-20 402 C150 372 240 410 330 398 C420 386 500 410 580 392 L580 500 L-20 500 Z" fill="#fff3dc"/>
+
+            <!-- ground shadows -->
+            <ellipse cx="150" cy="360" rx="62" ry="13" fill="#241b2e" opacity=".08"/>
+            <ellipse cx="300" cy="352" rx="70" ry="14" fill="#241b2e" opacity=".08"/>
+            <ellipse cx="440" cy="372" rx="46" ry="10" fill="#241b2e" opacity=".08"/>
+
+            <!-- ========== PIP (pink, waving) ========== -->
+            <g transform="translate(150,262) scale(.92)">
+              <g class="anim-bob d1">
+                <!-- raised arm -->
+                <path d="M-60-14 q-24-10-30-40" fill="none" stroke="#ff5c8a" stroke-width="18" stroke-linecap="round"/>
+                <circle cx="-92" cy="-58" r="12" fill="#ff8fb1"/>
+                <!-- body -->
+                <path d="M0-92 C42-92 76-64 79-22 C82 20 62 62 20 72 C8 75-8 75-20 72 C-62 62-82 20-79-22 C-76-64-42-92 0-92 Z" fill="#ff5c8a"/>
+                <!-- belly -->
+                <ellipse cx="0" cy="26" rx="42" ry="38" fill="#ff8fb1" opacity=".55"/>
+                <!-- bottom shade -->
+                <path d="M-60 40 C-40 66 40 66 60 40 C46 70 20 78 0 78 C-20 78-46 70-60 40 Z" fill="#e0456f" opacity=".35"/>
+                <!-- feet -->
+                <ellipse cx="-24" cy="66" rx="17" ry="11" fill="#e0456f"/>
+                <ellipse cx="24" cy="66" rx="17" ry="11" fill="#e0456f"/>
+                <!-- lower arm -->
+                <path d="M62 8 q22 8 22 34" fill="none" stroke="#ff5c8a" stroke-width="18" stroke-linecap="round"/>
+                <circle cx="84" cy="46" r="11" fill="#ff8fb1"/>
+                <!-- cheeks -->
+                <ellipse cx="-42" cy="12" rx="12" ry="8" fill="#e0456f" opacity=".5"/>
+                <ellipse cx="42" cy="12" rx="12" ry="8" fill="#e0456f" opacity=".5"/>
+                <!-- eyes -->
+                <circle cx="-24" cy="-16" r="21" fill="#fff"/>
+                <circle cx="24" cy="-16" r="21" fill="#fff"/>
+                <circle class="pupil" cx="-22" cy="-11" r="10" fill="#241b2e"/>
+                <circle class="pupil" cx="26" cy="-11" r="10" fill="#241b2e"/>
+                <circle cx="-27" cy="-18" r="5" fill="#fff"/>
+                <circle cx="21" cy="-18" r="5" fill="#fff"/>
+                <ellipse class="lid" cx="-24" cy="-16" rx="22" ry="22" fill="#ff5c8a"/>
+                <ellipse class="lid b1" cx="24" cy="-16" rx="22" ry="22" fill="#ff5c8a"/>
+                <!-- open smile -->
+                <path d="M-16 14 Q0 20 16 14 Q11 38 0 38 Q-11 38-16 14 Z" fill="#3a2b47"/>
+                <ellipse cx="0" cy="33" rx="7" ry="5" fill="#ff8fb1"/>
+              </g>
+            </g>
+
+            <!-- ========== BOP (amber, holds star) ========== -->
+            <g transform="translate(300,236) scale(1.02)">
+              <g class="anim-bob">
+                <!-- arm raised to star -->
+                <path d="M58-30 q28-14 34-52" fill="none" stroke="#ffb020" stroke-width="18" stroke-linecap="round"/>
+                <!-- star prop -->
+                <g class="twinkle" transform="translate(96,-92)"><path d="M0-20 6-6 21-6 9 3 13 18 0 9-13 18-9 3-21-6-6-6Z" fill="#ffcf6b" stroke="#e2920c" stroke-width="3" stroke-linejoin="round"/></g>
+                <!-- body (rounder) -->
+                <path d="M0-90 C46-90 82-58 82-14 C82 34 52 70 0 70 C-52 70-82 34-82-14 C-82-58-46-90 0-90 Z" fill="#ffb020"/>
+                <ellipse cx="0" cy="24" rx="46" ry="40" fill="#ffcf6b" opacity=".6"/>
+                <path d="M-64 36 C-42 64 42 64 64 36 C48 68 22 76 0 76 C-22 76-48 68-64 36 Z" fill="#e2920c" opacity=".32"/>
+                <ellipse cx="-26" cy="64" rx="18" ry="12" fill="#e2920c"/>
+                <ellipse cx="26" cy="64" rx="18" ry="12" fill="#e2920c"/>
+                <!-- lower left arm -->
+                <path d="M-62 4 q-22 8-22 34" fill="none" stroke="#ffb020" stroke-width="18" stroke-linecap="round"/>
+                <circle cx="-84" cy="42" r="11" fill="#ffcf6b"/>
+                <ellipse cx="-46" cy="10" rx="13" ry="9" fill="#ff8fb1" opacity=".75"/>
+                <ellipse cx="46" cy="10" rx="13" ry="9" fill="#ff8fb1" opacity=".75"/>
+                <!-- eyes -->
+                <circle cx="-26" cy="-14" r="23" fill="#fff"/>
+                <circle cx="26" cy="-14" r="23" fill="#fff"/>
+                <circle class="pupil" cx="-23" cy="-9" r="11" fill="#241b2e"/>
+                <circle class="pupil" cx="29" cy="-9" r="11" fill="#241b2e"/>
+                <circle cx="-29" cy="-17" r="5.5" fill="#fff"/>
+                <circle cx="23" cy="-17" r="5.5" fill="#fff"/>
+                <ellipse class="lid b1" cx="-26" cy="-14" rx="24" ry="24" fill="#ffb020"/>
+                <ellipse class="lid b2" cx="26" cy="-14" rx="24" ry="24" fill="#ffb020"/>
+                <!-- big open smile -->
+                <path d="M-20 14 Q0 22 20 14 Q14 42 0 42 Q-14 42-20 14 Z" fill="#3a2b47"/>
+                <ellipse cx="0" cy="36" rx="8" ry="6" fill="#ff8fb1"/>
+              </g>
+            </g>
+
+            <!-- ========== LU (sky, small, magnifier) ========== -->
+            <g transform="translate(440,278) scale(.72)">
+              <g class="anim-bob d2">
+                <!-- body -->
+                <path d="M0-92 C42-92 76-64 79-22 C82 20 62 62 20 72 C8 75-8 75-20 72 C-62 62-82 20-79-22 C-76-64-42-92 0-92 Z" fill="#4cc9f0"/>
+                <ellipse cx="0" cy="26" rx="42" ry="38" fill="#8adcf6" opacity=".6"/>
+                <path d="M-60 40 C-40 66 40 66 60 40 C46 70 20 78 0 78 C-20 78-46 70-60 40 Z" fill="#2fb2db" opacity=".35"/>
+                <ellipse cx="-24" cy="66" rx="17" ry="11" fill="#2fb2db"/>
+                <ellipse cx="24" cy="66" rx="17" ry="11" fill="#2fb2db"/>
+                <!-- magnifier held in front -->
+                <path d="M56 24 q26 6 40 30" fill="none" stroke="#4cc9f0" stroke-width="18" stroke-linecap="round"/>
+                <g transform="translate(96,52)">
+                  <circle r="22" fill="#eaf9ff" stroke="#241b2e" stroke-width="6"/>
+                  <path d="M16 16 26 26" stroke="#241b2e" stroke-width="9" stroke-linecap="round"/>
+                  <path d="M-8-6 A12 12 0 0 1 4-14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+                </g>
+                <ellipse cx="-42" cy="12" rx="12" ry="8" fill="#ff8fb1" opacity=".7"/>
+                <ellipse cx="42" cy="12" rx="12" ry="8" fill="#ff8fb1" opacity=".7"/>
+                <!-- eyes -->
+                <circle cx="-24" cy="-16" r="21" fill="#fff"/>
+                <circle cx="24" cy="-16" r="21" fill="#fff"/>
+                <circle class="pupil" cx="-21" cy="-11" r="10" fill="#241b2e"/>
+                <circle class="pupil" cx="27" cy="-11" r="10" fill="#241b2e"/>
+                <circle cx="-27" cy="-18" r="5" fill="#fff"/>
+                <circle cx="21" cy="-18" r="5" fill="#fff"/>
+                <ellipse class="lid b2" cx="-24" cy="-16" rx="22" ry="22" fill="#4cc9f0"/>
+                <ellipse class="lid" cx="24" cy="-16" rx="22" ry="22" fill="#4cc9f0"/>
+                <!-- small round smile -->
+                <path d="M-13 16 Q0 20 13 16 Q9 34 0 34 Q-9 34-13 16 Z" fill="#3a2b47"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ Features ============ -->
+  <section class="band features" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Why families love Bloop</span>
+        <h2>Screen time that leaves everyone smiling</h2>
+        <p>We believe kids learn fastest when they are laughing. So Bloop hides real reading, math, and problem-solving inside quests they actually want to finish.</p>
+      </div>
+      <div class="feature-grid">
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 120 120" role="img" aria-label="A pink Bloop character reading a little book">
+            <ellipse cx="60" cy="106" rx="34" ry="7" fill="#241b2e" opacity=".08"/>
+            <path d="M60 20 C82 20 100 36 100 62 C100 88 82 100 60 100 C38 100 20 88 20 62 C20 36 38 20 60 20 Z" fill="#ff5c8a"/>
+            <ellipse cx="60" cy="66" rx="26" ry="22" fill="#ff8fb1" opacity=".55"/>
+            <circle cx="48" cy="52" r="12" fill="#fff"/><circle cx="72" cy="52" r="12" fill="#fff"/>
+            <circle cx="50" cy="55" r="5.5" fill="#241b2e"/><circle cx="74" cy="55" r="5.5" fill="#241b2e"/>
+            <path d="M50 74 q10 7 20 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <g transform="translate(60,92)"><path d="M-22 0 L0-6 L0 12 L-22 8 Z" fill="#4cc9f0"/><path d="M22 0 L0-6 L0 12 L22 8 Z" fill="#8adcf6"/><path d="M0-6 V12" stroke="#241b2e" stroke-width="2"/></g>
+          </svg>
+          <h3>Ten-minute quests</h3>
+          <p>Short, complete adventures that fit between dinner and bedtime. Kids finish feeling proud, not fried, and there is nothing to endlessly scroll.</p>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 120 120" role="img" aria-label="An amber Bloop character beside three growing steps">
+            <ellipse cx="60" cy="106" rx="34" ry="7" fill="#241b2e" opacity=".08"/>
+            <g transform="translate(88,74)"><rect x="-8" y="14" width="14" height="14" rx="4" fill="#4cc9f0"/><rect x="8" y="2" width="14" height="26" rx="4" fill="#ff5c8a"/><rect x="24" y="-12" width="14" height="40" rx="4" fill="#241b2e"/></g>
+            <path d="M46 26 C68 26 84 42 84 66 C84 90 68 100 46 100 C26 100 10 90 10 66 C10 42 24 26 46 26 Z" fill="#ffb020"/>
+            <ellipse cx="46" cy="70" rx="24" ry="20" fill="#ffcf6b" opacity=".6"/>
+            <circle cx="35" cy="56" r="12" fill="#fff"/><circle cx="58" cy="56" r="12" fill="#fff"/>
+            <circle cx="37" cy="59" r="5.5" fill="#241b2e"/><circle cx="60" cy="59" r="5.5" fill="#241b2e"/>
+            <path d="M36 76 q10 8 22 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+          <h3>Grows with your kid</h3>
+          <p>Every quest adapts in real time. When something clicks, Bloop nudges a little harder. When it does not, it slows down and cheers a little louder.</p>
+        </article>
+
+        <article class="card">
+          <svg class="spot" viewBox="0 0 120 120" role="img" aria-label="A blue Bloop character tucked safely inside a heart">
+            <ellipse cx="60" cy="106" rx="34" ry="7" fill="#241b2e" opacity=".08"/>
+            <path d="M60 100 C24 76 20 52 34 42 C46 34 58 42 60 52 C62 42 74 34 86 42 C100 52 96 76 60 100 Z" fill="#ffd9e5"/>
+            <path d="M60 34 C80 34 96 48 96 70 C96 90 80 100 60 100 C40 100 24 90 24 70 C24 48 40 34 60 34 Z" fill="#4cc9f0"/>
+            <ellipse cx="60" cy="74" rx="24" ry="19" fill="#8adcf6" opacity=".6"/>
+            <circle cx="49" cy="62" r="12" fill="#fff"/><circle cx="72" cy="62" r="12" fill="#fff"/>
+            <circle cx="51" cy="65" r="5.5" fill="#241b2e"/><circle cx="74" cy="65" r="5.5" fill="#241b2e"/>
+            <path d="M50 80 q10 7 20 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+          <h3>Zero ads, total calm</h3>
+          <p>No ads, no pop-ups begging for coins, no data sold about your child. Just one gentle world you can hand over and trust completely.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Stats ============ -->
+  <section class="band" id="families" style="padding-block:clamp(36px,5vw,56px)">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat stat--pink"><b>41,000</b><span class="lbl">families playing weekly</span></div>
+        <div class="stat stat--amber"><b>1,200+</b><span class="lbl">quests, and always more</span></div>
+        <div class="stat stat--sky"><b>0</b><span class="lbl">ads your kid will ever see</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ How it works ============ -->
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">How a Bloop quest works</span>
+        <h2>Three taps from curious to proud</h2>
+      </div>
+      <div class="steps">
+
+        <article class="step">
+          <div class="step-tile">
+            <svg viewBox="0 0 120 120" role="img" aria-label="Pip the pink character picking a glowing star spark">
+              <path d="M50 34 C70 34 86 48 86 70 C86 90 70 100 50 100 C30 100 14 90 14 70 C14 48 30 34 50 34 Z" fill="#ff5c8a"/>
+              <circle cx="40" cy="62" r="11" fill="#fff"/><circle cx="60" cy="62" r="11" fill="#fff"/>
+              <circle cx="42" cy="65" r="5" fill="#241b2e"/><circle cx="62" cy="65" r="5" fill="#241b2e"/>
+              <path d="M40 80 q10 7 20 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <g transform="translate(88,40)"><path d="M0-18 5-5 19-5 8 4 12 18 0 9-12 18-8 4-19-5-5-5Z" fill="#ffb020" stroke="#e2920c" stroke-width="3" stroke-linejoin="round"/></g>
+            </svg>
+          </div>
+          <span class="step-n">Pick a spark</span>
+          <h3>Choose a world</h3>
+          <p>Your kid taps a character and a theme: dinosaurs, deep oceans, or outer space. Whatever they are into today, there is a quest for it.</p>
+        </article>
+
+        <article class="step">
+          <div class="step-tile">
+            <svg viewBox="0 0 120 120" role="img" aria-label="Bop the amber character pressing a play button">
+              <path d="M52 30 C74 30 90 46 90 70 C90 92 74 102 52 102 C30 102 14 92 14 70 C14 46 30 30 52 30 Z" fill="#ffb020"/>
+              <circle cx="42" cy="62" r="11" fill="#fff"/><circle cx="62" cy="62" r="11" fill="#fff"/>
+              <circle cx="44" cy="65" r="5" fill="#241b2e"/><circle cx="64" cy="65" r="5" fill="#241b2e"/>
+              <path d="M42 80 q11 8 22 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <g transform="translate(90,44)"><circle r="18" fill="#241b2e"/><path d="M-6-9 L11 0 L-6 9 Z" fill="#fff"/></g>
+            </svg>
+          </div>
+          <span class="step-n">Play the quest</span>
+          <h3>Learn by doing</h3>
+          <p>Ten minutes of stories, puzzles, and silly voices. Reading, counting, and problem-solving hide inside the fun, so it never feels like a worksheet.</p>
+        </article>
+
+        <article class="step">
+          <div class="step-tile">
+            <svg viewBox="0 0 120 120" role="img" aria-label="Lu the blue character holding up a trophy">
+              <path d="M50 34 C70 34 86 48 86 70 C86 90 70 100 50 100 C30 100 14 90 14 70 C14 48 30 34 50 34 Z" fill="#4cc9f0"/>
+              <circle cx="40" cy="62" r="11" fill="#fff"/><circle cx="60" cy="62" r="11" fill="#fff"/>
+              <circle cx="42" cy="65" r="5" fill="#241b2e"/><circle cx="62" cy="65" r="5" fill="#241b2e"/>
+              <path d="M40 79 q10 8 20 0" stroke="#3a2b47" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <g transform="translate(88,42)"><path d="M-13-14 H13 V-6 A13 13 0 0 1-13-6 Z" fill="#ffb020"/><path d="M-13-12 H-19 A6 6 0 0 0-13-2 Z" fill="#ffcf6b"/><path d="M13-12 H19 A6 6 0 0 1 13-2 Z" fill="#ffcf6b"/><rect x="-3" y="4" width="6" height="8" fill="#e2920c"/><rect x="-10" y="12" width="20" height="6" rx="2" fill="#e2920c"/></g>
+            </svg>
+          </div>
+          <span class="step-n">Celebrate the win</span>
+          <h3>Collect the confetti</h3>
+          <p>Every quest ends with a tiny celebration and a fresh sticker for the collection. It is the good kind of cliffhanger: come back tomorrow for more.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Quote ============ -->
+  <section class="band quote-band">
+    <div class="wrap">
+      <figure class="quote">
+        <blockquote><span class="mark" aria-hidden="true">"</span>My daughter asks for her Bloop time the way she used to ask for cartoons. I did not know screen time could feel this good.<span class="mark" aria-hidden="true">"</span></blockquote>
+        <figcaption><b>Maya R.</b>, parent of a 5-year-old in Portland</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ Final CTA ============ -->
+  <section class="band" id="start" style="padding-top:clamp(20px,3vw,32px)">
+    <div class="wrap">
+      <div class="cta-panel">
+        <div class="cta-inner">
+          <h2>Give curiosity ten minutes today</h2>
+          <p>Start free with two quests a day. No card needed, no ads to dodge, and you can cancel any time from your grown-up dashboard.</p>
+          <div class="cta-actions">
+            <a class="btn btn--primary btn--big" href="#top">Start playing free <span class="arrow" aria-hidden="true">-&gt;</span></a>
+            <a class="btn btn--ghost btn--big" href="#families">Read our promise to parents</a>
+          </div>
+        </div>
+        <svg class="cta-mascot" viewBox="0 0 220 200" aria-hidden="true">
+          <g transform="translate(120,120)">
+            <path d="M0-92 C42-92 76-64 79-22 C82 20 62 62 20 72 C8 75-8 75-20 72 C-62 62-82 20-79-22 C-76-64-42-92 0-92 Z" fill="#ffb020"/>
+            <ellipse cx="0" cy="26" rx="42" ry="38" fill="#ffcf6b" opacity=".6"/>
+            <ellipse cx="-42" cy="12" rx="12" ry="8" fill="#ff8fb1" opacity=".7"/>
+            <ellipse cx="42" cy="12" rx="12" ry="8" fill="#ff8fb1" opacity=".7"/>
+            <circle cx="-24" cy="-16" r="22" fill="#fff"/><circle cx="24" cy="-16" r="22" fill="#fff"/>
+            <circle cx="-21" cy="-11" r="10" fill="#241b2e"/><circle cx="27" cy="-11" r="10" fill="#241b2e"/>
+            <circle cx="-27" cy="-18" r="5" fill="#fff"/><circle cx="21" cy="-18" r="5" fill="#fff"/>
+            <path d="M-16 14 Q0 20 16 14 Q11 38 0 38 Q-11 38-16 14 Z" fill="#3a2b47"/>
+            <path d="M-64-12 q-22-6-28-28" fill="none" stroke="#ffb020" stroke-width="18" stroke-linecap="round"/>
+            <circle cx="-90" cy="-46" r="12" fill="#ffcf6b"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Bloop home">
+          <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M20 3c9 0 15 6.4 15 15.5C35 30 29 37 20 37S5 30 5 18.5C5 9.4 11 3 20 3Z" fill="#ff5c8a"/>
+            <circle cx="15" cy="19" r="5.4" fill="#fff"/><circle cx="26" cy="19" r="5.4" fill="#fff"/>
+            <circle cx="16" cy="20" r="2.6" fill="#241b2e"/><circle cx="27" cy="20" r="2.6" fill="#241b2e"/>
+            <path d="M15 27c2.6 2.6 7.4 2.6 10 0" stroke="#241b2e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          </svg>
+          Bloop
+        </a>
+        <p>Ten-minute quests that make big ideas feel like play. Made for curious kids and the grown-ups who love them.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#features">Why Bloop</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#start">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>For grown-ups</h4>
+        <ul>
+          <li><a href="#families">Our promise to parents</a></li>
+          <li><a href="#families">Privacy for kids</a></li>
+          <li><a href="#families">Help center</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>&copy; <span id="yr">2026</span> Bloop Learning. A playful place to grow.</p>
+      <p>Built with early-childhood teachers. No ads, no tracking of kids.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    "use strict";
+    try{
+      var y=document.getElementById("yr");
+      if(y){y.textContent=String(new Date().getFullYear());}
+    }catch(e){}
+
+    try{
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var fine = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+      var scene = document.querySelector(".scene");
+      if(reduce || !fine || !scene) return;
+      var pupils = Array.prototype.slice.call(scene.querySelectorAll(".pupil"));
+      if(!pupils.length) return;
+      var raf = 0, tx = 0, ty = 0;
+      scene.addEventListener("pointermove", function(ev){
+        var r = scene.getBoundingClientRect();
+        if(!r.width || !r.height) return;
+        var nx = ((ev.clientX - r.left) / r.width) * 2 - 1;
+        var ny = ((ev.clientY - r.top) / r.height) * 2 - 1;
+        tx = Math.max(-1, Math.min(1, nx)) * 4.5;
+        ty = Math.max(-1, Math.min(1, ny)) * 4.5;
+        if(!raf){ raf = requestAnimationFrame(apply); }
+      });
+      scene.addEventListener("pointerleave", function(){
+        tx = 0; ty = 0;
+        if(!raf){ raf = requestAnimationFrame(apply); }
+      });
+      function apply(){
+        raf = 0;
+        for(var i=0;i<pupils.length;i++){
+          pupils[i].style.transform = "translate(" + tx.toFixed(2) + "px," + ty.toFixed(2) + "px)";
+        }
+      }
+    }catch(e){}
+  })();
+</script>

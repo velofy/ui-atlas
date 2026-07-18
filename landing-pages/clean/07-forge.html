@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge // a build tool that stays in the terminal</title>
+<meta name="description" content="Forge is a deterministic build-and-ship CLI. One static binary, reproducible artifacts, no daemon, no dashboard, no telemetry.">
+<style>
+  /* ============ DESIGN TOKENS ============ */
+  :root{
+    /* palette */
+    --paper:#f4f4ef;
+    --panel:#fbfbf7;
+    --ink:#111111;
+    --ink-2:#3a3a34;
+    --acid:#c9f227;
+    --acid-dark:#566e00;
+    --line:#e3e3db;
+
+    /* type */
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+
+    /* scale */
+    --fs-display:clamp(2.05rem,7.8vw,4.7rem);
+    --fs-h2:clamp(1.5rem,4.2vw,2.5rem);
+    --fs-lead:clamp(1.02rem,2.3vw,1.3rem);
+    --fs-kicker:0.72rem;
+    --fs-body:1rem;
+    --fs-sm:0.8rem;
+
+    /* metrics */
+    --maxw:1160px;
+    --pad:clamp(1rem,4.5vw,2.6rem);
+    --off:3px;
+    --bord:2px;
+    --radius:0px;
+
+    /* terminal */
+    --term-bg:#121210;
+    --term-fg:#f4f4ef;
+    --term-mut:#a6a69c;
+  }
+
+  /* ============ RESET / BASE ============ */
+  *,*::before,*::after{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:var(--fs-body);
+    line-height:1.55;
+    overflow-x:hidden;
+    max-width:100%;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%}
+  a{color:var(--ink)}
+  h1,h2,h3,p{margin:0}
+  ::selection{background:var(--acid);color:var(--ink)}
+
+  /* focus: ink ring on paper, visible on every background used here */
+  :focus-visible{ outline:3px solid var(--ink); outline-offset:3px; }
+
+  .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--pad); }
+
+  .skip{
+    position:absolute; left:-999px; top:0; z-index:50;
+    background:var(--ink); color:var(--paper);
+    font-family:var(--mono); font-size:var(--fs-sm);
+    padding:.6rem .9rem; text-decoration:none;
+  }
+  .skip:focus{ left:.5rem; top:.5rem; }
+
+  /* ============ BUTTONS ============ */
+  .btn{
+    display:inline-flex; align-items:center; gap:.55em;
+    font-family:var(--mono); font-weight:700; font-size:var(--fs-sm);
+    letter-spacing:.02em; text-transform:uppercase; text-decoration:none;
+    padding:.85em 1.2em; border:var(--bord) solid var(--ink);
+    border-radius:var(--radius); cursor:pointer; min-width:0;
+    transition:transform .09s ease, box-shadow .09s ease;
+  }
+  .btn .tick{ width:.62em; height:.62em; background:currentColor; display:inline-block; }
+  .btn-primary{ background:var(--ink); color:#ffffff; box-shadow:var(--off) var(--off) 0 var(--acid); }
+  .btn-ghost{ background:var(--paper); color:var(--ink); box-shadow:var(--off) var(--off) 0 var(--ink); }
+  .btn:hover{ transform:translate(-2px,-2px); }
+  .btn-primary:hover{ box-shadow:calc(var(--off) + 3px) calc(var(--off) + 3px) 0 var(--acid); }
+  .btn-ghost:hover{ box-shadow:calc(var(--off) + 3px) calc(var(--off) + 3px) 0 var(--ink); }
+  .btn:active{ transform:translate(2px,2px); box-shadow:0 0 0 0 var(--ink); }
+
+  /* ============ HEADER ============ */
+  .site-head{ border-bottom:var(--bord) solid var(--ink); background:var(--paper); }
+  .head-in{
+    display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1.4rem;
+    padding-block:.85rem;
+  }
+  .brand{
+    display:inline-flex; align-items:center; gap:.55rem;
+    font-family:var(--mono); font-weight:800; letter-spacing:.14em;
+    text-transform:uppercase; text-decoration:none; color:var(--ink);
+    font-size:1rem; margin-right:auto;
+  }
+  .brand svg{ width:30px; height:26px; }
+  .nav{ display:flex; align-items:center; flex-wrap:wrap; gap:.2rem .3rem; min-width:0; }
+  .nav a{
+    font-family:var(--mono); font-size:var(--fs-sm); text-decoration:none;
+    color:var(--ink); padding:.45rem .6rem; letter-spacing:.02em;
+  }
+  .nav a:hover{ background:var(--ink); color:var(--paper); }
+  .nav .btn{ margin-left:.35rem; }
+
+  /* ============ HERO ============ */
+  .hero{ padding-block:clamp(2.2rem,6vw,4.4rem); border-bottom:var(--bord) solid var(--ink); }
+  .hero-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(1.6rem,4vw,3rem); align-items:center; }
+  .hero-grid > *{ min-width:0; }
+  .eyebrow{
+    display:inline-block; font-family:var(--mono); font-size:var(--fs-kicker);
+    letter-spacing:.16em; text-transform:uppercase; font-weight:700;
+    background:var(--ink); color:var(--acid); padding:.4rem .6rem; margin-bottom:1.1rem;
+  }
+  .display{
+    font-family:var(--mono); font-weight:800; text-transform:uppercase;
+    font-size:var(--fs-display); line-height:.94; letter-spacing:-.02em;
+    margin-bottom:1.05rem; overflow-wrap:break-word;
+  }
+  .display .u{ background:var(--acid); box-decoration-break:clone; -webkit-box-decoration-break:clone; padding:0 .06em; }
+  .lead{ font-size:var(--fs-lead); color:var(--ink-2); max-width:44ch; margin-bottom:1.6rem; }
+  .lead b{ color:var(--ink); font-weight:700; }
+  .hero-cta{ display:flex; flex-wrap:wrap; gap:.8rem; margin-bottom:1.4rem; }
+  .instl{
+    display:flex; align-items:stretch; border:var(--bord) solid var(--ink);
+    background:var(--panel); box-shadow:var(--off) var(--off) 0 var(--ink);
+    max-width:100%; min-width:0;
+  }
+  .instl code{
+    font-family:var(--mono); font-size:var(--fs-sm); color:var(--ink);
+    padding:.7rem .8rem; overflow-x:auto; white-space:nowrap; min-width:0; flex:1;
+  }
+  .instl code b{ color:var(--acid-dark); }
+  .copybtn{
+    font-family:var(--mono); font-size:var(--fs-sm); font-weight:700;
+    text-transform:uppercase; letter-spacing:.04em;
+    background:var(--acid); color:var(--ink); border:0;
+    border-left:var(--bord) solid var(--ink); padding:0 .95rem; cursor:pointer;
+    white-space:nowrap;
+  }
+  .copybtn:hover{ background:var(--ink); color:var(--acid); }
+
+  /* hero art panel */
+  .art{
+    border:var(--bord) solid var(--ink); background:var(--panel);
+    box-shadow:var(--off) var(--off) 0 var(--ink); padding:0; overflow:hidden;
+  }
+  .art-bar{
+    display:flex; align-items:center; gap:.5rem;
+    border-bottom:var(--bord) solid var(--ink); padding:.5rem .7rem;
+    font-family:var(--mono); font-size:var(--fs-kicker); letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-2);
+  }
+  .art-bar .dot{ width:9px; height:9px; background:var(--ink); }
+  .art-bar .dot.on{ background:var(--acid); border:1px solid var(--ink); }
+  .art svg.anvil{ width:100%; height:auto; display:block; background:var(--panel); }
+
+  /* ============ STAT STRIP ============ */
+  .stats{ border-bottom:var(--bord) solid var(--ink); background:var(--ink); color:var(--paper); }
+  .stats-in{ display:grid; grid-template-columns:repeat(3,1fr); }
+  .stat{ padding:1.3rem var(--pad); border-right:var(--bord) solid #2c2c28; min-width:0; }
+  .stat:last-child{ border-right:0; }
+  .stat .num{ font-family:var(--mono); font-weight:800; font-size:clamp(1.7rem,4vw,2.6rem); color:var(--acid); line-height:1; }
+  .stat .cap{ font-family:var(--mono); font-size:var(--fs-sm); color:var(--term-mut); margin-top:.4rem; letter-spacing:.02em; word-break:break-word; }
+
+  /* ============ SECTION SHELL ============ */
+  .section{ padding-block:clamp(2.6rem,6vw,4.6rem); }
+  .sec-head{ margin-bottom:2rem; max-width:60ch; }
+  .sec-kick{ font-family:var(--mono); font-size:var(--fs-kicker); letter-spacing:.18em; text-transform:uppercase; font-weight:700; color:var(--acid-dark); }
+  .sec-title{ font-family:var(--mono); font-weight:800; text-transform:uppercase; font-size:var(--fs-h2); letter-spacing:-.01em; line-height:1; margin-top:.7rem; word-break:break-word; }
+  .sec-sub{ color:var(--ink-2); font-size:var(--fs-lead); margin-top:.9rem; max-width:52ch; }
+
+  /* ============ RUN / TERMINAL ============ */
+  .run{ border-top:var(--bord) solid var(--ink); background:var(--paper); }
+  .run-grid{ display:grid; grid-template-columns:1fr 1.15fr; gap:clamp(1.4rem,3.5vw,2.8rem); align-items:center; }
+  .run-grid > *{ min-width:0; }
+  .term{
+    border:var(--bord) solid var(--ink); background:var(--term-bg);
+    box-shadow:var(--off) var(--off) 0 var(--ink); overflow:hidden;
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:.5rem; padding:.55rem .8rem;
+    border-bottom:var(--bord) solid #2c2c28;
+    font-family:var(--mono); font-size:var(--fs-kicker); letter-spacing:.1em;
+    text-transform:uppercase; color:var(--term-mut);
+  }
+  .term-bar .d{ width:9px;height:9px;background:#3a3a34 }
+  .term-bar .d.g{ background:var(--acid) }
+  .term pre{
+    margin:0; padding:1rem .95rem 1.15rem; overflow-x:auto;
+    font-family:var(--mono); font-size:.82rem; line-height:1.7; color:var(--term-fg);
+    tab-size:2;
+  }
+  .term .p{ color:var(--acid) }
+  .term .m{ color:var(--term-mut) }
+  .term .ok{ color:var(--ink); background:var(--acid); font-weight:700; padding:0 .35em; }
+  .term .h{ color:var(--acid) }
+  .term .sha{ word-break:break-all; }
+  .caret{ display:inline-block; width:.6em; height:1.05em; background:var(--acid); vertical-align:-2px; }
+
+  .run-copy p{ color:var(--ink-2); margin-top:1rem; }
+  .run-copy p b{ color:var(--ink); }
+  .kv{ margin-top:1.4rem; border-top:var(--bord) solid var(--ink); }
+  .kv div{ display:flex; gap:1rem; padding:.7rem 0; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:var(--fs-sm); }
+  .kv dt{ color:var(--acid-dark); min-width:8.5rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .kv dd{ margin:0; color:var(--ink-2); min-width:0; word-break:break-word; }
+
+  /* ============ RULES / FEATURES ============ */
+  .rules{ border-top:var(--bord) solid var(--ink); }
+  .cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .card{
+    border:var(--bord) solid var(--ink); background:var(--panel);
+    box-shadow:var(--off) var(--off) 0 var(--ink); padding:1.4rem 1.3rem 1.5rem;
+    min-width:0; transition:transform .09s ease, box-shadow .09s ease;
+  }
+  .card:hover{ transform:translate(-2px,-2px); box-shadow:calc(var(--off) + 3px) calc(var(--off) + 3px) 0 var(--ink); }
+  .card .glyph{ width:56px; height:56px; border:var(--bord) solid var(--ink); background:var(--paper); margin-bottom:1rem; }
+  .card .ckick{ font-family:var(--mono); font-size:var(--fs-kicker); letter-spacing:.16em; text-transform:uppercase; color:var(--acid-dark); font-weight:700; }
+  .card h3{ font-family:var(--mono); font-weight:800; text-transform:uppercase; font-size:1.12rem; letter-spacing:-.01em; margin:.5rem 0 .6rem; line-height:1.05; word-break:break-word; }
+  .card p{ color:var(--ink-2); font-size:.95rem; }
+  .card p code{ font-family:var(--mono); font-size:.85em; background:var(--acid); color:var(--ink); padding:0 .28em; word-break:break-word; }
+
+  /* ============ CTA BAND ============ */
+  .band{ border-top:var(--bord) solid var(--ink); border-bottom:var(--bord) solid var(--ink); background:var(--acid); }
+  .band-in{ display:grid; grid-template-columns:1.2fr .8fr; gap:clamp(1.4rem,4vw,3rem); align-items:center; padding-block:clamp(2.4rem,5vw,3.6rem); }
+  .band-in > *{ min-width:0; }
+  .band h2{ font-family:var(--mono); font-weight:800; text-transform:uppercase; font-size:var(--fs-h2); line-height:1; letter-spacing:-.01em; color:var(--ink); word-break:break-word; }
+  .band p{ color:#20240a; margin-top:.8rem; font-size:var(--fs-lead); max-width:40ch; }
+  .band .instl{ background:#fbfef0; box-shadow:var(--off) var(--off) 0 var(--ink); margin-bottom:1rem; }
+  .band .copybtn{ background:var(--ink); color:var(--acid); }
+  .band .copybtn:hover{ background:#000; }
+  .band .btn-primary{ box-shadow:var(--off) var(--off) 0 var(--ink); }
+  .band .btn-primary:hover{ box-shadow:calc(var(--off) + 3px) calc(var(--off) + 3px) 0 var(--ink); }
+  .band-actions{ display:flex; flex-direction:column; gap:.9rem; }
+
+  /* ============ FOOTER ============ */
+  .foot{ background:var(--paper); }
+  .foot-in{ display:flex; flex-wrap:wrap; gap:1.4rem 2.2rem; align-items:flex-start; padding-block:2.2rem 1.4rem; }
+  .foot-brand{ min-width:0; }
+  .foot-brand .brand{ font-size:1rem; margin-bottom:.6rem; }
+  .foot-brand p{ font-family:var(--mono); font-size:var(--fs-sm); color:var(--ink-2); max-width:34ch; }
+  .foot-links{ display:flex; flex-wrap:wrap; gap:.3rem 1.1rem; margin-left:auto; }
+  .foot-links a{ font-family:var(--mono); font-size:var(--fs-sm); color:var(--ink); text-decoration:none; }
+  .foot-links a:hover{ text-decoration:underline; }
+  .foot-note{ border-top:1px solid var(--line); padding-block:1.1rem 2rem; display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; justify-content:space-between; }
+  .foot-note span{ font-family:var(--mono); font-size:var(--fs-kicker); letter-spacing:.06em; color:var(--ink-2); word-break:break-word; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:860px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .run-grid{ grid-template-columns:1fr; }
+    .band-in{ grid-template-columns:1fr; }
+    .cards{ grid-template-columns:1fr; }
+    .art{ order:-1; }
+  }
+  @media (max-width:560px){
+    .stats-in{ grid-template-columns:1fr; }
+    .stat{ border-right:0; border-bottom:var(--bord) solid #2c2c28; }
+    .stat:last-child{ border-bottom:0; }
+  }
+
+  /* ============ MOTION ============ */
+  .spark{ animation:spark 1.7s steps(2,end) infinite; }
+  .spark:nth-of-type(2){ animation-delay:.35s }
+  .spark:nth-of-type(3){ animation-delay:.7s }
+  .spark:nth-of-type(4){ animation-delay:1.05s }
+  @keyframes spark{ 0%,100%{opacity:1} 50%{opacity:.28} }
+  .caret{ animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============ HEADER ============ -->
+<header class="site-head">
+  <div class="wrap head-in">
+    <a class="brand" href="#top" aria-label="Forge home">
+      <svg viewBox="0 0 24 20" aria-hidden="true" focusable="false">
+        <rect x="2" y="5" width="20" height="4" fill="#111111"/>
+        <rect x="0" y="5" width="6" height="2" fill="#111111"/>
+        <rect x="8" y="9" width="8" height="3" fill="#111111"/>
+        <rect x="4" y="12" width="16" height="5" fill="#111111"/>
+        <rect x="18" y="0" width="3" height="3" fill="#c9f227" stroke="#111111" stroke-width=".6"/>
+      </svg>
+      Forge
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#run">Run</a>
+      <a href="#rules">Rules</a>
+      <a href="#docs">Docs</a>
+      <a href="#changelog">Changelog</a>
+      <a class="btn btn-primary" href="#get"><span class="tick" aria-hidden="true"></span>Install</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<span id="top"></span>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">v2.3.0 // single static binary // no daemon</span>
+      <h1 class="display">Stop babysitting <span class="u">your build.</span></h1>
+      <p class="lead">Forge is a deterministic build-and-ship CLI. One static binary reads the repo in front of it, runs the same steps on every machine, and hands back an artifact you can reproduce byte for byte. <b>No daemon. No dashboard. No telemetry.</b></p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#get"><span class="tick" aria-hidden="true"></span>Install Forge</a>
+        <a class="btn btn-ghost" href="#run">See a build</a>
+      </div>
+      <div class="instl" role="group" aria-label="Install command">
+        <code>$ curl -fsSL <b>dl.forge.sh/install</b> | sh</code>
+        <button class="copybtn" type="button" data-copy="curl -fsSL dl.forge.sh/install | sh">Copy</button>
+      </div>
+    </div>
+
+    <!-- SIGNATURE: pixel anvil on a hard grid -->
+    <figure class="art" aria-label="Pixel-art anvil struck hot on a hard grid, sparks flying">
+      <div class="art-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span> forge // anvil.svg</div>
+      <svg class="anvil" viewBox="0 0 360 300" role="img" aria-hidden="true" focusable="false">
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" stroke="#e6e6de" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect x="0" y="0" width="360" height="300" fill="url(#grid)"/>
+
+        <!-- sparks (acid) -->
+        <rect class="spark" x="300" y="20" width="16" height="16" fill="#c9f227"/>
+        <rect class="spark" x="330" y="42" width="12" height="12" fill="#c9f227"/>
+        <rect class="spark" x="280" y="8"  width="12" height="12" fill="#c9f227"/>
+        <rect class="spark" x="322" y="66" width="8"  height="8"  fill="#c9f227"/>
+
+        <!-- anvil body (ink) -->
+        <rect x="40"  y="60"  width="280" height="40" fill="#111111"/>
+        <rect x="0"   y="60"  width="40"  height="20" fill="#111111"/>
+        <rect x="20"  y="80"  width="20"  height="20" fill="#111111"/>
+        <rect x="120" y="100" width="120" height="40" fill="#111111"/>
+        <rect x="100" y="140" width="160" height="20" fill="#111111"/>
+        <rect x="80"  y="160" width="200" height="20" fill="#111111"/>
+        <rect x="60"  y="180" width="240" height="40" fill="#111111"/>
+        <rect x="60"  y="220" width="40"  height="20" fill="#111111"/>
+        <rect x="260" y="220" width="40"  height="20" fill="#111111"/>
+        <rect x="40"  y="244" width="280" height="4"  fill="#111111" opacity="0.35"/>
+
+        <!-- heat (acid): hot strike on top, forge-core in base -->
+        <rect x="280" y="60"  width="40" height="12" fill="#c9f227"/>
+        <rect x="160" y="180" width="40" height="40" fill="#c9f227"/>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ STAT STRIP ============ -->
+<section class="stats" aria-label="Forge at a glance">
+  <div class="stats-in">
+    <div class="stat"><div class="num">14 MB</div><div class="cap">one static binary, zero runtime deps</div></div>
+    <div class="stat"><div class="num">0</div><div class="cap">telemetry events, ever, by design</div></div>
+    <div class="stat"><div class="num">1</div><div class="cap">command from clone to artifact</div></div>
+  </div>
+</section>
+
+<!-- ============ RUN / TERMINAL ============ -->
+<section class="run section" id="run">
+  <div class="wrap run-grid">
+    <div class="run-copy">
+      <div class="sec-head">
+        <span class="sec-kick">The whole loop</span>
+        <h2 class="sec-title">One command. Same result.</h2>
+        <p class="sec-sub">Forge resolves, compiles, tests, and packs in a hermetic sandbox, then prints the hash of what it made.</p>
+      </div>
+      <p>Run <b>forge build</b> on your laptop and again in CI. Matching inputs give a matching <b>sha256</b>, or Forge exits non-zero and tells you which step drifted. The artifact is the contract.</p>
+      <dl class="kv">
+        <div><dt>Isolation</dt><dd>hermetic sandbox, network off during build</dd></div>
+        <div><dt>Cache</dt><dd>content-addressed, shared across machines</dd></div>
+        <div><dt>Output</dt><dd>plain text to stdout, clean JSON to a pipe</dd></div>
+      </dl>
+    </div>
+
+    <div class="term" aria-label="Example forge build session">
+      <div class="term-bar"><span class="d g"></span><span class="d"></span><span class="d"></span> ~/proj -- forge</div>
+      <pre><code><span class="p">$</span> forge build
+<span class="m">forge 2.3.0   target: release   cache: warm</span>
+[1/4] resolve   <span class="m">12 deps</span>        0.04s
+[2/4] compile   <span class="m">318 units</span>      2.11s
+[3/4] test      <span class="h">204 passed</span>     1.87s
+[4/4] pack      <span class="m">artifact.tar</span>   0.31s
+
+<span class="ok">ok</span> built in 4.33s
+<span class="m">sha256</span> <span class="sha">9f3c1d7a4be0c2f5a18d6e0b7c4419aa</span>
+<span class="m">state</span> <span class="h">reproducible</span> <span class="caret" aria-hidden="true"></span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RULES / FEATURES ============ -->
+<section class="rules section" id="rules">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-kick">The point of view</span>
+      <h2 class="sec-title">Three rules Forge won't break.</h2>
+      <p class="sec-sub">Most build tools grow a service, a login, and a web app. Forge grows none of those. The constraints are the product.</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <svg class="glyph" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+          <rect x="10" y="10" width="12" height="12" fill="#111111"/>
+          <rect x="34" y="10" width="12" height="12" fill="#111111"/>
+          <rect x="22" y="22" width="12" height="12" fill="#c9f227"/>
+          <rect x="10" y="34" width="12" height="12" fill="#111111"/>
+          <rect x="34" y="34" width="12" height="12" fill="#111111"/>
+        </svg>
+        <span class="ckick">Distribution</span>
+        <h3>One binary. No daemon.</h3>
+        <p>Download it, drop it on your <code>PATH</code>, done. No background service, no install wizard, no config it writes behind your back. Delete one file to uninstall.</p>
+      </article>
+
+      <article class="card">
+        <svg class="glyph" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+          <rect x="17" y="6"  width="7" height="44" fill="#111111"/>
+          <rect x="33" y="6"  width="7" height="44" fill="#111111"/>
+          <rect x="6"  y="17" width="44" height="7" fill="#111111"/>
+          <rect x="6"  y="33" width="44" height="7" fill="#111111"/>
+          <rect x="33" y="33" width="7"  height="7" fill="#c9f227"/>
+        </svg>
+        <span class="ckick">Determinism</span>
+        <h3>Reproducible or it fails.</h3>
+        <p>Every build runs sealed against the network with a content-addressed cache. The same inputs produce the same <code>sha256</code> on any machine, or the run exits non-zero.</p>
+      </article>
+
+      <article class="card">
+        <svg class="glyph" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+          <rect x="8"  y="12" width="12" height="12" fill="#111111"/>
+          <rect x="20" y="24" width="12" height="12" fill="#111111"/>
+          <rect x="8"  y="36" width="12" height="12" fill="#111111"/>
+          <rect x="32" y="42" width="18" height="8"  fill="#c9f227"/>
+        </svg>
+        <span class="ckick">Interface</span>
+        <h3>The terminal is the UI.</h3>
+        <p>No web dashboard, no account, nothing phoning home. Forge writes readable text to stdout and structured JSON to a pipe, so it drops into scripts you already trust.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA BAND ============ -->
+<section class="band" id="get">
+  <div class="wrap band-in">
+    <div>
+      <h2>Put Forge on your PATH.</h2>
+      <p>Free and open source under MIT. Prebuilt for macOS, Linux, and BSD. No sign-up between you and your first reproducible build.</p>
+    </div>
+    <div class="band-actions">
+      <div class="instl" role="group" aria-label="Install command">
+        <code>$ curl -fsSL <b>dl.forge.sh/install</b> | sh</code>
+        <button class="copybtn" type="button" data-copy="curl -fsSL dl.forge.sh/install | sh">Copy</button>
+      </div>
+      <a class="btn btn-primary" href="#docs"><span class="tick" aria-hidden="true"></span>Read the docs</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="foot-brand">
+      <a class="brand" href="#top" aria-label="Forge home">
+        <svg viewBox="0 0 24 20" aria-hidden="true" focusable="false">
+          <rect x="2" y="5" width="20" height="4" fill="#111111"/>
+          <rect x="0" y="5" width="6" height="2" fill="#111111"/>
+          <rect x="8" y="9" width="8" height="3" fill="#111111"/>
+          <rect x="4" y="12" width="16" height="5" fill="#111111"/>
+          <rect x="18" y="0" width="3" height="3" fill="#c9f227" stroke="#111111" stroke-width=".6"/>
+        </svg>
+        Forge
+      </a>
+      <p>A build tool that stays in the terminal. Deterministic by default, quiet by design.</p>
+    </div>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#docs">Docs</a>
+      <a href="#run">Source</a>
+      <a href="#changelog">Changelog</a>
+      <a href="#get">License: MIT</a>
+    </nav>
+  </div>
+  <div class="wrap foot-note">
+    <span>No cookies. No trackers. This page fired zero network requests.</span>
+    <span>velofy/ui-atlas // reference page 07</span>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var canCopy = navigator.clipboard && typeof navigator.clipboard.writeText === "function";
+    document.querySelectorAll("[data-copy]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var text = btn.getAttribute("data-copy");
+        var done = function(){ var o = btn.textContent; btn.textContent = "Copied"; setTimeout(function(){ btn.textContent = o; }, 1400); };
+        if(canCopy){ navigator.clipboard.writeText(text).then(done).catch(function(){}); }
+        else { done(); }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

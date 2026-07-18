@@ -1,0 +1,617 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Vault9 - Self-custody wallet</title>
+<meta name="description" content="Vault9 is a self-custody crypto wallet that seals your private keys on your own device. No custodian, no exchange, no permission. You hold the only key.">
+
+<style>
+  :root{
+    /* palette */
+    --bg:#0b0e0c;
+    --bg-panel:#0f1411;
+    --bg-panel-2:#0c110e;
+    --ink:#eafff2;
+    --ink-soft:#c7e6d6;
+    --muted:#6f8a79;
+    --accent:#12e06a;
+    --accent-ink:#04150b;
+    --accent-dim:#0d8f45;
+    --accent-soft:rgba(18,224,106,.08);
+    --accent-softer:rgba(18,224,106,.045);
+    --hair:rgba(18,224,106,.16);
+    --hair-strong:rgba(18,224,106,.30);
+    /* illustration planes */
+    --plane-1:#0c1611;
+    --plane-2:#0a130d;
+    --plane-3:#102019;
+    /* geometry */
+    --radius:16px;
+    --radius-sm:11px;
+    --maxw:1140px;
+    /* type */
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    /* motion + depth */
+    --ease:cubic-bezier(.2,.7,.2,1);
+    --shadow:0 30px 70px -34px rgba(0,0,0,.85);
+    --glow:0 0 44px -8px rgba(18,224,106,.42);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink-soft);
+    font-family:var(--font-sans);
+    line-height:1.62;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  svg{max-width:100%}
+  h1,h2,h3{color:var(--ink);margin:0;line-height:1.06;letter-spacing:-.02em}
+
+  /* focus */
+  a,button{font-family:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+
+  .skip-link{
+    position:absolute;left:14px;top:-60px;z-index:200;
+    background:var(--accent);color:var(--accent-ink);
+    padding:9px 15px;border-radius:9px;font-weight:650;
+    font-size:.9rem;text-decoration:none;transition:top .18s var(--ease);
+  }
+  .skip-link:focus-visible{top:14px}
+
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;min-width:0}
+
+  /* ---------- header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:60;
+    background:rgba(11,14,12,.74);
+    -webkit-backdrop-filter:blur(11px) saturate(1.3);
+    backdrop-filter:blur(11px) saturate(1.3);
+    border-bottom:1px solid var(--hair);
+  }
+  .bar{
+    display:flex;align-items:center;gap:14px;
+    height:64px;min-width:0;
+  }
+  .brand{
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;color:var(--ink);
+    font-weight:700;letter-spacing:-.01em;font-size:1.06rem;
+    margin-right:auto;min-width:0;flex-shrink:0;
+  }
+  .brand .mark{width:26px;height:28px;flex:0 0 auto}
+  .brand b{font-weight:700}
+  .brand span.nine{color:var(--accent)}
+
+  nav.primary{display:flex;align-items:center;gap:22px;min-width:0}
+  nav.primary a.nlink{
+    color:var(--ink-soft);text-decoration:none;font-size:.94rem;
+    letter-spacing:.01em;white-space:nowrap;transition:color .16s var(--ease);
+  }
+  nav.primary a.nlink:hover{color:var(--accent)}
+
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--accent);color:var(--accent-ink);
+    text-decoration:none;font-weight:650;font-size:.9rem;
+    padding:9px 16px;border-radius:10px;white-space:nowrap;
+    border:1px solid var(--accent);transition:box-shadow .18s var(--ease),transform .18s var(--ease);
+  }
+  .nav-cta:hover{box-shadow:var(--glow);transform:translateY(-1px)}
+  .cta-short{display:none}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    text-decoration:none;font-weight:650;font-size:1rem;
+    padding:14px 22px;border-radius:12px;cursor:pointer;
+    transition:box-shadow .2s var(--ease),transform .2s var(--ease),background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+    min-width:0;white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent)}
+  .btn-primary:hover{box-shadow:var(--glow);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--hair-strong)}
+  .btn-ghost:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+  .btn .arw{transition:transform .2s var(--ease)}
+  .btn:hover .arw{transform:translateX(3px)}
+
+  /* ---------- eyebrow / labels ---------- */
+  .eyebrow{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--accent);
+    display:inline-flex;align-items:center;gap:9px;margin:0 0 20px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--accent);opacity:.75}
+
+  /* ---------- hero ---------- */
+  .s-hero{position:relative;padding:clamp(48px,8vw,96px) 0 clamp(56px,9vw,110px);overflow:hidden}
+  .s-hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(58% 46% at 78% 12%,var(--accent-soft),transparent 70%),
+               radial-gradient(50% 40% at 8% 90%,var(--accent-softer),transparent 72%);
+  }
+  .hero-grid{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:1fr;gap:clamp(30px,6vw,58px);align-items:center;
+  }
+  .hero-copy{min-width:0;max-width:600px}
+  .hero-copy h1{
+    font-size:clamp(2.4rem,7.2vw,4.5rem);font-weight:800;
+    letter-spacing:-.035em;line-height:1.02;margin:0 0 22px;
+  }
+  .hero-copy h1 .hl{color:var(--accent);display:inline-block}
+  .lede{
+    font-size:clamp(1.02rem,2.2vw,1.2rem);color:var(--ink-soft);
+    margin:0 0 30px;max-width:56ch;
+  }
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 30px}
+  .trust{
+    display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;
+    font-family:var(--font-mono);font-size:.74rem;color:var(--muted);
+    letter-spacing:.02em;
+  }
+  .trust .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    border:1px solid var(--hair);border-radius:999px;padding:5px 11px;min-width:0;
+  }
+  .trust .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+
+  .hero-art{min-width:0;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .hero-art .canvas{width:100%;max-width:490px}
+  .hero-art svg.illo{width:100%;height:auto;display:block;filter:drop-shadow(0 24px 50px rgba(0,0,0,.55))}
+  .fingerprint{
+    font-family:var(--font-mono);font-size:.72rem;color:var(--muted);
+    letter-spacing:.04em;text-align:center;max-width:100%;
+    overflow-wrap:anywhere;word-break:break-word;
+  }
+  .fingerprint b{color:var(--accent);font-weight:600}
+
+  /* illustration paint (token driven) */
+  .p-hair{fill:none;stroke:var(--hair);stroke-width:1}
+  .p-hair2{fill:none;stroke:var(--hair-strong);stroke-width:2}
+  .p-accent{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .p-ring{fill:none;stroke:var(--accent-dim);stroke-width:2;stroke-dasharray:2 15;stroke-linecap:round;opacity:.6}
+  .p-ridge{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:.28}
+  .f-accent{fill:var(--accent)}
+  .f-p1{fill:var(--plane-1)}
+  .f-p2{fill:var(--plane-2)}
+  .f-p3{fill:var(--plane-3)}
+  .hero-ring{transform-box:view-box;transform-origin:240px 238px;animation:spin 26s linear infinite}
+  .key-glow{animation:pulse 4.2s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulse{0%,100%{opacity:.28}50%{opacity:.5}}
+
+  /* ---------- section shell ---------- */
+  .band{padding:clamp(60px,9vw,116px) 0}
+  .band-alt{background:var(--bg-panel-2);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+  .band-head{max-width:640px;margin:0 0 clamp(38px,5vw,56px)}
+  .band-head h2{font-size:clamp(1.8rem,4.4vw,2.8rem);font-weight:750;letter-spacing:-.03em}
+  .band-head p{margin:16px 0 0;color:var(--muted);font-size:clamp(1rem,2vw,1.1rem);max-width:52ch}
+
+  /* ---------- features ---------- */
+  .feat-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:760px){.feat-grid{grid-template-columns:repeat(3,1fr)}}
+  .card{
+    position:relative;min-width:0;
+    background:var(--bg-panel);border:1px solid var(--hair);
+    border-radius:var(--radius);padding:26px 24px 28px;
+    transition:border-color .22s var(--ease),transform .22s var(--ease),box-shadow .22s var(--ease);
+  }
+  .card:hover{border-color:var(--hair-strong);transform:translateY(-3px);box-shadow:var(--shadow)}
+  .card .tag{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;
+    color:var(--accent);display:block;margin:0 0 18px;
+  }
+  .card .ficon{width:44px;height:44px;margin:0 0 16px;display:block}
+  .card h3{font-size:1.16rem;font-weight:700;letter-spacing:-.01em;margin:0 0 10px}
+  .card p{margin:0;color:var(--ink-soft);font-size:.98rem}
+  .card p .em{color:var(--muted)}
+
+  /* ---------- security model ---------- */
+  .steps{display:grid;grid-template-columns:1fr;gap:16px;counter-reset:step}
+  @media(min-width:820px){.steps{grid-template-columns:repeat(3,1fr);gap:0}}
+  .step{position:relative;min-width:0;padding:26px 22px}
+  @media(min-width:820px){
+    .step{padding:8px 30px}
+    .step + .step{border-left:1px solid var(--hair)}
+  }
+  .step .node{width:46px;height:46px;margin:0 0 18px;display:block}
+  .step .snum{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.14em;
+    color:var(--accent);display:block;margin:0 0 8px;
+  }
+  .step h3{font-size:1.12rem;font-weight:700;margin:0 0 9px}
+  .step p{margin:0;color:var(--ink-soft);font-size:.97rem}
+
+  /* ---------- pov statement ---------- */
+  .pov{
+    max-width:900px;margin:0 auto;text-align:center;
+  }
+  .pov .mono-lbl{
+    font-family:var(--font-mono);font-size:.74rem;letter-spacing:.1em;
+    color:var(--muted);display:block;margin:0 0 20px;
+  }
+  .pov blockquote{
+    margin:0;font-size:clamp(1.4rem,3.6vw,2.3rem);
+    font-weight:650;letter-spacing:-.025em;line-height:1.22;color:var(--ink);
+  }
+  .pov blockquote .hl{color:var(--accent)}
+
+  /* ---------- final cta ---------- */
+  .cta-final{
+    position:relative;overflow:hidden;
+    background:var(--bg-panel);border:1px solid var(--hair-strong);
+    border-radius:calc(var(--radius) + 6px);
+    padding:clamp(38px,6vw,66px) clamp(26px,5vw,60px);
+    text-align:center;
+  }
+  .cta-final::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(60% 90% at 50% -20%,var(--accent-soft),transparent 70%);
+  }
+  .cta-final .inner{position:relative;z-index:1;max-width:640px;margin:0 auto}
+  .cta-final h2{font-size:clamp(1.9rem,5vw,3rem);font-weight:780;letter-spacing:-.035em}
+  .cta-final p{margin:18px auto 30px;color:var(--ink-soft);max-width:48ch;font-size:clamp(1rem,2vw,1.12rem)}
+  .cta-final .cta-row{justify-content:center}
+
+  /* ---------- footer ---------- */
+  footer.site{border-top:1px solid var(--hair);background:var(--bg);padding:clamp(48px,7vw,72px) 0 40px}
+  .foot-top{
+    display:grid;grid-template-columns:1fr;gap:34px 26px;
+    margin:0 0 40px;
+  }
+  @media(min-width:680px){.foot-top{grid-template-columns:1.6fr 1fr 1fr 1fr}}
+  .foot-brand{min-width:0;max-width:320px}
+  .foot-brand .brand{margin:0 0 14px}
+  .foot-brand p{margin:0;color:var(--muted);font-size:.94rem}
+  .foot-col{min-width:0}
+  .foot-col h4{
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 15px;font-weight:600;
+  }
+  .foot-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+  .foot-col a{color:var(--ink-soft);text-decoration:none;font-size:.92rem;transition:color .16s var(--ease)}
+  .foot-col a:hover{color:var(--accent)}
+  .foot-bottom{
+    border-top:1px solid var(--hair);padding-top:26px;
+    display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-start;justify-content:space-between;
+  }
+  .foot-note{color:var(--muted);font-size:.84rem;max-width:62ch;min-width:0;overflow-wrap:anywhere}
+  .foot-meta{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);letter-spacing:.03em;text-align:right;min-width:0}
+  .foot-meta .cw{display:block;color:var(--ink-soft)}
+
+  /* ---------- reveal ---------- */
+  .js .reveal{opacity:0;transform:translateY(16px);transition:opacity .62s var(--ease),transform .62s var(--ease)}
+  .js .reveal.is-in{opacity:1;transform:none}
+
+  /* ---------- responsive nav trims ---------- */
+  @media(max-width:520px){.nav-link-hide{display:none}}
+  @media(max-width:430px){
+    nav.primary{gap:16px}
+    .cta-full{display:none}
+    .cta-short{display:inline}
+    .brand .txt{display:none}
+  }
+
+  /* ---------- reduced motion ---------- */
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .js .reveal{opacity:1!important;transform:none!important}
+  }
+</style>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="#top" aria-label="Vault9 home">
+      <svg class="mark" viewBox="0 0 26 28" aria-hidden="true" fill="none">
+        <path d="M13 1 L24 5 L24 15 C24 22 19 26 13 27 C7 26 2 22 2 15 L2 5 Z" fill="var(--plane-1)" stroke="var(--hair-strong)" stroke-width="1.4"/>
+        <circle cx="13" cy="14" r="6.4" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
+        <circle cx="13" cy="12.6" r="2" fill="var(--accent)"/>
+        <path d="M11.7 13.6 H14.3 L15 18.2 H11 Z" fill="var(--accent)"/>
+      </svg>
+      <span class="txt"><b>Vault</b><span class="nine">9</span></span>
+    </a>
+    <nav class="primary" aria-label="Primary">
+      <a class="nlink" href="#security">Security</a>
+      <a class="nlink nav-link-hide" href="#recovery">Recovery</a>
+      <a class="nlink" href="#docs">Docs</a>
+    </nav>
+    <a class="nav-cta" href="#get">
+      <span class="cta-full">Create your vault</span>
+      <span class="cta-short">Create</span>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- ================= HERO ================= -->
+  <section class="s-hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">Self-custody wallet</p>
+        <h1>Only one key opens Vault9. <span class="hl">You hold it.</span></h1>
+        <p class="lede">A self-custody wallet that generates and seals your private keys on your own device. No custodian to trust, no exchange that can freeze your balance, no company that can lose it. When Vault9 signs a transaction, it signs with your key, and no one else has a copy.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#get">Create your vault <span class="arw" aria-hidden="true">-&gt;</span></a>
+          <a class="btn btn-ghost" href="#security">Read the security model</a>
+        </div>
+        <div class="trust">
+          <span class="chip"><span class="dot"></span>Keys sealed on-device</span>
+          <span class="chip"><span class="dot"></span>Signed locally</span>
+          <span class="chip"><span class="dot"></span>Open source, audited</span>
+        </div>
+      </div>
+
+      <div class="hero-art reveal">
+        <div class="canvas">
+          <svg class="illo" viewBox="0 0 480 520" role="img" aria-label="Vault9 mark: a geometric faceted shield holding a concentric coin with a central keyhole, set on a hexagonal grid field.">
+            <defs>
+              <pattern id="hexfield" width="30" height="34" patternUnits="userSpaceOnUse">
+                <path class="p-hair" d="M26 17 L20.5 26.53 L9.5 26.53 L4 17 L9.5 7.47 L20.5 7.47 Z"/>
+              </pattern>
+              <radialGradient id="fade" cx="50%" cy="46%" r="56%">
+                <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+                <stop offset="62%" stop-color="#fff" stop-opacity=".55"/>
+                <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+              </radialGradient>
+              <mask id="fieldMask"><rect x="0" y="0" width="480" height="520" fill="url(#fade)"/></mask>
+              <radialGradient id="coinGlow" cx="50%" cy="45%" r="55%">
+                <stop offset="0" stop-color="#12e06a" stop-opacity=".32"/>
+                <stop offset="55%" stop-color="#12e06a" stop-opacity=".07"/>
+                <stop offset="100%" stop-color="#12e06a" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="7"/>
+              </filter>
+            </defs>
+
+            <!-- ambient hex field -->
+            <g mask="url(#fieldMask)"><rect x="0" y="0" width="480" height="520" fill="url(#hexfield)" opacity=".9"/></g>
+
+            <!-- shield body -->
+            <path class="f-p1" d="M100 118 L240 74 L380 118 L380 252 C380 344 322 402 240 444 C158 402 100 344 100 252 Z"/>
+            <!-- right facet (subtle shade) -->
+            <path class="f-p2" d="M240 74 L380 118 L380 252 C380 344 322 402 240 444 Z"/>
+            <!-- top crest bevel (catch light) -->
+            <path class="f-p3" d="M100 118 L240 74 L380 118 L240 170 Z"/>
+            <!-- center ridge -->
+            <path class="p-ridge" d="M240 74 L240 170"/>
+            <!-- shield outline -->
+            <path class="p-hair2" d="M100 118 L240 74 L380 118 L380 252 C380 344 322 402 240 444 C158 402 100 344 100 252 Z"/>
+            <!-- accent top-edge highlight -->
+            <path class="p-accent" d="M100 118 L240 74 L380 118" opacity=".55"/>
+
+            <!-- shoulder + point rivets -->
+            <circle class="f-accent" cx="100" cy="118" r="3" opacity=".55"/>
+            <circle class="f-accent" cx="380" cy="118" r="3" opacity=".55"/>
+            <circle class="f-accent" cx="240" cy="444" r="3.4" opacity=".6"/>
+
+            <!-- coin glow -->
+            <circle cx="240" cy="238" r="104" fill="url(#coinGlow)"/>
+
+            <!-- rotating scan ring -->
+            <g class="hero-ring"><circle class="p-ring" cx="240" cy="238" r="112"/></g>
+
+            <!-- coin rings -->
+            <circle class="p-accent" cx="240" cy="238" r="96"/>
+            <circle class="p-hair" cx="240" cy="238" r="80"/>
+            <circle class="f-p3" cx="240" cy="238" r="64"/>
+            <circle class="p-hair2" cx="240" cy="238" r="64"/>
+
+            <!-- keyhole -->
+            <circle class="f-accent key-glow" cx="240" cy="234" r="26" filter="url(#soft)"/>
+            <circle class="f-accent" cx="240" cy="229" r="13"/>
+            <path class="f-accent" d="M231 233 L249 233 L255 271 L225 271 Z"/>
+          </svg>
+        </div>
+        <p class="fingerprint">reproducible build 0.9.0 &middot; fingerprint <b>9F2A C41B 77E0 12E0</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="band" id="security">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <p class="eyebrow">Why Vault9</p>
+        <h2>Custody with no one in the middle.</h2>
+        <p>The whole point of crypto was to remove the trusted third party. Vault9 removes it from your wallet too.</p>
+      </div>
+      <div class="feat-grid">
+
+        <article class="card reveal">
+          <span class="tag">0x01</span>
+          <svg class="ficon" viewBox="0 0 44 44" aria-hidden="true" fill="none">
+            <rect x="8" y="7" width="28" height="30" rx="6" class="p-hair2"/>
+            <path class="p-accent" d="M8 15 H4 M8 22 H4 M8 29 H4 M36 15 H40 M36 22 H40 M36 29 H40" opacity=".7"/>
+            <circle class="f-accent" cx="22" cy="19" r="4"/>
+            <path class="f-accent" d="M19.5 22 H24.5 L26 31 H18 Z"/>
+          </svg>
+          <h3>Keys that never leave</h3>
+          <p>Your 24-word recovery phrase is generated offline and sealed in your device secure enclave. <span class="em">Our servers never receive it, so there is nothing on our side to leak, subpoena, or misplace.</span></p>
+        </article>
+
+        <article class="card reveal">
+          <span class="tag">0x02</span>
+          <svg class="ficon" viewBox="0 0 44 44" aria-hidden="true" fill="none">
+            <path class="p-hair2" d="M12 6 H32 V38 L27 34 L22 38 L17 34 L12 38 Z"/>
+            <path class="p-hair" d="M17 15 H27 M17 21 H27"/>
+            <path class="p-accent" d="M16.5 28.5 L20.5 32.5 L28 24"/>
+          </svg>
+          <h3>Sign exactly what you see</h3>
+          <p>Every transaction is decoded into plain terms before it broadcasts: amount, destination, and network fee, in full. <span class="em">You approve the details in front of you, never a blind signature.</span></p>
+        </article>
+
+        <article class="card reveal" id="recovery">
+          <span class="tag">0x03</span>
+          <svg class="ficon" viewBox="0 0 44 44" aria-hidden="true" fill="none">
+            <path class="f-accent" d="M22 22 L22 6 L36 14 Z" opacity=".9"/>
+            <path class="f-accent" d="M22 22 L36 14 L36 30 Z" opacity=".55"/>
+            <path class="p-hair2" d="M22 22 L36 30 L22 38 Z"/>
+            <path class="p-hair2" d="M22 22 L22 38 L8 30 Z"/>
+            <path class="p-accent" d="M22 22 L8 30 L8 14 Z"/>
+            <path class="p-hair" d="M22 22 L8 14 L22 6 Z"/>
+          </svg>
+          <h3>Recover without a middleman</h3>
+          <p>Split your backup into five shards kept by people and places you choose. Restore from any three. <span class="em">No custodian holds a copy, and no single loss can lock you out.</span></p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECURITY MODEL ================= -->
+  <section class="band band-alt" id="docs">
+    <div class="wrap">
+      <div class="band-head reveal">
+        <p class="eyebrow">How keys stay yours</p>
+        <h2>Three steps, zero custody.</h2>
+        <p>Nothing about your keys ever depends on our uptime, our goodwill, or our servers staying online.</p>
+      </div>
+      <div class="steps">
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <path class="p-hair2" d="M23 4 L38 12.5 V29.5 L23 38 L8 29.5 V12.5 Z"/>
+            <circle class="f-accent" cx="23" cy="21" r="3.6"/>
+            <path class="p-accent" d="M23 24.5 V30 M17 27 H29" opacity=".7"/>
+          </svg>
+          <span class="snum">Step 01</span>
+          <h3>Generate offline</h3>
+          <p>A 24-word seed is created on-device from hardware entropy. It never touches the network.</p>
+        </div>
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <path class="p-hair2" d="M23 4 L38 12.5 V29.5 L23 38 L8 29.5 V12.5 Z"/>
+            <rect x="16" y="19" width="14" height="11" rx="2" class="p-accent"/>
+            <path class="p-accent" d="M18.5 19 V15.5 A4.5 4.5 0 0 1 27.5 15.5 V19"/>
+          </svg>
+          <span class="snum">Step 02</span>
+          <h3>Encrypt on device</h3>
+          <p>Keys are wrapped inside the secure enclave, unlocked only by your passcode or biometrics.</p>
+        </div>
+
+        <div class="step reveal">
+          <svg class="node" viewBox="0 0 46 46" aria-hidden="true" fill="none">
+            <path class="p-hair2" d="M23 4 L38 12.5 V29.5 L23 38 L8 29.5 V12.5 Z"/>
+            <path class="p-accent" d="M16 22.5 L21 27.5 L31 16.5"/>
+          </svg>
+          <span class="snum">Step 03</span>
+          <h3>Sign locally</h3>
+          <p>Transactions are signed on your device, then broadcast as read-only data. Your keys stay put.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= POV ================= -->
+  <section class="band">
+    <div class="wrap pov reveal">
+      <span class="mono-lbl">// design principle</span>
+      <blockquote>The rule was always simple: not your keys, not your coins. <span class="hl">Vault9 just takes it literally.</span></blockquote>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="band" id="get">
+    <div class="wrap">
+      <div class="cta-final reveal">
+        <div class="inner">
+          <h2>Your keys. Your coins. Your call.</h2>
+          <p>Vault9 is free, open source, and available for iOS, Android, and desktop. Download it, read the code, hold your own keys.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#get">Create your vault <span class="arw" aria-hidden="true">-&gt;</span></a>
+            <a class="btn btn-ghost" href="#docs">View the source</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="Vault9 home">
+          <svg class="mark" viewBox="0 0 26 28" aria-hidden="true" fill="none">
+            <path d="M13 1 L24 5 L24 15 C24 22 19 26 13 27 C7 26 2 22 2 15 L2 5 Z" fill="var(--plane-1)" stroke="var(--hair-strong)" stroke-width="1.4"/>
+            <circle cx="13" cy="14" r="6.4" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
+            <circle cx="13" cy="12.6" r="2" fill="var(--accent)"/>
+            <path d="M11.7 13.6 H14.3 L15 18.2 H11 Z" fill="var(--accent)"/>
+          </svg>
+          <span class="txt"><b>Vault</b><span class="nine">9</span></span>
+        </a>
+        <p>Custody that answers to nobody but you.</p>
+      </div>
+
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#security">Security</a></li>
+          <li><a href="#recovery">Recovery</a></li>
+          <li><a href="#get">Downloads</a></li>
+          <li><a href="#docs">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Learn</h4>
+        <ul>
+          <li><a href="#docs">Docs</a></li>
+          <li><a href="#security">Security model</a></li>
+          <li><a href="#docs">Source code</a></li>
+          <li><a href="#docs">Status</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#top">Manifesto</a></li>
+          <li><a href="#get">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <p class="foot-note">Vault9 is non-custodial software. You hold your keys and you alone can spend, move, or recover your funds. We cannot reset a lost phrase or reverse a transaction, and we designed it that way on purpose.</p>
+      <p class="foot-meta">
+        <span class="cw">&copy; 2026 Vault9 Labs</span>
+        Made for people who read the whitepaper.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root=document.documentElement;
+    root.classList.add('js');
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var items=document.querySelectorAll('.reveal');
+    if(reduce||!('IntersectionObserver' in window)){
+      for(var i=0;i<items.length;i++){items[i].classList.add('is-in');}
+      return;
+    }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}
+      });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    items.forEach(function(el){io.observe(el);});
+  })();
+</script>

@@ -1,0 +1,752 @@
+<title>Portway - your deploy should be one command, not a runbook</title>
+<meta name="description" content="Portway reads your repo, builds a reproducible image, and ships it to your own cloud in seconds. One command, no YAML sprawl.">
+<style>
+  :root {
+    /* palette */
+    --bg: #211d1a;
+    --bg-2: #29231f;
+    --bg-3: #322a25;
+    --terminal: #1b1613;
+    --ink: #ede6dd;
+    --ink-muted: #c3b8aa;
+    --ink-dim: #978d80;
+    --accent: #ff8a3d;
+    --accent-soft: #ffb37f;
+    --accent-deep: #d96a22;
+    --success: #7bd88f;
+    --line: #3a322c;
+    --line-soft: #2c2521;
+    /* geometry */
+    --radius: 8px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --maxw: 1120px;
+    /* type */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    /* fx */
+    --shadow: 0 24px 60px -24px rgba(0,0,0,0.65);
+    --glow-accent: 0 0 0 1px rgba(255,138,61,0.28), 0 16px 40px -14px rgba(255,138,61,0.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+
+  h1, h2, h3 { margin: 0; line-height: 1.08; letter-spacing: -0.02em; font-weight: 700; }
+
+  p { margin: 0; }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---- focus ---- */
+  a:focus-visible,
+  button:focus-visible,
+  .term:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ---- skip link ---- */
+  .skip {
+    position: absolute;
+    left: 16px;
+    top: -60px;
+    z-index: 60;
+    background: var(--accent);
+    color: var(--terminal);
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-weight: 700;
+    transition: top .18s ease;
+  }
+  .skip:focus { top: 16px; }
+
+  /* ---- header ---- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(33,29,26,0.82);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px 20px;
+    flex-wrap: wrap;
+    padding: 14px 24px;
+    max-width: var(--maxw);
+    margin: 0 auto;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 1.12rem;
+    min-width: 0;
+  }
+  .brand svg { display: block; flex: 0 0 auto; }
+  .brand b { font-weight: 700; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 6px 4px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .nav-links a.navlink {
+    color: var(--ink-muted);
+    font-size: 0.96rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+  }
+  .nav-links a.navlink:hover { color: var(--ink); background: var(--bg-3); }
+
+  /* ---- buttons ---- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1;
+    padding: 13px 20px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  /* primary CTA: highest-contrast, most prominent interactive element */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--terminal);
+    box-shadow: var(--glow-accent);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: var(--accent-soft); transform: translateY(-2px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--ink); background: var(--bg-3); }
+
+  .btn-nav {
+    padding: 10px 16px;
+    background: var(--accent);
+    color: var(--terminal);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .btn-nav:hover { background: var(--accent-soft); }
+
+  /* ---- hero ---- */
+  .hero { position: relative; padding: 62px 0 30px; }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.32;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 80%);
+            mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 80%);
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+    gap: 52px;
+    align-items: center;
+  }
+  .hero-copy { min-width: 0; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-soft);
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 22px;
+  }
+  .eyebrow .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,138,61,0.22);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.15rem, 6.2vw, 3.7rem);
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+    word-break: break-word;
+  }
+  .hero h1 .mark { color: var(--accent); }
+
+  .lede {
+    font-size: clamp(1.05rem, 2.4vw, 1.24rem);
+    color: var(--ink-muted);
+    max-width: 40ch;
+    margin-bottom: 30px;
+    word-break: break-word;
+  }
+
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 26px; }
+  .hero-cta .btn { min-width: 0; }
+
+  .assurances {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+  }
+  .assurances span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+  .assurances span::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+    flex: 0 0 auto;
+  }
+
+  /* ---- hero illustration ---- */
+  .stage { min-width: 0; }
+  .stage svg { width: 100%; height: auto; display: block; filter: drop-shadow(var(--shadow)); }
+  .stage-cap {
+    margin-top: 14px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.04em;
+  }
+
+  /* svg text styling */
+  .t-text { font-family: var(--font-mono); font-size: 13px; }
+  .t-acc { fill: var(--accent); }
+  .t-ink { fill: var(--ink); }
+  .t-mut { fill: var(--ink-muted); }
+  .t-dim { fill: var(--ink-dim); }
+  .t-ok  { fill: var(--success); }
+  .t-node { font-family: var(--font-mono); font-size: 12px; fill: var(--ink); font-weight: 600; }
+  .t-lab { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; fill: var(--ink-dim); }
+
+  .caret { fill: var(--accent); animation: blink 1.1s steps(1) infinite; }
+  .flow {
+    stroke-dasharray: 6 7;
+    animation: dash 1s linear infinite;
+  }
+  .ready-pulse { animation: fade 2.6s ease-in-out infinite; }
+
+  /* ---- section shell ---- */
+  section { position: relative; }
+  .band { padding: 64px 0; }
+  .section-head { max-width: 62ch; margin-bottom: 40px; }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .section-head h2 { font-size: clamp(1.7rem, 4vw, 2.5rem); margin-bottom: 14px; word-break: break-word; }
+  .section-head p { color: var(--ink-muted); font-size: 1.08rem; max-width: 52ch; }
+
+  /* ---- features ---- */
+  #features { border-top: 1px solid var(--line-soft); background: linear-gradient(180deg, var(--bg-2), var(--bg)); }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 26px 24px 28px;
+    min-width: 0;
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--accent-deep); }
+  .card-num {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent-soft);
+    letter-spacing: 0.1em;
+  }
+  .card-art { margin: 6px 0 16px; }
+  .card-art svg { display: block; width: 66px; height: 66px; }
+  .card h3 { font-size: 1.24rem; margin-bottom: 10px; word-break: break-word; }
+  .card p { color: var(--ink-muted); font-size: 0.99rem; word-break: break-word; }
+  .card p b { color: var(--ink); font-weight: 650; }
+
+  /* ---- install ---- */
+  #install { border-top: 1px solid var(--line-soft); }
+  .install-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 44px;
+    align-items: center;
+  }
+  .steps { display: grid; gap: 16px; min-width: 0; }
+  .step {
+    background: var(--terminal);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-width: 0;
+  }
+  .step-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--bg-3);
+  }
+  .step-label {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    min-width: 0;
+  }
+  .copy-btn {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 5px 11px;
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: border-color .16s ease, color .16s ease, background .16s ease;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent-soft); }
+  .copy-btn[data-copied="true"] { color: var(--success); border-color: var(--success); }
+
+  .code {
+    display: block;
+    overflow-x: auto;
+    padding: 15px 16px;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    color: var(--ink);
+    white-space: pre;
+  }
+  .code .p { color: var(--accent); }
+  .code .c { color: var(--ink-dim); }
+
+  .install-copy { min-width: 0; }
+  .install-copy h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); margin-bottom: 16px; word-break: break-word; }
+  .install-copy p { color: var(--ink-muted); margin-bottom: 22px; max-width: 46ch; }
+  .install-note {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+    word-break: break-word;
+  }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--line-soft); background: var(--bg-2); padding: 46px 0 34px; }
+  .foot-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px 40px;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .foot-brand { max-width: 34ch; min-width: 0; }
+  .foot-brand .brand { margin-bottom: 12px; }
+  .foot-brand p { color: var(--ink-dim); font-size: 0.9rem; word-break: break-word; }
+  .foot-tag { color: var(--ink-muted); font-weight: 600; margin-bottom: 6px; }
+  .foot-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    min-width: 0;
+  }
+  .foot-links a {
+    color: var(--ink-muted);
+    font-size: 0.94rem;
+  }
+  .foot-links a:hover { color: var(--accent-soft); }
+  .foot-bottom {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+  }
+  .foot-bottom span { min-width: 0; word-break: break-word; }
+
+  /* ---- animations ---- */
+  @keyframes blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+  @keyframes dash { to { stroke-dashoffset: -26; } }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(255,138,61,0.22); } 50% { box-shadow: 0 0 0 6px rgba(255,138,61,0); } }
+  @keyframes fade { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+  /* ---- responsive ---- */
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+    .stage { order: 2; max-width: 560px; }
+    .install-grid { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+    .feature-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .hero { padding: 40px 0 20px; }
+    .band { padding: 48px 0; }
+    .wrap { padding: 0 18px; }
+    .nav { padding: 12px 18px; }
+    .hero-cta .btn { flex: 1 1 auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .caret { opacity: 1; }
+  }
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <nav class="nav" aria-label="Primary">
+    <a class="brand" href="#main" aria-label="Portway home">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false">
+        <rect x="1.2" y="1.2" width="27.6" height="27.6" rx="8" fill="#322a25" stroke="#3a322c"/>
+        <circle cx="15" cy="15" r="7.4" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+        <path d="M7 15 h10 l-3.4 -3.4 M17 15 l-3.4 3.4" stroke="#ffb37f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <b>Portway</b>
+    </a>
+    <div class="nav-links">
+      <a class="navlink" href="#features">Features</a>
+      <a class="navlink" href="#install">Install</a>
+      <a class="navlink" href="#faq">Docs</a>
+      <a class="navlink" href="#faq">Changelog</a>
+      <a class="btn btn-nav" href="#install">Get Portway</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span>One command deploys</span>
+        <h1>Your deploy should be one command, <span class="mark">not a runbook.</span></h1>
+        <p class="lede">Portway reads your repo, builds a reproducible, content addressed image, and ships it to your own cloud in seconds. No YAML sprawl. No dashboard archaeology. No 3 a.m. rollback that needs a wiki page.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#install">Start deploying</a>
+          <a class="btn btn-ghost" href="#features">See how it works</a>
+        </div>
+        <div class="assurances">
+          <span>macOS, Linux, and CI</span>
+          <span>Rolls back in one command</span>
+          <span>No lock in</span>
+        </div>
+      </div>
+
+      <!-- SIGNATURE ILLUSTRATION: terminal + build-to-ship pipeline -->
+      <div class="stage">
+        <svg viewBox="0 0 520 452" role="img" aria-labelledby="artTitle artDesc" tabindex="0" class="term">
+          <title id="artTitle">Portway terminal running a deploy</title>
+          <desc id="artDesc">A terminal window showing the command portway up detecting, building, testing and shipping, above a pipeline diagram flowing from commit to build to test to ship.</desc>
+          <defs>
+            <radialGradient id="glow" cx="30%" cy="40%" r="65%">
+              <stop offset="0%" stop-color="#ff8a3d" stop-opacity="0.34"/>
+              <stop offset="100%" stop-color="#ff8a3d" stop-opacity="0"/>
+            </radialGradient>
+            <marker id="arw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#d96a22"/>
+            </marker>
+          </defs>
+
+          <!-- terminal window -->
+          <rect x="8" y="8" width="504" height="256" rx="14" fill="#1b1613" stroke="#3a322c"/>
+          <!-- glow behind prompt -->
+          <ellipse cx="150" cy="96" rx="150" ry="52" fill="url(#glow)"/>
+          <!-- title bar -->
+          <path d="M8 22 a14 14 0 0 1 14 -14 h476 a14 14 0 0 1 14 14 v22 h-504 z" fill="#241e1a"/>
+          <line x1="8" y1="44" x2="512" y2="44" stroke="#3a322c"/>
+          <circle cx="30" cy="26" r="5.5" fill="#d96a22"/>
+          <circle cx="50" cy="26" r="5.5" fill="#ff8a3d"/>
+          <circle cx="70" cy="26" r="5.5" fill="#ffb37f"/>
+          <text class="t-text t-dim" x="260" y="30" text-anchor="middle">portway ~ deploy</text>
+
+          <!-- prompt -->
+          <text class="t-text" x="30" y="82"><tspan class="t-acc">$</tspan><tspan class="t-ink" dx="9">portway up</tspan></text>
+          <rect class="caret" x="140" y="71" width="9" height="14"/>
+
+          <text class="t-text" x="30" y="110"><tspan class="t-acc">-&gt;</tspan><tspan class="t-mut" dx="9">detect    node 20, pnpm 9</tspan></text>
+          <text class="t-text" x="30" y="134"><tspan class="t-acc">-&gt;</tspan><tspan class="t-mut" dx="9">build     image sha 3f9ac2</tspan></text>
+          <text class="t-text" x="30" y="158"><tspan class="t-acc">-&gt;</tspan><tspan class="t-mut" dx="9">test      142 passed, 0 failed</tspan></text>
+          <text class="t-text" x="30" y="182"><tspan class="t-acc">-&gt;</tspan><tspan class="t-mut" dx="9">ship      prod, 4 regions</tspan></text>
+
+          <text class="t-text ready-pulse" x="30" y="216"><tspan class="t-ok">ready</tspan><tspan class="t-ink" dx="9">https://app.acme.io</tspan><tspan class="t-dim" dx="9">2.3s</tspan></text>
+          <rect x="30" y="230" width="452" height="1" fill="#2c2521"/>
+          <text class="t-text t-dim" x="30" y="250">deployed from commit main@3f9ac2 in 2.3s</text>
+
+          <!-- pipeline label -->
+          <text class="t-lab" x="10" y="298">BUILD  -&gt;  SHIP</text>
+
+          <!-- pipeline connectors (flowing warm strokes) -->
+          <line class="flow" x1="120" y1="356" x2="150" y2="356" stroke="#d96a22" stroke-width="2.4" marker-end="url(#arw)"/>
+          <line class="flow" x1="248" y1="356" x2="278" y2="356" stroke="#d96a22" stroke-width="2.4" marker-end="url(#arw)"/>
+          <line class="flow" x1="376" y1="356" x2="406" y2="356" stroke="#d96a22" stroke-width="2.4" marker-end="url(#arw)"/>
+
+          <!-- node: commit -->
+          <g>
+            <rect x="16" y="326" width="104" height="60" rx="9" fill="#241e1a" stroke="#3a322c"/>
+            <circle cx="68" cy="346" r="6.5" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+            <line x1="68" y1="352.5" x2="68" y2="360" stroke="#ffb37f" stroke-width="2" stroke-linecap="round"/>
+            <text class="t-node" x="68" y="378" text-anchor="middle">commit</text>
+          </g>
+          <!-- node: build -->
+          <g>
+            <rect x="144" y="326" width="104" height="60" rx="9" fill="#241e1a" stroke="#3a322c"/>
+            <path d="M196 340 l10 5.6 v10 l-10 5.6 l-10 -5.6 v-10 z" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linejoin="round"/>
+            <line x1="186" y1="345.6" x2="196" y2="351.2" stroke="#ffb37f" stroke-width="2"/>
+            <line x1="206" y1="345.6" x2="196" y2="351.2" stroke="#ffb37f" stroke-width="2"/>
+            <text class="t-node" x="196" y="378" text-anchor="middle">build</text>
+          </g>
+          <!-- node: test -->
+          <g>
+            <rect x="272" y="326" width="104" height="60" rx="9" fill="#241e1a" stroke="#3a322c"/>
+            <path d="M314 348 l5 6 l10 -12" fill="none" stroke="#7bd88f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <text class="t-node" x="324" y="378" text-anchor="middle">test</text>
+          </g>
+          <!-- node: ship -->
+          <g>
+            <rect x="400" y="326" width="104" height="60" rx="9" fill="#241e1a" stroke="#3a322c"/>
+            <path d="M452 340 v16 M452 340 l-6 6 M452 340 l6 6" stroke="#ff8a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M444 360 h16" stroke="#ffb37f" stroke-width="2" stroke-linecap="round"/>
+            <text class="t-node" x="452" y="378" text-anchor="middle">ship</text>
+          </g>
+
+          <!-- destination badge -->
+          <g>
+            <rect x="16" y="406" width="488" height="34" rx="8" fill="#241e1a" stroke="#2c2521"/>
+            <circle cx="36" cy="423" r="4" fill="#7bd88f"/>
+            <text class="t-text t-mut" x="50" y="427">live in prod, every region green</text>
+          </g>
+        </svg>
+        <p class="stage-cap">portway up: from commit to production in a single pass</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Why teams switch</p>
+        <h2>Deploys should be boring. Portway makes them boring on purpose.</h2>
+        <p>The tool that got you to launch should not be the thing that wakes you up. Portway trades pipeline glue and dashboard clicks for one predictable command that does the same thing every time.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card">
+          <p class="card-num">01</p>
+          <div class="card-art">
+            <svg viewBox="0 0 66 66" fill="none" aria-hidden="true" focusable="false">
+              <rect x="4" y="14" width="30" height="16" rx="5" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+              <path d="M11 22 l4 3 l-4 3" stroke="#ffb37f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <line x1="21" y1="25" x2="27" y2="25" stroke="#ffb37f" stroke-width="2" stroke-linecap="round"/>
+              <path d="M34 22 h9 v-8 h13 M34 22 h9 v22 h13 M34 22 h9 v14 h13" stroke="#d96a22" stroke-width="2" fill="none"/>
+              <circle cx="58" cy="14" r="4" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+              <circle cx="58" cy="36" r="4" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+              <circle cx="58" cy="44" r="4" fill="none" stroke="#7bd88f" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>One command, every stage</h3>
+          <p><b>portway up</b> detects your stack and provisions preview, staging, and production from the same binary. Same inputs, same output, no per environment snowflakes.</p>
+        </article>
+
+        <article class="card">
+          <p class="card-num">02</p>
+          <div class="card-art">
+            <svg viewBox="0 0 66 66" fill="none" aria-hidden="true" focusable="false">
+              <path d="M20 20 l9 5 v10 l-9 5 l-9 -5 v-10 z" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M46 20 l9 5 v10 l-9 5 l-9 -5 v-10 z" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linejoin="round"/>
+              <line x1="30" y1="30" x2="36" y2="30" stroke="#ffb37f" stroke-width="2" stroke-linecap="round"/>
+              <line x1="30" y1="34" x2="36" y2="34" stroke="#ffb37f" stroke-width="2" stroke-linecap="round"/>
+              <path d="M22 52 a12 12 0 0 1 22 0" fill="none" stroke="#d96a22" stroke-width="2"/>
+              <path d="M22 52 l-3 -4 M22 52 l4 -2" stroke="#d96a22" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Reproducible or it did not happen</h3>
+          <p>Every build is content addressed. The artifact you ship is the exact artifact you tested, so a <b>rollback</b> is one command and never a rebuild you have to pray over.</p>
+        </article>
+
+        <article class="card">
+          <p class="card-num">03</p>
+          <div class="card-art">
+            <svg viewBox="0 0 66 66" fill="none" aria-hidden="true" focusable="false">
+              <path d="M18 34 a10 10 0 0 1 1 -19 a13 13 0 0 1 24 3 a9 9 0 0 1 -3 16 z" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="30" cy="44" r="5" fill="none" stroke="#7bd88f" stroke-width="2"/>
+              <path d="M33 47 l10 10 M39 53 l3 -3 M43 57 l3 -3" stroke="#7bd88f" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <h3>Your cloud, your keys</h3>
+          <p>Portway deploys into your AWS, GCP, or bare metal. No control plane owns your traffic, no per seat bill, and <b>no vendor</b> stands between your users and your app.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="install" class="band">
+    <div class="wrap install-grid">
+      <div class="install-copy">
+        <p class="kicker">Get started</p>
+        <h2>One line to install. One command to ship.</h2>
+        <p>Drop the installer into your shell, then run Portway from the root of your repo. It figures out the rest and tells you exactly what it is doing while it does it.</p>
+        <p class="install-note">Works on macOS, Linux, and any CI runner. No agent to babysit, no daemon left running.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-top">
+            <span class="step-label">1. Install</span>
+            <button type="button" class="copy-btn" data-copy="curl -fsSL https://get.portway.dev | sh" aria-label="Copy install command">Copy</button>
+          </div>
+          <code class="code"><span class="p">$</span> curl -fsSL https://get.portway.dev | sh</code>
+        </div>
+        <div class="step">
+          <div class="step-top">
+            <span class="step-label">2. Deploy</span>
+            <button type="button" class="copy-btn" data-copy="portway up" aria-label="Copy deploy command">Copy</button>
+          </div>
+          <code class="code"><span class="p">$</span> portway up   <span class="c"># detect, build, test, ship</span></code>
+        </div>
+        <a class="btn btn-primary" href="#install" style="width:100%;">Ship your first deploy</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING NOTE -->
+  <section id="faq" class="band" style="border-top:1px solid var(--line-soft);">
+    <div class="wrap section-head" style="margin-bottom:0;">
+      <p class="kicker">The point of view</p>
+      <h2>Fewer moving parts is a feature.</h2>
+      <p>Most deploy tooling grows until it needs a team to run it. Portway keeps the surface small: one binary, one command, artifacts you can trace back to a commit. If a deploy is ever surprising, we consider that a bug in the tool, not a lesson for you to memorize.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#main" aria-label="Portway home">
+          <svg width="26" height="26" viewBox="0 0 30 30" fill="none" aria-hidden="true" focusable="false">
+            <rect x="1.2" y="1.2" width="27.6" height="27.6" rx="8" fill="#322a25" stroke="#3a322c"/>
+            <circle cx="15" cy="15" r="7.4" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+            <path d="M7 15 h10 l-3.4 -3.4 M17 15 l-3.4 3.4" stroke="#ffb37f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <b>Portway</b>
+        </a>
+        <p class="foot-tag">Boring deploys, on purpose.</p>
+        <p>A reference landing page built for the velofy / ui-atlas design library. Portway is a fictional product.</p>
+      </div>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="#faq">Docs</a>
+        <a href="#faq">Changelog</a>
+        <a href="#faq">Status</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <span>Copyright 2026 Portway Labs</span>
+      <span>Built with velofy / ui-atlas</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.copy-btn[data-copy]');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var text = btn.getAttribute('data-copy');
+        var done = function () {
+          var original = 'Copy';
+          btn.textContent = 'Copied';
+          btn.setAttribute('data-copied', 'true');
+          window.setTimeout(function () {
+            btn.textContent = original;
+            btn.removeAttribute('data-copied');
+          }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { done(); });
+        } else {
+          done();
+        }
+      });
+    });
+  })();
+</script>

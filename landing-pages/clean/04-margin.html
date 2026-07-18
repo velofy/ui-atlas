@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Margin - an independent quarterly of essays and marginalia</title>
+<meta name="description" content="The Margin is an independent quarterly of essays, criticism, and reported argument, built for readers who still read with a pencil in hand.">
+<style>
+  /* ============================================================
+     THE MARGIN - design tokens (velofy / ui-atlas reference page)
+     Palette: cream, ink, oxblood accent, hairline. Radius 0.
+     ============================================================ */
+  :root{
+    --cream:#f5f1e8;
+    --cream-2:#efe9dc;
+    --cream-deep:#e9e1d0;
+    --ink:#1a1712;
+    --ink-2:#4a4238;
+    --ink-cta:#141009;
+    --oxblood:#8c2f28;
+    --oxblood-2:#71241e;
+    --hairline:rgba(26,23,18,.2);
+    --hairline-2:rgba(26,23,18,.35);
+    --focus:#8c2f28;
+
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+    --maxw:1120px;
+    --pad:clamp(1.25rem,4vw,3rem);
+    --sect:clamp(3rem,7vw,5.5rem);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:1.0625rem;
+    line-height:1.62;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  img,svg{max-width:100%;display:block;}
+  ::selection{background:var(--oxblood);color:var(--cream);}
+
+  a{color:var(--oxblood);}
+
+  .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad);}
+
+  /* thin oxblood masthead rule at the very top of the page */
+  .topbar{height:5px;background:var(--oxblood);width:100%;}
+
+  /* ---------- shared micro label ---------- */
+  .kicker{
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.2em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--oxblood);
+    margin:0;
+  }
+  .kicker.center{text-align:center;}
+  .kicker .sep{color:var(--hairline-2);}
+
+  /* ---------- masthead / nav ---------- */
+  .masthead{border-bottom:1px solid var(--hairline);}
+  .masthead-inner{
+    display:flex;flex-wrap:wrap;align-items:baseline;
+    gap:.6rem 1.4rem;
+    padding-block:1rem;
+  }
+  .brand{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.5rem;
+    letter-spacing:.01em;
+    color:var(--ink);
+    text-decoration:none;
+    margin-right:auto;
+    line-height:1;
+  }
+  .brand .the{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:.62rem;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--oxblood);
+    display:block;
+    margin-bottom:.2rem;
+  }
+  .nav{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem 1.2rem;min-width:0;}
+  .nav a{
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--ink);
+    text-decoration:none;
+    padding:.35rem 0;
+  }
+  .nav a:hover{color:var(--oxblood);text-decoration:underline;text-underline-offset:4px;}
+
+  /* ---------- buttons + ghost link ---------- */
+  .btn{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:.82rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:.85rem 1.5rem;
+    border:2px solid var(--ink-cta);
+    background:var(--ink-cta);
+    color:var(--cream);
+    text-decoration:none;
+    display:inline-block;
+    border-radius:0;
+    transition:background .2s ease,border-color .2s ease,transform .2s ease;
+  }
+  .btn:hover{background:#000;border-color:#000;}
+  .btn:active{transform:translateY(1px);}
+  .btn-nav{padding:.5rem .9rem;font-size:.7rem;}
+
+  .ghost{
+    color:var(--oxblood);
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.8rem;
+    font-weight:600;
+    text-decoration:none;
+    border-bottom:1.5px solid var(--oxblood);
+    padding-bottom:2px;
+  }
+  .ghost:hover{color:var(--oxblood-2);border-color:var(--oxblood-2);}
+
+  /* visible keyboard focus on every interactive element */
+  a:focus-visible,.btn:focus-visible,button:focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:3px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:clamp(2.5rem,6vw,4.5rem) var(--sect);}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.08fr .92fr;
+    gap:clamp(1.5rem,5vw,3.5rem);
+    align-items:center;
+  }
+  .hero-grid>*{min-width:0;}
+  .hero .eyebrow{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline;margin-bottom:1.4rem;}
+  .hero .issue{
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    font-size:.68rem;
+    color:var(--ink-2);
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(2.6rem,7.4vw,5rem);
+    line-height:1.0;
+    letter-spacing:-.015em;
+    margin:0 0 1.2rem;
+    overflow-wrap:break-word;
+  }
+  .lead{
+    font-size:clamp(1.05rem,2.1vw,1.28rem);
+    line-height:1.55;
+    max-width:42ch;
+    margin:0 0 1.8rem;
+    color:var(--ink);
+    overflow-wrap:break-word;
+  }
+  .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.4rem;}
+  .cta-meta{
+    font-family:var(--sans);
+    font-size:.72rem;
+    letter-spacing:.06em;
+    color:var(--ink-2);
+    margin:1.1rem 0 0;
+    text-transform:uppercase;
+  }
+
+  /* ---------- the signature crest ---------- */
+  .crest{width:min(348px,80vw);margin-inline:auto;}
+  .crest svg{width:100%;height:auto;}
+
+  /* ---------- ornamental divider ---------- */
+  .rule{display:flex;align-items:center;justify-content:center;gap:1rem;padding-block:clamp(2rem,4vw,3rem);}
+  .rule::before,.rule::after{content:"";height:1px;background:var(--hairline);flex:1 1 auto;min-width:0;max-width:min(38%,320px);}
+  .fleur{width:66px;height:16px;flex:none;}
+
+  /* ---------- editor's note ---------- */
+  .note{
+    position:relative;
+    border-left:2px solid var(--oxblood);
+    padding-left:clamp(1.1rem,3vw,2.2rem);
+  }
+  .note::before{
+    content:"";position:absolute;left:4px;top:0;bottom:0;width:1px;background:var(--hairline);
+  }
+  .note-title{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(1.6rem,3.6vw,2.4rem);
+    line-height:1.08;
+    letter-spacing:-.01em;
+    margin:.5rem 0 1.4rem;
+  }
+  .note-body{
+    columns:2 17rem;
+    column-gap:2.6rem;
+    column-rule:1px solid var(--hairline);
+  }
+  .note-body p{margin:0 0 1rem;break-inside:avoid;overflow-wrap:break-word;}
+  .note-body p:first-of-type::first-letter{
+    font-family:var(--serif);
+    font-weight:700;
+    color:var(--oxblood);
+    font-size:3.7em;
+    line-height:.72;
+    float:left;
+    padding:.04em .12em 0 0;
+  }
+  .note-body .sign{
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    color:var(--oxblood);
+    margin-top:.4rem;
+  }
+
+  /* ---------- principles ---------- */
+  .principles{padding-block:var(--sect);}
+  .principles .kicker{margin-bottom:clamp(1.6rem,3vw,2.4rem);}
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(232px,1fr));
+    gap:clamp(1.6rem,3vw,2.6rem);
+  }
+  .pr{border-top:2px solid var(--ink);padding-top:1rem;min-width:0;}
+  .pr .num{
+    display:block;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:2.4rem;
+    line-height:1;
+    color:var(--oxblood);
+  }
+  .pr h3{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.32rem;
+    line-height:1.15;
+    margin:.5rem 0 .55rem;
+  }
+  .pr p{margin:0;font-size:1rem;line-height:1.55;overflow-wrap:break-word;}
+
+  /* ---------- join / subscription band ---------- */
+  .join{
+    background:var(--cream-deep);
+    border-top:1px solid var(--hairline);
+    border-bottom:1px solid var(--hairline);
+    padding-block:var(--sect);
+  }
+  .join-inner{max-width:620px;margin-inline:auto;text-align:center;}
+  .join h2{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(2rem,5vw,3.1rem);
+    line-height:1.05;
+    letter-spacing:-.015em;
+    margin:.6rem 0 1rem;
+  }
+  .join p{margin:0 auto 1.8rem;max-width:46ch;overflow-wrap:break-word;}
+  .join .cta-row{justify-content:center;}
+  .join .cta-meta{text-align:center;}
+
+  /* ---------- footer ---------- */
+  .foot{padding-block:clamp(2.5rem,5vw,4rem);}
+  .foot-top{
+    display:grid;
+    grid-template-columns:1.4fr repeat(3,minmax(0,1fr));
+    gap:1.8rem 2rem;
+    padding-bottom:2rem;
+    border-bottom:1px solid var(--hairline);
+  }
+  .foot-top>*{min-width:0;}
+  .foot-brand .name{
+    font-family:var(--serif);font-weight:700;font-size:1.35rem;color:var(--ink);
+  }
+  .foot-brand p{
+    font-size:.92rem;color:var(--ink-2);margin:.5rem 0 0;max-width:30ch;
+  }
+  .foot h4{
+    font-family:var(--sans);
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--oxblood);
+    margin:0 0 .8rem;
+  }
+  .foot ul{list-style:none;margin:0;padding:0;}
+  .foot li{margin:0 0 .5rem;}
+  .foot li a{
+    font-family:var(--sans);
+    font-size:.82rem;
+    color:var(--ink);
+    text-decoration:none;
+  }
+  .foot li a:hover{color:var(--oxblood);text-decoration:underline;text-underline-offset:3px;}
+  .foot-base{
+    display:flex;flex-wrap:wrap;gap:.4rem 1rem;
+    padding-top:1.4rem;
+    font-family:var(--sans);
+    font-size:.72rem;
+    letter-spacing:.04em;
+    color:var(--ink-2);
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:820px){
+    .hero-grid{grid-template-columns:1fr;}
+    .crest{order:-1;width:min(300px,72vw);}
+    .foot-top{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:440px){
+    .foot-top{grid-template-columns:1fr;}
+    .brand{font-size:1.35rem;}
+  }
+
+  /* ---------- motion: opt-in reveal, off by default state visible ---------- */
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(16px);animation:mgRise .8s cubic-bezier(.2,.7,.2,1) forwards;}
+    .d1{animation-delay:.04s;}
+    .d2{animation-delay:.14s;}
+    .d3{animation-delay:.26s;}
+    .d4{animation-delay:.38s;}
+    .crestsvg .drawable{
+      stroke-dasharray:1400;
+      stroke-dashoffset:1400;
+      animation:mgDraw 1.6s ease .2s forwards;
+    }
+  }
+  @keyframes mgRise{to{opacity:1;transform:none;}}
+  @keyframes mgDraw{to{stroke-dashoffset:0;}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar"></div>
+
+  <!-- ===================== masthead ===================== -->
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <a class="brand" href="#top"><span class="the">Independent quarterly</span>The Margin</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#note">Essays</a>
+        <a href="#principles">Issues</a>
+        <a href="#note">About</a>
+        <a class="btn btn-nav" href="#join">Subscribe</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===================== hero ===================== -->
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow reveal d1">
+            <p class="kicker">Slow reading, on purpose</p>
+            <span class="issue">Vol. VII <span class="sep">/</span> No. 3 <span class="sep">/</span> Summer 2026</span>
+          </div>
+          <h1 class="reveal d1">The best ideas live in the margins.</h1>
+          <p class="lead reveal d2">The Margin is an independent quarterly of essays, criticism, and reported argument. Printed slow, read slower, and made for people who still read with a pencil in hand. No feed, no algorithm, no infinite scroll: just long writing with room in the gutter for your own.</p>
+          <div class="cta-row reveal d3">
+            <a class="btn" href="#join">Subscribe &middot; $48 a year</a>
+            <a class="ghost" href="#note">Read a sample essay</a>
+          </div>
+          <p class="cta-meta reveal d3">Print plus digital &middot; Cancel anytime &middot; No ads, ever</p>
+        </div>
+
+        <!-- ===== THE SIGNATURE: engraving-style quill and inkwell crest ===== -->
+        <div class="crest reveal d2">
+          <svg class="crestsvg" viewBox="0 0 380 448" role="img" aria-labelledby="crestTitle" xmlns="http://www.w3.org/2000/svg">
+            <title id="crestTitle">An engraved crest: a quill pen resting in an inkwell, framed by filigree scrolls and a banner reading established MMXIX.</title>
+            <defs>
+              <clipPath id="mgOval"><ellipse cx="190" cy="205" rx="110" ry="142"/></clipPath>
+              <pattern id="mgGround" width="60" height="5" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="4.4" x2="60" y2="4.4" stroke="#8c2f28" stroke-width=".6" opacity=".16"/>
+              </pattern>
+              <pattern id="mgShade" width="5" height="5" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="5" x2="5" y2="0" stroke="#8c2f28" stroke-width=".8" opacity=".5"/>
+              </pattern>
+              <pattern id="mgInk" width="3.4" height="3.4" patternUnits="userSpaceOnUse">
+                <path d="M0,3.4 L3.4,0 M0,0 L3.4,3.4" stroke="#8c2f28" stroke-width=".7" opacity=".7"/>
+              </pattern>
+            </defs>
+
+            <g fill="none" stroke="#8c2f28" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+              <!-- medallion ground -->
+              <ellipse cx="190" cy="205" rx="110" ry="142" fill="#f5f1e8" stroke="none"/>
+              <rect x="80" y="63" width="220" height="284" fill="url(#mgGround)" stroke="none" clip-path="url(#mgOval)"/>
+
+              <!-- double-rule frame -->
+              <ellipse class="drawable" cx="190" cy="205" rx="118" ry="150" stroke-width="1.6"/>
+              <ellipse cx="190" cy="205" rx="110" ry="142" stroke-width="1"/>
+
+              <!-- filigree scrolls (left, then mirrored around x=190) -->
+              <g>
+                <path d="M72,205 C40,196 26,180 34,164 C40,152 56,152 58,166 C59,176 50,180 46,172"/>
+                <path d="M72,214 C48,223 37,239 45,252 C50,261 63,259 62,248 C61,241 53,241 50,248"/>
+              </g>
+              <g transform="translate(380,0) scale(-1,1)">
+                <path d="M72,205 C40,196 26,180 34,164 C40,152 56,152 58,166 C59,176 50,180 46,172"/>
+                <path d="M72,214 C48,223 37,239 45,252 C50,261 63,259 62,248 C61,241 53,241 50,248"/>
+              </g>
+
+              <!-- crest flourish above the medallion -->
+              <path d="M190,54 L190,35"/>
+              <path d="M190,27 L195,35 L190,43 L185,35 Z"/>
+              <circle cx="190" cy="22" r="2.4" fill="#8c2f28" stroke="none"/>
+              <path d="M190,45 C177,43 169,35 173,27 C176,21 184,23 183,30"/>
+              <path d="M190,45 C203,43 211,35 207,27 C204,21 196,23 197,30"/>
+
+              <!-- the quill (feather), leaning out of the well -->
+              <g class="drawable" transform="translate(190,252) rotate(20)">
+                <path d="M0,-4 C-11,-30 -19,-58 -20,-90 C-21,-124 -14,-164 0,-198 C14,-164 21,-124 20,-90 C19,-58 11,-30 0,-4 Z" fill="#f5f1e8"/>
+                <path d="M0,-8 C-1,-70 -1,-140 0,-192" stroke-width="1.1"/>
+                <path d="M0,-22 L-12,-35 M0,-42 L-18,-56 M0,-62 L-21,-77 M0,-84 L-22,-99 M0,-106 L-21,-120 M0,-128 L-19,-141 M0,-150 L-15,-162 M0,-172 L-10,-183" stroke-width=".7"/>
+                <path d="M0,-22 L12,-35 M0,-42 L18,-56 M0,-62 L21,-77 M0,-84 L22,-99 M0,-106 L21,-120 M0,-128 L19,-141 M0,-150 L15,-162 M0,-172 L10,-183" stroke-width=".7"/>
+                <path d="M-4,-2 L0,12 L4,-2" stroke-width="1"/>
+                <path d="M0,3 L0,12" stroke-width="1"/>
+              </g>
+
+              <!-- the inkwell -->
+              <path d="M152,316 C148,300 151,283 159,275 C165,268 172,264 178,261 L178,256 L202,256 L202,261 C208,264 215,268 221,275 C229,283 232,300 228,316 C226,320 154,320 152,316 Z" fill="#f5f1e8" stroke-width="1.2"/>
+              <path d="M206,264 C212,268 219,274 223,284 C227,296 227,308 224,316 C222,319 214,319 210,317 L206,300 Z" fill="url(#mgShade)" stroke="none"/>
+              <ellipse cx="190" cy="255.5" rx="13" ry="4.6" fill="#f5f1e8" stroke-width="1.1"/>
+              <ellipse cx="190" cy="255.5" rx="9" ry="3" fill="url(#mgInk)" stroke="none"/>
+              <path d="M158,325 L224,325 M166,329 L216,329 M176,333 L206,333" stroke-width=".7" opacity=".5"/>
+
+              <!-- banner ribbon -->
+              <path d="M104,346 L88,340 L94,358 L88,376 L104,370 Z" fill="#f5f1e8" stroke-width="1"/>
+              <path d="M276,346 L292,340 L286,358 L292,376 L276,370 Z" fill="#f5f1e8" stroke-width="1"/>
+              <path d="M104,345 L276,345 L276,371 L104,371 Z" fill="#f5f1e8" stroke-width="1.1"/>
+              <path d="M110,349 L270,349 M110,367 L270,367" stroke-width=".7" opacity=".45"/>
+              <text x="190" y="362" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" letter-spacing="2.5" fill="#8c2f28" stroke="none">EST &middot; MMXIX</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="rule" aria-hidden="true">
+      <svg class="fleur" viewBox="0 0 66 16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M33,3 C36,7 36,9 33,13 C30,9 30,7 33,3 Z" fill="#8c2f28"/>
+        <path d="M8,8 H26 M40,8 H58" stroke="#8c2f28" stroke-width="1" opacity=".45"/>
+        <path d="M26,8 C29,8 30,6 30,4 M40,8 C37,8 36,6 36,4" stroke="#8c2f28" fill="none" stroke-width="1"/>
+      </svg>
+    </div></div>
+
+    <!-- ===================== editor's note ===================== -->
+    <section class="principles" id="note" style="padding-top:0">
+      <div class="wrap">
+        <div class="note reveal">
+          <p class="kicker">Editor's note</p>
+          <h2 class="note-title">A note from the gutter</h2>
+          <div class="note-body">
+            <p>Every page has a margin, the quiet strip beside the argument where a reader talks back. We named the journal for that space, because that is where reading turns into thinking: the underline, the objection, the "yes, but" pencilled in past midnight.</p>
+            <p>Most of what you read now is built to be finished and forgotten. We are building the opposite. Four times a year we print essays long enough to change your mind, and slow enough to let you. Then we leave the margin wide and wait for you to fill it.</p>
+            <p>So read with a pencil. Argue in the gutter. Then send the pages back, because the sharpest notes get set in type.</p>
+            <p class="sign">The Editors</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== principles ===================== -->
+    <section class="principles" id="principles" style="padding-top:0">
+      <div class="wrap">
+        <p class="kicker center reveal">How The Margin works</p>
+        <div class="grid3 reveal">
+          <article class="pr">
+            <span class="num">I</span>
+            <h3>The Annotated Essay</h3>
+            <p>Every essay ships with its own margin: sources, second thoughts, and a dissent from an editor who disagreed, set right beside the text. You read the argument and its best rebuttal in a single spread.</p>
+          </article>
+          <article class="pr">
+            <span class="num">II</span>
+            <h3>Print First, Tracked Never</h3>
+            <p>Four issues a year on heavy uncoated stock, plus a digital archive that never expires and never watches you read. No paywall that forgets you, no reading data sold to anyone.</p>
+          </article>
+          <article class="pr">
+            <span class="num">III</span>
+            <h3>Your Margin, In Print</h3>
+            <p>Subscribers mail back their annotated pages. Every issue, we set the sharpest reader marginalia in type and print it next to the piece that provoked it.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== join ===================== -->
+    <section class="join" id="join">
+      <div class="wrap">
+        <div class="join-inner reveal">
+          <p class="kicker center">The subscription</p>
+          <h2>Claim your margin.</h2>
+          <p>Volume VII opens with the Summer number. Subscribe today and we mail you the current issue, plus the full digital archive unlocked for good.</p>
+          <div class="cta-row">
+            <a class="btn" href="#top">Subscribe &middot; $48 a year</a>
+            <a class="ghost" href="#top">Give a year as a gift</a>
+          </div>
+          <p class="cta-meta">4 issues &middot; Print plus digital &middot; Reader funded, never advertiser funded</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== footer ===================== -->
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <span class="name">The Margin</span>
+          <p>An independent quarterly, reader funded since MMXIX.</p>
+        </div>
+        <div>
+          <h4>Read</h4>
+          <ul>
+            <li><a href="#top">Current issue</a></li>
+            <li><a href="#note">Essays</a></li>
+            <li><a href="#top">The Archive</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>The journal</h4>
+          <ul>
+            <li><a href="#note">About</a></li>
+            <li><a href="#top">Masthead</a></li>
+            <li><a href="#top">Submissions</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Subscribe</h4>
+          <ul>
+            <li><a href="#join">Print plus digital</a></li>
+            <li><a href="#join">Digital only</a></li>
+            <li><a href="#join">Gift a year</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-base">
+        <span>&copy; 2026 The Margin</span>
+        <span>Set in Georgia</span>
+        <span>No advertising, no tracking, no infinite scroll.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
