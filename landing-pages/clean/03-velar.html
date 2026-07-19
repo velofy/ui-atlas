@@ -333,49 +333,14 @@
 
     <div class="stage" aria-hidden="false">
       <svg class="scene" viewBox="0 0 1200 560" role="img" aria-label="Side profile of the Velar Vela GT electric coupe, low and sleek, with trailing motion streak lines and a bright charge arc sweeping over the car.">
-        <defs>
-          <radialGradient id="vGlow" cx="52%" cy="62%" r="60%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".20"/>
-            <stop offset="55%" stop-color="var(--accent)" stop-opacity=".05"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-          </radialGradient>
-          <linearGradient id="vBody" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#23282a"/>
-            <stop offset="34%" stop-color="#12181a"/>
-            <stop offset="100%" stop-color="#06090a"/>
-          </linearGradient>
-          <linearGradient id="vGlass" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0e2b26"/>
-            <stop offset="100%" stop-color="#04100e"/>
-          </linearGradient>
-          <linearGradient id="vArc" x1="120" y1="0" x2="1080" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
-            <stop offset="26%" stop-color="var(--accent)" stop-opacity=".9"/>
-            <stop offset="72%" stop-color="var(--accent)"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-          </linearGradient>
-          <linearGradient id="vBeam" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".55"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-          </linearGradient>
-          <radialGradient id="vUnder" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".55"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-          </radialGradient>
-          <linearGradient id="vRefl" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--bg)" stop-opacity="0"/>
-            <stop offset="70%" stop-color="var(--bg)" stop-opacity=".85"/>
-            <stop offset="100%" stop-color="var(--bg)"/>
-          </linearGradient>
-        </defs>
-
-        <!-- ambient glow -->
-        <ellipse cx="620" cy="360" rx="560" ry="230" fill="url(#vGlow)"/>
+        <!-- flat ground platform -->
+        <path d="M 120 418 L 1080 418 L 1060 428 L 140 428 Z" fill="#101211" opacity=".9"/>
+        <line x1="280" y1="422" x2="920" y2="422" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
 
         <!-- charge arc (signature) -->
         <g fill="none" stroke-linecap="round">
-          <path d="M 120 340 C 360 70 860 60 1082 320" stroke="var(--accent-line)" stroke-width="1"/>
-          <path class="arc-flow" d="M 120 340 C 360 70 860 60 1082 320" stroke="url(#vArc)" stroke-width="2.6"/>
+          <path d="M 120 340 C 360 70 860 60 1082 320" stroke="var(--accent)" stroke-width="1" opacity=".35"/>
+          <path class="arc-flow" d="M 120 340 C 360 70 860 60 1082 320" stroke="var(--accent)" stroke-width="2.6"/>
         </g>
         <g fill="var(--accent)">
           <circle cx="120" cy="340" r="3.4" opacity=".8"/>
@@ -398,23 +363,27 @@
         </g>
 
         <!-- reflection -->
-        <g transform="matrix(1,0,0,-1,0,828)" opacity=".16">
-          <path d="M 168 350 L 170 322 Q 175 298 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 Q 986 330 984 345 L 960 351 L 930 351 A 80 80 0 0 0 780 351 L 420 351 A 80 80 0 0 0 270 351 L 168 350 Z" fill="var(--accent)"/>
+        <g transform="matrix(1,0,0,-1,0,828)" opacity=".12">
+          <path d="M 168 350 L 170 322 Q 175 298 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 Q 986 330 984 345 L 960 351 L 930 351 A 80 80 0 0 0 780 351 L 420 351 A 80 80 0 0 0 270 351 L 168 350 Z" fill="#23282a"/>
         </g>
-        <rect x="0" y="414" width="1200" height="146" fill="url(#vRefl)"/>
+        <rect x="0" y="428" width="1200" height="50" fill="var(--bg)" opacity=".55"/>
+        <rect x="0" y="478" width="1200" height="82" fill="var(--bg)"/>
 
         <!-- ground line -->
         <line x1="60" y1="414" x2="1140" y2="414" stroke="var(--hairline)" stroke-width="1"/>
-        <ellipse class="under-glow" cx="600" cy="414" rx="330" ry="12" fill="url(#vUnder)"/>
 
         <!-- CAR -->
         <g>
-          <!-- body -->
+          <!-- body shell -->
           <path d="M 168 350 L 170 322 Q 175 298 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 Q 986 330 984 345 L 960 351 L 930 351 A 80 80 0 0 0 780 351 L 420 351 A 80 80 0 0 0 270 351 L 168 350 Z"
-            fill="url(#vBody)" stroke="var(--hairline)" stroke-width="1.4"/>
+            fill="#0b0c0c" stroke="var(--hairline)" stroke-width="1.4"/>
+          <!-- upper beltline panel -->
+          <path d="M 214 286 C 300 258 405 205 505 193 Q 592 189 648 214 C 690 236 726 262 764 288 L 812 292 C 878 298 928 300 966 320 L 960 351 L 420 351 L 270 351 L 168 350 L 170 322 Q 175 298 214 286 Z" fill="#101211" opacity=".95"/>
+          <!-- shoulder accent panel -->
+          <path d="M 236 300 C 440 288 700 292 902 308 L 900 338 C 720 332 480 330 300 336 Z" fill="#23282a" opacity=".85"/>
 
           <!-- glasshouse -->
-          <path d="M 262 282 C 340 250 430 210 512 202 Q 596 199 636 222 C 672 244 700 264 732 284 L 262 282 Z" fill="url(#vGlass)" stroke="var(--accent-line)" stroke-width="1"/>
+          <path d="M 262 282 C 340 250 430 210 512 202 Q 596 199 636 222 C 672 244 700 264 732 284 L 262 282 Z" fill="#04100e" stroke="var(--accent-line)" stroke-width="1"/>
           <!-- b pillar -->
           <path d="M 476 205 L 470 282" stroke="#05100d" stroke-width="9" stroke-linecap="round"/>
           <!-- windscreen split highlight -->
@@ -434,9 +403,10 @@
           <path d="M 176 300 L 250 300" stroke="var(--accent)" stroke-width="2" opacity=".7"/>
 
           <!-- headlight + beam -->
-          <path d="M 250 340 L 750 340" stroke="none"/>
           <path d="M 958 330 L 986 336 L 984 345 L 956 340 Z" fill="var(--accent)"/>
-          <polygon points="986,335 1160,306 1160,372 986,345" fill="url(#vBeam)" opacity=".55"/>
+          <polygon points="986,335 1160,306 1160,372 986,345" fill="var(--accent)" opacity=".18"/>
+          <line x1="986" y1="338" x2="1140" y2="310" stroke="var(--accent)" stroke-width="1.2" opacity=".45"/>
+          <line x1="986" y1="342" x2="1140" y2="368" stroke="var(--accent)" stroke-width="1.2" opacity=".45"/>
           <!-- charge port glow -->
           <circle class="charge-dot" cx="905" cy="316" r="4" fill="var(--accent)"/>
 

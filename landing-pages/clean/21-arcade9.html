@@ -47,9 +47,7 @@
     --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
     /* motion + depth */
     --ease:cubic-bezier(.2,.7,.2,1);
-    --shadow:0 34px 80px -38px rgba(0,0,0,.9);
-    --glow-mag:0 0 40px -6px rgba(255,46,151,.55);
-    --glow-cyan:0 0 40px -6px rgba(23,240,208,.5);
+    --shadow:0 18px 40px -28px rgba(0,0,0,.85);
   }
 
   *{box-sizing:border-box}
@@ -126,7 +124,7 @@
     border:1px solid var(--cta);
     transition:box-shadow .2s var(--ease),transform .2s var(--ease);
   }
-  .nav-cta:hover{box-shadow:var(--glow-cyan);transform:translateY(-1px)}
+  .nav-cta:hover{transform:translateY(-1px);filter:brightness(1.06)}
   .cta-short{display:none}
 
   /* ---------- buttons ---------- */
@@ -138,7 +136,7 @@
     min-width:0;white-space:nowrap;
   }
   .btn-primary{background:var(--cta);color:var(--cta-ink);border:1px solid var(--cta)}
-  .btn-primary:hover{box-shadow:var(--glow-cyan);transform:translateY(-2px)}
+  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
   .btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--hair-strong)}
   .btn-ghost:hover{border-color:var(--magenta);color:var(--cyan);background:var(--mag-soft)}
   .btn .arw{transition:transform .2s var(--ease)}
@@ -154,13 +152,18 @@
 
   /* ---------- hero ---------- */
   .s-hero{position:relative;padding:clamp(44px,7vw,88px) 0 clamp(52px,8vw,104px);overflow:hidden}
-  /* flat solid corner accents replace the old radial glow field */
+  /* crisp flat corner accents - no ambient glow blobs */
   .s-hero::before,.s-hero::after{
     content:"";position:absolute;pointer-events:none;z-index:0;
-    width:min(60vw,460px);height:min(50vw,380px);border-radius:50%;
   }
-  .s-hero::before{top:-10%;right:-8%;background:var(--mag-soft)}
-  .s-hero::after{bottom:-10%;left:-8%;background:var(--cyan-soft)}
+  .s-hero::before{
+    top:24px;right:24px;width:48px;height:48px;
+    border-top:2px solid var(--magenta);border-right:2px solid var(--magenta);
+  }
+  .s-hero::after{
+    bottom:24px;left:24px;width:48px;height:48px;
+    border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);
+  }
   .hero-grid{
     position:relative;z-index:1;
     display:grid;grid-template-columns:1fr;gap:clamp(34px,6vw,56px);align-items:center;
@@ -174,7 +177,6 @@
   }
   .hero-copy h1 .hl{
     color:var(--magenta);
-    text-shadow:0 0 26px rgba(255,46,151,.45);
   }
   .lede{
     font-size:clamp(1.02rem,2.1vw,1.2rem);color:var(--ink-soft);
@@ -195,7 +197,7 @@
 
   .hero-art{min-width:0;display:flex;flex-direction:column;align-items:center;gap:16px}
   .hero-art .canvas{width:100%;max-width:440px}
-  .cab-svg{width:100%;height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+  .cab-svg{width:100%;height:auto}
   .art-caption{
     font-family:var(--font-mono);font-size:.72rem;color:var(--muted);
     letter-spacing:.05em;text-align:center;max-width:100%;
@@ -256,7 +258,7 @@
     font-weight:750;letter-spacing:-.025em;line-height:1.22;color:var(--ink);
     overflow-wrap:break-word;word-break:break-word;
   }
-  .pov blockquote .hl{color:var(--magenta);text-shadow:0 0 24px rgba(255,46,151,.4)}
+  .pov blockquote .hl{color:var(--magenta)}
 
   /* ---------- final cta ---------- */
   .cta-final{
@@ -266,19 +268,17 @@
     padding:clamp(40px,6vw,68px) clamp(24px,5vw,60px);
     text-align:center;
   }
-  /* flat solid corner accents replace the old radial glow field */
+  /* flat solid corner hairlines - no ambient glow blobs */
   .cta-final::before,.cta-final::after{
-    content:"";position:absolute;pointer-events:none;border-radius:50%;
+    content:"";position:absolute;pointer-events:none;
   }
   .cta-final::before{
-    width:min(70%,420px);height:70%;
-    top:-30%;left:50%;transform:translateX(-50%);
-    background:var(--mag-soft);
+    top:18px;left:18px;width:36px;height:36px;
+    border-top:2px solid var(--magenta);border-left:2px solid var(--magenta);
   }
   .cta-final::after{
-    width:min(60%,360px);height:60%;
-    bottom:-24%;right:-10%;
-    background:var(--cyan-soft);
+    bottom:18px;right:18px;width:36px;height:36px;
+    border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);
   }
   .cta-final .inner{position:relative;z-index:1;max-width:660px;margin:0 auto}
   .cta-final h2{font-size:clamp(1.9rem,5vw,2.95rem);font-weight:850;letter-spacing:-.035em}
@@ -413,23 +413,6 @@
         <div class="canvas">
           <svg class="cab-svg" viewBox="0 0 440 560" role="img" aria-label="A neon indie-game arcade cabinet glowing in the dark: a lit marquee reading Arcade9, a CRT screen showing a synthwave grid horizon with a small player ship and two invader sprites over scanlines, a control panel with a magenta joystick and cyan buttons, and a coin slot blinking insert coin.">
             <defs>
-              <radialGradient id="a9sun" cx="50%" cy="30%" r="70%">
-                <stop offset="0" stop-color="#ff2e97" stop-opacity=".95"/>
-                <stop offset="100%" stop-color="#ff2e97" stop-opacity=".2"/>
-              </radialGradient>
-              <linearGradient id="a9sweep" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#17f0d0" stop-opacity="0"/>
-                <stop offset="50%" stop-color="#17f0d0" stop-opacity=".22"/>
-                <stop offset="100%" stop-color="#17f0d0" stop-opacity="0"/>
-              </linearGradient>
-              <radialGradient id="a9glow" cx="50%" cy="42%" r="60%">
-                <stop offset="0" stop-color="#17f0d0" stop-opacity=".16"/>
-                <stop offset="100%" stop-color="#17f0d0" stop-opacity="0"/>
-              </radialGradient>
-              <filter id="a9neon" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="3.2" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
               <pattern id="a9scan" width="6" height="4" patternUnits="userSpaceOnUse">
                 <rect x="0" y="0" width="6" height="4" fill="none"/>
                 <rect x="0" y="3" width="6" height="1" fill="#000" opacity=".45"/>
@@ -437,12 +420,15 @@
               <clipPath id="a9screen"><rect x="96" y="118" width="248" height="150" rx="8"/></clipPath>
             </defs>
 
-            <!-- ambient neon halo -->
-            <ellipse cx="220" cy="300" rx="230" ry="270" fill="url(#a9glow)"/>
+            <!-- floor platform - crisp flat dark plane -->
+            <rect x="48" y="528" width="344" height="10" rx="2" fill="#0f0819" stroke="#ff2e97" stroke-width="1.5"/>
+            <rect x="72" y="538" width="296" height="6" fill="#160c28"/>
 
             <!-- cabinet side (depth) -->
             <path class="cab-side" d="M348 88 L372 104 L372 508 L348 520 Z"/>
             <path class="cab-side" d="M92 88 L68 104 L68 508 L92 520 Z"/>
+            <path d="M348 88 L372 104 L372 508 L348 520" fill="none" stroke="#ff2e97" stroke-width="1.5"/>
+            <path d="M92 88 L68 104 L68 508 L92 520" fill="none" stroke="#17f0d0" stroke-width="1.5"/>
 
             <!-- cabinet body -->
             <path class="cab-body" d="M92 88
@@ -451,28 +437,46 @@
               C360 512 352 520 340 520 L100 520
               C88 520 80 512 80 500 L80 320 L92 300 Z"/>
 
+            <!-- side accent stripes -->
+            <rect x="98" y="140" width="6" height="140" fill="#ff2e97"/>
+            <rect x="336" y="140" width="6" height="140" fill="#17f0d0"/>
+            <!-- pixel motif blocks on body -->
+            <g>
+              <rect x="108" y="430" width="10" height="10" fill="#ff2e97"/>
+              <rect x="122" y="430" width="10" height="10" fill="#17f0d0"/>
+              <rect x="108" y="444" width="10" height="10" fill="#17f0d0"/>
+              <rect x="308" y="430" width="10" height="10" fill="#17f0d0"/>
+              <rect x="322" y="430" width="10" height="10" fill="#ff2e97"/>
+              <rect x="322" y="444" width="10" height="10" fill="#ff2e97"/>
+            </g>
+
             <!-- marquee -->
-            <rect x="104" y="82" width="232" height="40" rx="6" fill="var(--plane-2)" stroke="var(--magenta)" stroke-width="1.6"/>
+            <rect x="104" y="82" width="232" height="40" rx="6" fill="#0f0819" stroke="#ff2e97" stroke-width="2"/>
+            <rect x="108" y="86" width="224" height="32" rx="4" fill="#1a1030"/>
             <g class="marquee-glow">
-              <text x="220" y="109" text-anchor="middle" class="lcd f-mag" font-size="24" letter-spacing="4" filter="url(#a9neon)" style="font-family:var(--font-sans);font-weight:800">ARCADE9</text>
+              <text x="220" y="109" text-anchor="middle" class="lcd f-mag" font-size="24" letter-spacing="4" style="font-family:var(--font-sans);font-weight:800">ARCADE9</text>
             </g>
             <circle class="f-cyan" cx="118" cy="102" r="2.4"/>
             <circle class="f-cyan" cx="322" cy="102" r="2.4"/>
+            <!-- neon outline ticks on marquee -->
+            <line x1="130" y1="90" x2="140" y2="90" stroke="#17f0d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="300" y1="90" x2="310" y2="90" stroke="#17f0d0" stroke-width="2" stroke-linecap="round"/>
 
             <!-- screen bezel -->
-            <rect x="88" y="110" width="264" height="166" rx="12" fill="#0b0518" stroke="var(--magenta)" stroke-width="1.4" opacity=".9"/>
+            <rect x="88" y="110" width="264" height="166" rx="12" fill="#0b0518" stroke="#ff2e97" stroke-width="2"/>
 
             <!-- screen glass -->
             <g class="crt-flicker">
               <rect x="96" y="118" width="248" height="150" rx="8" fill="var(--screen)"/>
               <g clip-path="url(#a9screen)">
-                <!-- neon sun -->
-                <circle cx="220" cy="196" r="40" fill="url(#a9sun)"/>
+                <!-- flat magenta sun + pixel bands -->
+                <circle cx="220" cy="196" r="40" fill="#ff2e97"/>
+                <circle cx="220" cy="196" r="40" fill="none" stroke="#c31f72" stroke-width="2"/>
                 <rect x="180" y="188" width="80" height="3" fill="var(--screen)"/>
                 <rect x="180" y="196" width="80" height="4" fill="var(--screen)"/>
                 <rect x="180" y="206" width="80" height="5" fill="var(--screen)"/>
                 <!-- horizon -->
-                <line x1="96" y1="214" x2="344" y2="214" class="s-cyan" opacity=".8"/>
+                <line x1="96" y1="214" x2="344" y2="214" class="s-cyan" stroke-width="2"/>
                 <!-- grid floor: horizontals -->
                 <line x1="96" y1="222" x2="344" y2="222" class="grid-line"/>
                 <line x1="96" y1="233" x2="344" y2="233" class="grid-line"/>
@@ -487,65 +491,73 @@
                 <line x1="220" y1="214" x2="290" y2="268" class="grid-line"/>
                 <line x1="220" y1="214" x2="344" y2="268" class="grid-line"/>
 
-                <!-- invader sprites -->
-                <g class="inv f-cyan" filter="url(#a9neon)">
-                  <path d="M176 146 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z"/>
+                <!-- invader sprites - chunky pixels, solid neon outlines -->
+                <g class="inv">
+                  <path d="M176 146 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z" fill="#17f0d0"/>
+                  <path d="M176 146 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z" fill="none" stroke="#0f9e8a" stroke-width="1"/>
                 </g>
-                <g class="inv f-mag" filter="url(#a9neon)">
-                  <path d="M255 150 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z"/>
+                <g class="inv">
+                  <path d="M255 150 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z" fill="#ff2e97"/>
+                  <path d="M255 150 h3 v-3 h3 v3 h6 v-3 h3 v3 h3 v6 h-3 v3 h-3 v-3 h-6 v3 h-3 v-3 h-3 z" fill="none" stroke="#c31f72" stroke-width="1"/>
                 </g>
 
                 <!-- player ship -->
-                <g class="ship-bob f-cyan" filter="url(#a9neon)">
-                  <path d="M220 226 l9 12 h-6 v4 h-6 v-4 h-6 z"/>
+                <g class="ship-bob">
+                  <path d="M220 226 l9 12 h-6 v4 h-6 v-4 h-6 z" fill="#17f0d0"/>
+                  <path d="M220 226 l9 12 h-6 v4 h-6 v-4 h-6 z" fill="none" stroke="#0f9e8a" stroke-width="1.5"/>
                 </g>
 
                 <!-- score readouts -->
                 <text x="102" y="132" class="lcd f-cyan" font-size="8" letter-spacing="1">1UP 009900</text>
                 <text x="338" y="132" text-anchor="end" class="lcd f-mag" font-size="8" letter-spacing="1">HI 480000</text>
 
-                <!-- moving scanline sweep -->
-                <rect class="scan-sweep" x="96" y="118" width="248" height="30" fill="url(#a9sweep)"/>
+                <!-- solid scanline sweep (flat cyan bar, no gradient) -->
+                <rect class="scan-sweep" x="96" y="118" width="248" height="3" fill="#17f0d0" opacity=".55"/>
                 <!-- static scanlines -->
                 <rect x="96" y="118" width="248" height="150" fill="url(#a9scan)"/>
               </g>
-              <!-- glass edge highlight -->
-              <rect x="96" y="118" width="248" height="150" rx="8" fill="none" stroke="var(--cyan)" stroke-width="1" opacity=".25"/>
+              <!-- glass edge highlight - solid neon stroke -->
+              <rect x="96" y="118" width="248" height="150" rx="8" fill="none" stroke="#17f0d0" stroke-width="1.5"/>
             </g>
 
             <!-- speaker grille -->
-            <g fill="var(--magenta)" opacity=".5">
-              <circle cx="150" cy="292" r="2"/><circle cx="162" cy="292" r="2"/><circle cx="174" cy="292" r="2"/>
-              <circle cx="266" cy="292" r="2"/><circle cx="278" cy="292" r="2"/><circle cx="290" cy="292" r="2"/>
+            <g fill="#ff2e97">
+              <circle cx="150" cy="292" r="2.5"/><circle cx="162" cy="292" r="2.5"/><circle cx="174" cy="292" r="2.5"/>
+              <circle cx="266" cy="292" r="2.5"/><circle cx="278" cy="292" r="2.5"/><circle cx="290" cy="292" r="2.5"/>
             </g>
 
             <!-- control panel -->
-            <path class="cab-panel" d="M96 306 L344 306 L360 356 L80 356 Z" stroke="var(--magenta)" stroke-width="1.4"/>
+            <path class="cab-panel" d="M96 306 L344 306 L360 356 L80 356 Z" stroke="#ff2e97" stroke-width="2"/>
+            <line x1="100" y1="312" x2="340" y2="312" stroke="#17f0d0" stroke-width="1.5"/>
 
             <!-- joystick -->
-            <ellipse cx="150" cy="340" rx="20" ry="8" fill="var(--plane-2)" stroke="var(--cyan)" stroke-width="1.4"/>
-            <rect x="146" y="318" width="8" height="20" rx="4" fill="var(--plane-3)" stroke="var(--magenta)" stroke-width="1.2"/>
-            <circle cx="150" cy="315" r="9" class="f-mag" filter="url(#a9neon)"/>
-            <circle cx="147" cy="312" r="2.5" fill="#fff" opacity=".65"/>
+            <ellipse cx="150" cy="340" rx="20" ry="8" fill="#0f0819" stroke="#17f0d0" stroke-width="2"/>
+            <rect x="146" y="318" width="8" height="20" rx="4" fill="#1a1030" stroke="#ff2e97" stroke-width="1.5"/>
+            <circle cx="150" cy="315" r="9" fill="#ff2e97"/>
+            <circle cx="150" cy="315" r="9" fill="none" stroke="#c31f72" stroke-width="2"/>
+            <circle cx="147" cy="312" r="2.5" fill="#f5f0ff"/>
 
-            <!-- buttons -->
-            <circle cx="252" cy="332" r="10" class="f-cyan"/><circle cx="252" cy="332" r="10" fill="none" stroke="#06251f" stroke-width="2"/>
-            <circle cx="284" cy="338" r="10" class="f-mag"/><circle cx="284" cy="338" r="10" fill="none" stroke="#2a0518" stroke-width="2"/>
-            <circle cx="316" cy="332" r="10" class="f-cyan"/><circle cx="316" cy="332" r="10" fill="none" stroke="#06251f" stroke-width="2"/>
+            <!-- buttons with solid neon rings -->
+            <circle cx="252" cy="332" r="10" fill="#17f0d0"/>
+            <circle cx="252" cy="332" r="10" fill="none" stroke="#0f9e8a" stroke-width="2"/>
+            <circle cx="284" cy="338" r="10" fill="#ff2e97"/>
+            <circle cx="284" cy="338" r="10" fill="none" stroke="#c31f72" stroke-width="2"/>
+            <circle cx="316" cy="332" r="10" fill="#17f0d0"/>
+            <circle cx="316" cy="332" r="10" fill="none" stroke="#0f9e8a" stroke-width="2"/>
 
             <!-- coin door -->
-            <rect x="150" y="392" width="140" height="94" rx="6" fill="var(--plane-2)" stroke="var(--magenta)" stroke-width="1.4"/>
-            <rect x="204" y="404" width="32" height="18" rx="3" fill="var(--screen)" stroke="var(--cyan)" stroke-width="1.4"/>
+            <rect x="150" y="392" width="140" height="94" rx="6" fill="#0f0819" stroke="#ff2e97" stroke-width="2"/>
+            <rect x="204" y="404" width="32" height="18" rx="3" fill="var(--screen)" stroke="#17f0d0" stroke-width="2"/>
             <rect x="216" y="408" width="8" height="10" rx="2" class="f-cyan"/>
             <text x="220" y="446" text-anchor="middle" class="lcd f-mag coin-blink" font-size="11" letter-spacing="2">INSERT COIN</text>
             <!-- coin -->
-            <circle cx="220" cy="466" r="11" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+            <circle cx="220" cy="466" r="11" fill="none" stroke="#17f0d0" stroke-width="2"/>
             <text x="220" y="470" text-anchor="middle" class="lcd f-cyan" font-size="11" font-weight="800">9</text>
 
             <!-- base + feet -->
-            <rect x="88" y="504" width="264" height="8" rx="3" fill="var(--plane-3)"/>
-            <rect x="100" y="520" width="30" height="14" rx="3" fill="var(--plane-2)"/>
-            <rect x="310" y="520" width="30" height="14" rx="3" fill="var(--plane-2)"/>
+            <rect x="88" y="504" width="264" height="8" rx="3" fill="#20143c" stroke="#ff2e97" stroke-width="1.5"/>
+            <rect x="100" y="520" width="30" height="14" rx="3" fill="#0f0819" stroke="#17f0d0" stroke-width="1.5"/>
+            <rect x="310" y="520" width="30" height="14" rx="3" fill="#0f0819" stroke="#17f0d0" stroke-width="1.5"/>
           </svg>
         </div>
         <p class="art-caption">cabinet 07 of 09 <b>Neon Drift</b> now on the floor</p>
