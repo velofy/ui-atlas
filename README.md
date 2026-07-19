@@ -20,6 +20,7 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`08-literate.html`](landing-pages/velofy-co/08-literate.html) | View Source | The page is its own annotated source code. A render toggle flips the same DOM into a clean landing page and back. |
 | [`09-showreel.html`](landing-pages/velofy-co/09-showreel.html) | The Showreel | Site-of-the-day vocabulary in pure vanilla JS: preloader counter, kinetic wordmark, pinned scenes, a horizontal gallery, and a magnetic footer CTA. |
 | [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A monochrome dark startup page in white grotesk type that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
+| [`11-oasis.html`](landing-pages/velofy-co/11-oasis.html) | The Oasis (featured) | A lush photographic oasis scene behind a single frosted-glass panel: shield favicon, serif wordmark with an italic swash, one byline. The image is inlined as base64, so the file still makes zero external requests. |
 
 ## Collection 02: Clean templates
 
