@@ -385,17 +385,6 @@
             <title id="art-title">Apogee launch scene</title>
             <desc id="art-desc">A rocket climbing along a glowing orbital arc above a planet limb, deploying a satellite at apogee, over a field of stars.</desc>
             <defs>
-
-              
-              
-              
-              <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="4" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <filter id="softglow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur stdDeviation="7"/>
-              </filter>
             </defs>
 
             <rect width="640" height="620" fill="#141d3d"/>
@@ -411,12 +400,12 @@
             <!-- planet limb -->
             <circle cx="320" cy="1060" r="640" fill="#22376e"/>
             <path d="M0,505.7 A640,640 0 0 1 640,505.7" fill="none" stroke="#8fb4ff" stroke-width="3.4" opacity=".9"/>
-            <path d="M0,505.7 A640,640 0 0 1 640,505.7" fill="none" stroke="#8fb4ff" stroke-width="10" opacity=".16" filter="url(#softglow)"/>
+            <path d="M0,505.7 A640,640 0 0 1 640,505.7" fill="none" stroke="#8fb4ff" stroke-width="10" opacity=".16"/>
 
             <!-- orbital arc: planned path (dashed) -->
             <path class="orbit-dash" d="M60,470 A260,350 0 0 1 580,470" fill="none" stroke="#ffb347" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 12" opacity=".8"/>
             <!-- flown path (solid, launch to rocket) -->
-            <path d="M60,470 A260,350 0 0 1 121,245" fill="none" stroke="#ffb347" stroke-width="2.6" stroke-linecap="round" filter="url(#glow)" opacity=".95"/>
+            <path d="M60,470 A260,350 0 0 1 121,245" fill="none" stroke="#ffb347" stroke-width="2.6" stroke-linecap="round" opacity=".95"/>
 
             <!-- apogee marker + label -->
             <circle cx="320" cy="120" r="3" fill="#ffffff"/>
@@ -437,17 +426,17 @@
             </g>
 
             <!-- launch flare on horizon -->
-            <ellipse cx="60" cy="470" rx="34" ry="9" fill="#ffb347" opacity=".22" filter="url(#softglow)"/>
+            <ellipse cx="60" cy="470" rx="34" ry="9" fill="#ffb347" opacity=".22"/>
             <circle cx="60" cy="470" r="4" fill="#fff"/>
-            <circle cx="60" cy="470" r="9" fill="#ffb347" opacity=".5" filter="url(#glow)"/>
+            <circle cx="60" cy="470" r="9" fill="#ffb347" opacity=".5"/>
 
             <!-- rocket climbing the arc -->
             <g class="rocket-bob">
               <g transform="translate(121,245) rotate(48) scale(1.18)">
                 <!-- exhaust glow -->
-                <ellipse cx="0" cy="70" rx="12" ry="34" fill="#ffb347" opacity=".22" filter="url(#softglow)"/>
+                <ellipse cx="0" cy="70" rx="12" ry="34" fill="#ffb347" opacity=".22"/>
                 <!-- plume -->
-                <path class="plume" d="M-8,26 Q0,96 0,120 Q0,96 8,26 Z" fill="#ffffff" filter="url(#glow)"/>
+                <path class="plume" d="M-8,26 Q0,96 0,120 Q0,96 8,26 Z" fill="#ffffff"/>
                 <path class="plume" d="M-4,26 Q0,72 0,88 Q0,72 4,26 Z" fill="#ffffff" opacity=".92"/>
                 <!-- fins -->
                 <path d="M-10,10 L-22,32 L-10,25 Z" fill="#e6912a"/>
