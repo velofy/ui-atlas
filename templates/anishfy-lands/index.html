@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>anishfy lands</title>
+  <meta name="description" content="anishfyi: applied ai * harness engineering. A scroll-driven WebGL field of projects." />
+  <style>
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      src: url('./assets/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      src: url('./assets/fonts/IBMPlexMono-Medium.woff2') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      src: url('./assets/fonts/IBMPlexMono-SemiBold.woff2') format('woff2');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Syne';
+      src: url('./assets/fonts/syne-v24-latin-800.woff2') format('woff2');
+      font-weight: 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #0E0D0C;
+      --ink: #F3EEE6;
+      --dim: #9A927F;
+      --faint: #57524A;
+      --accent: #FF6B35;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { background: var(--bg); scroll-behavior: auto; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior-y: none;
+    }
+
+    #gl {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+    }
+
+    #scroll-space {
+      position: relative;
+      width: 1px;
+      pointer-events: none;
+    }
+
+    .hud {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #hud-wordmark {
+      top: max(20px, env(safe-area-inset-top));
+      left: max(22px, env(safe-area-inset-left));
+      font-family: 'Syne', 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      text-shadow:
+        0 0 10px rgba(255, 107, 53, 0.5),
+        0 0 24px rgba(255, 107, 53, 0.32),
+        0 0 44px rgba(255, 107, 53, 0.18);
+    }
+    #hud-wordmark .dot { color: var(--accent); }
+
+    #hud-note {
+      top: max(22px, env(safe-area-inset-top));
+      right: max(24px, env(safe-area-inset-right));
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      color: var(--faint);
+    }
+
+    #section-label {
+      bottom: max(22px, env(safe-area-inset-bottom));
+      left: max(22px, env(safe-area-inset-left));
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+    }
+
+    #ticks {
+      top: 50%;
+      right: max(22px, env(safe-area-inset-right));
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: flex-end;
+    }
+    .tick {
+      pointer-events: auto;
+      appearance: none;
+      border: 0;
+      background: var(--faint);
+      width: 14px;
+      height: 2px;
+      padding: 0;
+      cursor: pointer;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+    .tick.is-active { width: 28px; background: var(--accent); }
+    .tick:hover { background: var(--ink); }
+
+    #scroll-hint {
+      bottom: max(24px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      color: var(--dim);
+      text-transform: uppercase;
+      transition: opacity 0.8s ease;
+    }
+    #scroll-hint.is-hidden { opacity: 0; }
+    #scroll-hint .line {
+      width: 1px;
+      height: 42px;
+      background: linear-gradient(to bottom, var(--dim), transparent);
+      animation: hint-drop 2.2s ease-in-out infinite;
+      transform-origin: top;
+    }
+    @keyframes hint-drop {
+      0% { transform: scaleY(0); opacity: 0; }
+      35% { transform: scaleY(1); opacity: 1; }
+      100% { transform: scaleY(1) translateY(14px); opacity: 0; }
+    }
+
+    #tooltip {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 30;
+      pointer-events: none;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      background: rgba(14, 13, 12, 0.82);
+      border: 1px solid rgba(243, 238, 230, 0.14);
+      padding: 7px 11px;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      white-space: nowrap;
+      backdrop-filter: blur(4px);
+    }
+    #tooltip.is-visible { opacity: 1; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(14, 13, 12, 0.9);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      padding: 24px;
+    }
+
+    .manifesto-lines p {
+      font-size: clamp(30px, 6vw, 68px);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.22;
+      color: var(--ink);
+    }
+    .manifesto-lines p:nth-child(2) { color: var(--accent); }
+    .manifesto-foot {
+      margin-top: 42px;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    .colophon-kicker {
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--faint);
+      text-transform: uppercase;
+    }
+    .colophon-lines p {
+      font-size: clamp(28px, 5.5vw, 56px);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      line-height: 1.28;
+      color: var(--ink);
+    }
+    .colophon-lines p:nth-child(2) {
+      margin-top: 14px;
+      font-size: clamp(15px, 2.8vw, 22px);
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+    }
+    .colophon-links {
+      margin-top: 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .colophon-links a {
+      pointer-events: none;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: clamp(18px, 3.4vw, 30px);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      transition: color 0.25s ease;
+    }
+    .overlay.is-live .colophon-links a { pointer-events: auto; }
+    .colophon-links a:hover { color: var(--accent); }
+    .colophon-line {
+      margin-top: 46px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+    }
+
+    #fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(255, 107, 53, 0.06), transparent 60%),
+        var(--bg);
+      padding: 28px;
+    }
+    html.no-webgl2 #fallback { display: flex; }
+    html.no-webgl2 #gl,
+    html.no-webgl2 .hud,
+    html.no-webgl2 .overlay,
+    html.no-webgl2 #scroll-space { display: none; }
+    .fallback-mark {
+      font-family: 'Syne', 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      text-shadow:
+        0 0 10px rgba(255, 107, 53, 0.5),
+        0 0 24px rgba(255, 107, 53, 0.32),
+        0 0 44px rgba(255, 107, 53, 0.18);
+    }
+    .fallback-mark .dot { color: var(--accent); }
+    .fallback-title {
+      margin-top: 28px;
+      font-size: clamp(22px, 4.5vw, 40px);
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .fallback-sub {
+      margin-top: 18px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--dim);
+      max-width: 46ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .fallback-link {
+      display: inline-block;
+      margin-top: 30px;
+      color: var(--accent);
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.4);
+      padding-bottom: 3px;
+    }
+
+    @media (max-width: 700px) {
+      #hud-note { display: none; }
+      #section-label { font-size: 10px; }
+      .tick { width: 10px; }
+      .tick.is-active { width: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #scroll-hint .line { animation: none; }
+      .tick, .colophon-links a, #tooltip { transition: none; }
+    }
+  </style>
+  <script>
+    (function () {
+      try {
+        var c = document.createElement('canvas');
+        if (!c.getContext('webgl2')) {
+          document.documentElement.classList.add('no-webgl2');
+        }
+      } catch (e) {
+        document.documentElement.classList.add('no-webgl2');
+      }
+    })();
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="scroll-space" aria-hidden="true"></div>
+
+  <div class="hud" id="hud-wordmark">anishfyi<span class="dot">.</span></div>
+  <div class="hud" id="hud-note">FIELD OF WORK</div>
+  <div class="hud" id="section-label">01 / anishfyi</div>
+  <div class="hud" id="ticks" role="navigation" aria-label="Sections"></div>
+  <div class="hud" id="scroll-hint">
+    <span>Scroll to descend</span>
+    <span class="line"></span>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <section class="overlay" id="overlay-manifesto" aria-hidden="true">
+    <div class="manifesto">
+      <div class="manifesto-lines"></div>
+      <p class="manifesto-foot"></p>
+    </div>
+  </section>
+
+  <section class="overlay" id="overlay-colophon" aria-hidden="true">
+    <div class="colophon">
+      <div class="colophon-lines"></div>
+      <nav class="colophon-links"></nav>
+    </div>
+  </section>
+
+  <div id="fallback">
+    <div class="fallback-inner">
+      <p class="fallback-mark">anishfyi<span class="dot">.</span></p>
+      <p class="fallback-title">This experience needs WebGL2.</p>
+      <p class="fallback-sub">
+        Your browser or device does not support WebGL2, so the realtime journey
+        cannot start here. The work behind it is still real and still one click away.
+      </p>
+      <a class="fallback-link" href="https://github.com/anishfyi" rel="noopener">github.com/anishfyi</a>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

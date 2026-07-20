@@ -22,6 +22,15 @@ Eight art directions explored for the velofy.co landing page. Same brand, same c
 | [`10-launch.html`](landing-pages/velofy-co/10-launch.html) | The Launch | A monochrome dark startup page in white grotesk type that genuinely runs on the Summit.js runtime inlined in the file: live toggle demo, bound progress bar, skeleton switch, and the full loader gallery. |
 | [`11-oasis.html`](landing-pages/velofy-co/11-oasis.html) | The Oasis (featured) | A lush photographic oasis scene behind a single frosted-glass panel: shield favicon, serif wordmark with an italic swash, one byline. The image is inlined as base64, so the file still makes zero external requests. |
 
+## Collection 03: Whole sites
+
+Multi-file templates you can copy wholesale. Indexed from [`index.html`](index.html).
+
+| Template | What it is |
+| --- | --- |
+| [`templates/dehaux/`](templates/dehaux/) | Dark editorial operations hub: six pages, shared CSS/JS, three accent palettes. |
+| [`templates/anishfy-lands/`](templates/anishfy-lands/) | Scroll-driven WebGL portfolio with dot-to-dot section ticks, glowing wordmark, and a velofy colophon CTA. Forked from [anishfy-lands](https://anishfyi.github.io/anishfy-lands/). |
+
 ## Collection 02: Clean templates
 
 Thirty self-contained reference designs, one per subject and aesthetic, each with a hand-authored inline-SVG illustration as its signature. Drawn from a survey of getdesign.md and designindex.xyz. They live in [`landing-pages/clean/`](landing-pages/clean/) and are indexed from [`index.html`](index.html).
